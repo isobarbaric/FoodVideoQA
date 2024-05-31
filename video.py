@@ -1,9 +1,15 @@
 import cv2
 from pathlib import Path
+import shutil
 
-def extract_frames(video_path: Path, output_dir: Path, k: int = 5):
+def extract_frames(video_path: Path, 
+                   output_dir: Path, 
+                   k: int = 5):
     if not video_path.exists():
-        raise ValueError(f"No video exists at the provided file path {video_path}")
+        raise ValueError(f"Provided file path {video_path} does not exist")
+
+    if output_dir.exists():
+        shutil.rmtree(output_dir)
 
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -22,10 +28,10 @@ def extract_frames(video_path: Path, output_dir: Path, k: int = 5):
         if ret:
             if current_frame % k == 0:
                 name = 'frame' + str(current_frame) + '.jpg'
-                print(f'Creating: {name}')
+                # print(f'Creating: {name}')
 
                 # save frame as a jpg file
-                cv2.imwrite(str(extracted_path / name), frame)
+                cv2.imwrite(str(output_dir / name), frame)
 
             # keep track of how many images you end up with
             current_frame += 1
