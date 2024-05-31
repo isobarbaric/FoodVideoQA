@@ -1,104 +1,173 @@
-[
-    {
-        "image_path": "custom-images/biryani.png",
-        "questions": [
-            {
-                "prompt": "Provide a detailed description of the food you see in the image.",
-                "answer": "The image features a man sitting at a dining table, enjoying a delicious meal consisting of a bowl of rice and a variety of vegetables. The vegetables include onions and peppers, which are scattered throughout the dish. The man is using his hands to pick up the food, adding to the casual and enjoyable atmosphere of the meal. The table setting is simple, with the focus on the food and the man's engagement with it."
-            },
-            {
-                "prompt": "Provide a detailed list of the ingredients of the food in the image.",
-                "answer": "The image shows a man eating a meal consisting of a variety of food items. Some of the ingredients visible in the dish include rice, onions, and eggs. The man is using a spoon to scoop the food onto his plate. The dish appears to be a mix of different food items, making it a diverse and potentially delicious meal."
-            },
-            {
-                "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate.",
-                "answer": "The food in the image weighs approximately 500 grams."
-            }
-        ]
-    },
-    {
-        "image_path": "custom-images/lobster.png",
-        "questions": [
-            {
-                "prompt": "Provide a detailed description of the food you see in the image.",
-                "answer": "The image features a woman sitting at a dining table, surrounded by a large pile of crab legs and a bowl of rice. She is using a knife to cut the crab legs, preparing them for consumption. The table is filled with various crab legs, some of which are already cut, while others are still whole. The scene appears to be a casual, home-cooked meal, with the woman enjoying the process of preparing the crab legs."
-            },
-            {
-                "prompt": "Provide a detailed list of the ingredients of the food in the image.",
-                "answer": "The image features a woman preparing a meal with a variety of food items. The main dish consists of a large pile of cooked crabs, which are a popular seafood dish. Additionally, there are several hot dogs and bowls of rice on the table. The woman is using a knife to cut the crabs, and she is also holding a hot dog in her hand. The presence of these ingredients suggests a diverse and delicious meal being prepared."
-            },
-            {
-                "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate.",
-                "answer": "The image shows a woman preparing a meal with a large pile of crab, which includes several crabs and crab legs. The weight of the food in the image is approximately 1 kilogram (2.2 pounds)."
-            }
-        ]
-    },
-    {
-        "image_path": "custom-images/bread.png",
-        "questions": [
-            {
-                "prompt": "Provide a detailed description of the food you see in the image.",
-                "answer": "The image shows a man sitting at a dining table, enjoying a meal consisting of a variety of food items. He is eating a slice of pizza, and there are also two sandwiches on the table. In addition to the main dishes, there are some bowls and a cup present on the table. One of the bowls is placed near the man, while the other is further away. The cup is located on the right side of the table. The man is seated on a chair, and the dining table occupies most of the space in the image."
-            },
-            {
-                "prompt": "Provide a detailed list of the ingredients of the food in the image.",
-                "answer": "In the image, there is a person sitting at a table with a plate of food, which includes a slice of pizza, a sandwich, and some bread. The pizza slice is topped with pepperoni, and the sandwich appears to be a sub sandwich. There is also a glass of beer on the table, which complements the meal."
-            },
-            {
-                "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate.",
-                "answer": "The food in the image, which includes a slice of pizza, a sandwich, and some bread, weighs approximately 500 grams."
-            }
-        ]
-    },
-    {
-        "image_path": "custom-images/pizza.png",
-        "questions": [
-            {
-                "prompt": "Provide a detailed description of the food you see in the image.",
-                "answer": "The image features a person holding a slice of pizza in their hand, with the pizza being half-eaten. The pizza slice is placed on a white plate, which is placed on a dining table. The person is sitting at the table, and there is another person partially visible in the background. A cup can be seen on the table, possibly containing a beverage to accompany the pizza."
-            },
-            {
-                "prompt": "Provide a detailed list of the ingredients of the food in the image.",
-                "answer": "The image shows a slice of pizza with various toppings, including cheese and tomato sauce. The pizza is placed on a plate, and a person is holding the slice up to the camera. The toppings on the pizza are likely a combination of cheese, tomato sauce, and other ingredients that are commonly found on pizzas."
-            },
-            {
-                "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate.",
-                "answer": "The food in the image, which is a slice of pizza, weighs approximately 100 grams."
-            }
-        ]
-    },
-    {
-        "image_path": "custom-images/seaweed.png",
-        "questions": [
-            {
-                "prompt": "Provide a detailed description of the food you see in the image.",
-                "answer": "The image features a woman sitting at a dining table, enjoying a meal consisting of sushi. She is holding a piece of sushi in her hand, and there are several other pieces of sushi spread across the table. The sushi appears to be of various types and sizes, indicating a diverse selection of dishes for her to enjoy. The woman is also wearing a pink shirt, which adds a pop of color to the scene."
-            },
-            {
-                "prompt": "Provide a detailed list of the ingredients of the food in the image.",
-                "answer": "The image features a woman eating a meal consisting of sushi rolls. The sushi rolls are filled with rice and seaweed, and they are accompanied by a variety of other food items. The woman is holding a sushi roll in her hand, while there are several other sushi rolls placed on a table. Additionally, there are multiple carrots in the scene, which could be part of the meal or a separate dish. The woman is wearing a pink shirt, and she is also holding a cell phone."
-            },
-            {
-                "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate.",
-                "answer": "The image shows a woman holding a piece of sushi, which appears to be a roll. The sushi roll is filled with rice and seaweed, and it is placed on a table. It is difficult to provide an exact weight of the sushi roll, but it can be estimated to be around 100 grams."
-            }
-        ]
-    },
-    {
-        "image_path": "custom-images/sushi.png",
-        "questions": [
-            {
-                "prompt": "Provide a detailed description of the food you see in the image.",
-                "answer": "The image features a dining table with a variety of food items. There are several plates of sushi, including a plate with a piece of sushi on a black plate, and another plate with a piece of sushi on a white plate. The sushi is accompanied by rice and vegetables, such as carrots. The table also has a bowl of soup and a bowl of noodles, adding to the diverse selection of dishes. The table setting includes chopsticks, which are used to eat the sushi."
-            },
-            {
-                "prompt": "Provide a detailed list of the ingredients of the food in the image.",
-                "answer": "The image features a plate of sushi with various ingredients. The sushi rolls are topped with rice, and the plate also contains carrots and eggs. The carrots are scattered across the plate, and the eggs are placed in the middle of the sushi rolls. The combination of these ingredients creates a delicious and visually appealing meal."
-            },
-            {
-                "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate.",
-                "answer": "The food in the image weighs approximately 100 grams."
-            }
-        ]
-    }
-]
+{
+    "video_name": "0.mp4",
+    "frames": [
+        {
+            "frame_number": 10,
+            "questions": [
+                {
+                    "prompt": "Provide a detailed description of the food you see in the image.",
+                    "answer": "In the image, there is a woman sitting at a dining table with a plate of food in front of her. The plate contains a variety of food items, including a couple of eggs, a slice of pizza, and a bowl of soup. The woman is using a spoon to eat the soup, and she seems to be enjoying her meal. The table setting is complete with a cup, possibly for drinking the soup or any other beverage."
+                },
+                {
+                    "prompt": "Provide a detailed description of what the person in the image is eating the food with.",
+                    "answer": "The person in the image is eating food off of a plate with a spoon. The plate is filled with various food items, including eggs and carrots. The woman is sitting at a dining table, and there is a cup nearby, possibly containing a beverage. The scene suggests a casual meal setting where the woman is enjoying her food with a spoon."
+                },
+                {
+                    "prompt": "Provide a detailed list of the ingredients of the food in the image. Only include a comma-separated list of items with no additional descriptions for each item in your response.",
+                    "answer": "Egg, carrot, cheese"
+                },
+                {
+                    "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response.",
+                    "answer": "1000 grams"
+                }
+            ]
+        },
+        {
+            "frame_number": 20,
+            "questions": [
+                {
+                    "prompt": "Provide a detailed description of the food you see in the image.",
+                    "answer": "The image features a large, colorful dish filled with various food items, including rice, eggs, and carrots. The dish is placed on a table, and there is a woman sitting in front of it, possibly preparing to eat the meal. The woman is also holding a spoon, which she might use to enjoy the meal. The dish appears to be a combination of different food items, making it a visually appealing and appetizing meal."
+                },
+                {
+                    "prompt": "Provide a detailed description of what the person in the image is eating the food with.",
+                    "answer": "In the image, the person is eating a meal consisting of rice, eggs, and vegetables. They are using a spoon to scoop the food onto their plate. The meal appears to be a combination of various dishes, possibly including a fried egg, vegetables, and rice. The person is seated at a dining table, enjoying their meal."
+                },
+                {
+                    "prompt": "Provide a detailed list of the ingredients of the food in the image. Only include a comma-separated list of items with no additional descriptions for each item in your response.",
+                    "answer": "Egg, carrots, rice, cucumber, and egg."
+                },
+                {
+                    "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response.",
+                    "answer": "1,000 grams"
+                }
+            ]
+        },
+        {
+            "frame_number": 30,
+            "questions": [
+                {
+                    "prompt": "Provide a detailed description of the food you see in the image.",
+                    "answer": "The image features a large, colorful platter of food, which includes a variety of items such as eggs, rice, and vegetables. The food is arranged in a visually appealing manner, making it look delicious and appetizing. The platter is placed on a dining table, and a person is sitting in front of it, ready to enjoy the meal."
+                },
+                {
+                    "prompt": "Provide a detailed description of what the person in the image is eating the food with.",
+                    "answer": "The person in the image is eating a meal with a spoon. They are using the spoon to eat the food, which includes rice, eggs, and possibly other ingredients. The meal appears to be a combination of breakfast and lunch items, making it a diverse and potentially nutritious meal."
+                },
+                {
+                    "prompt": "Provide a detailed list of the ingredients of the food in the image. Only include a comma-separated list of items with no additional descriptions for each item in your response.",
+                    "answer": "Egg, rice, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber, egg, cucumber"
+                },
+                {
+                    "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response.",
+                    "answer": "1000 grams"
+                }
+            ]
+        },
+        {
+            "frame_number": 40,
+            "questions": [
+                {
+                    "prompt": "Provide a detailed description of the food you see in the image.",
+                    "answer": "The image features a woman sitting at a dining table, enjoying a meal consisting of rice and eggs. She is using a spoon to eat the food, which is placed on a plate. The plate is filled with various food items, including rice and eggs. The woman is seated in front of the plate, and the dining table occupies the majority of the scene."
+                },
+                {
+                    "prompt": "Provide a detailed description of what the person in the image is eating the food with.",
+                    "answer": "The person in the image is eating a meal consisting of rice and eggs. They are using a blue spoon to scoop the food from a plate. The plate is filled with various food items, including rice and eggs, which are the main components of the meal. The person is sitting at a dining table, and the meal appears to be a delicious and balanced breakfast or lunch."
+                },
+                {
+                    "prompt": "Provide a detailed list of the ingredients of the food in the image. Only include a comma-separated list of items with no additional descriptions for each item in your response.",
+                    "answer": "Egg, rice, broccoli, cheese"
+                },
+                {
+                    "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response.",
+                    "answer": "1000 grams"
+                }
+            ]
+        },
+        {
+            "frame_number": 50,
+            "questions": [
+                {
+                    "prompt": "Provide a detailed description of the food you see in the image.",
+                    "answer": "The image features a woman sitting at a dining table, enjoying a meal consisting of rice, eggs, and carrots. She is using a spoon to eat the food, which is placed on a plate. The meal appears to be a combination of a breakfast dish and a stir-fry, with the woman taking a bite from the spoon. The table setting includes a cup, possibly containing a beverage, and a bowl, which might contain additional food items or side dishes."
+                },
+                {
+                    "prompt": "Provide a detailed description of what the person in the image is eating the food with.",
+                    "answer": "In the image, a woman is eating a meal consisting of rice and eggs. She is using a fork to pick up the food from a plate, which is placed on a dining table. The woman is also holding a spoon in her hand, which she might be using to eat the rice or to scoop up the eggs. The meal appears to be a delicious and balanced combination of carbohydrates and proteins."
+                },
+                {
+                    "prompt": "Provide a detailed list of the ingredients of the food in the image. Only include a comma-separated list of items with no additional descriptions for each item in your response.",
+                    "answer": "Egg, carrots, rice, and eggplant."
+                },
+                {
+                    "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response.",
+                    "answer": "1000"
+                }
+            ]
+        },
+        {
+            "frame_number": 60,
+            "questions": [
+                {
+                    "prompt": "Provide a detailed description of the food you see in the image.",
+                    "answer": "The image features a large plate of food, which includes a variety of items such as rice, eggs, and carrots. The plate is filled with these ingredients, creating a visually appealing and appetizing meal. The girl is sitting at the table, eating the food with a spoon, which is placed on the plate. The dining table occupies the majority of the scene, with the girl positioned towards the right side of the table."
+                },
+                {
+                    "prompt": "Provide a detailed description of what the person in the image is eating the food with.",
+                    "answer": "In the image, a person is sitting at a dining table and eating food with a spoon. The food appears to be a mix of rice and eggs, possibly a fried rice dish. The person is using a spoon to scoop up the food from the plate, enjoying their meal."
+                },
+                {
+                    "prompt": "Provide a detailed list of the ingredients of the food in the image. Only include a comma-separated list of items with no additional descriptions for each item in your response.",
+                    "answer": "Rice, egg, carrots, onions, and broccoli."
+                },
+                {
+                    "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response.",
+                    "answer": "1000 grams"
+                }
+            ]
+        },
+        {
+            "frame_number": 70,
+            "questions": [
+                {
+                    "prompt": "Provide a detailed description of the food you see in the image.",
+                    "answer": "The image features a woman sitting at a dining table, enjoying a meal consisting of rice, eggs, and vegetables. The rice is spread across the table, with some of it placed near the center and other portions scattered around. The eggs are also present on the table, with one egg located near the center and another one slightly to the right. The vegetables are distributed around the table, with some pieces of broccoli and carrots visible. Additionally, there is a cup placed on the table, possibly containing a beverage to accompany the meal."
+                },
+                {
+                    "prompt": "Provide a detailed description of what the person in the image is eating the food with.",
+                    "answer": "In the image, a woman is sitting at a dining table and eating a meal consisting of rice, eggs, and vegetables. She is using a spoon to pick up the food from the plate. The table has a bowl placed nearby, which might contain additional ingredients or side dishes. The woman is focused on enjoying her meal, and the scene is captured in a close-up view."
+                },
+                {
+                    "prompt": "Provide a detailed list of the ingredients of the food in the image. Only include a comma-separated list of items with no additional descriptions for each item in your response.",
+                    "answer": "Rice, egg, carrots, broccoli, cheese"
+                },
+                {
+                    "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response.",
+                    "answer": "1000 grams"
+                }
+            ]
+        },
+        {
+            "frame_number": 80,
+            "questions": [
+                {
+                    "prompt": "Provide a detailed description of the food you see in the image.",
+                    "answer": "The image features a woman sitting at a dining table, enjoying a meal consisting of rice and eggs. She is using a spoon to eat the food, which is placed on a plate. The meal appears to be a combination of rice and eggs, making it a nutritious and delicious-looking dish."
+                },
+                {
+                    "prompt": "Provide a detailed description of what the person in the image is eating the food with.",
+                    "answer": "In the image, a woman is eating a meal consisting of rice, eggs, and vegetables. She is using a blue spoon to pick up the food from a plate. The plate is placed on a dining table, and the woman is sitting in front of it. The meal appears to be a healthy and balanced combination of carbohydrates, proteins, and vitamins."
+                },
+                {
+                    "prompt": "Provide a detailed list of the ingredients of the food in the image. Only include a comma-separated list of items with no additional descriptions for each item in your response.",
+                    "answer": "Rice, eggs, carrots, onions, and broccoli"
+                },
+                {
+                    "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response.",
+                    "answer": "1000 grams"
+                }
+            ]
+        }
+    ]
+}
