@@ -1,0 +1,104 @@
+[
+    {
+        "image_path": "custom-images/biryani.png",
+        "questions": [
+            {
+                "prompt": "Provide a detailed description of the food you see in the image.",
+                "answer": "The image features a man sitting at a dining table, enjoying a delicious meal consisting of a bowl of rice and a variety of vegetables. The vegetables include onions and peppers, which are scattered throughout the dish. The man is using his hands to pick up the food, adding to the casual and enjoyable atmosphere of the meal. The table setting is simple, with the focus on the food and the man's engagement with it."
+            },
+            {
+                "prompt": "Provide a detailed list of the ingredients of the food in the image.",
+                "answer": "The image shows a man eating a meal consisting of a variety of food items. Some of the ingredients visible in the dish include rice, onions, and eggs. The man is using a spoon to scoop the food onto his plate. The dish appears to be a mix of different food items, making it a diverse and potentially delicious meal."
+            },
+            {
+                "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate.",
+                "answer": "The food in the image weighs approximately 500 grams."
+            }
+        ]
+    },
+    {
+        "image_path": "custom-images/lobster.png",
+        "questions": [
+            {
+                "prompt": "Provide a detailed description of the food you see in the image.",
+                "answer": "The image features a woman sitting at a dining table, surrounded by a large pile of crab legs and a bowl of rice. She is using a knife to cut the crab legs, preparing them for consumption. The table is filled with various crab legs, some of which are already cut, while others are still whole. The scene appears to be a casual, home-cooked meal, with the woman enjoying the process of preparing the crab legs."
+            },
+            {
+                "prompt": "Provide a detailed list of the ingredients of the food in the image.",
+                "answer": "The image features a woman preparing a meal with a variety of food items. The main dish consists of a large pile of cooked crabs, which are a popular seafood dish. Additionally, there are several hot dogs and bowls of rice on the table. The woman is using a knife to cut the crabs, and she is also holding a hot dog in her hand. The presence of these ingredients suggests a diverse and delicious meal being prepared."
+            },
+            {
+                "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate.",
+                "answer": "The image shows a woman preparing a meal with a large pile of crab, which includes several crabs and crab legs. The weight of the food in the image is approximately 1 kilogram (2.2 pounds)."
+            }
+        ]
+    },
+    {
+        "image_path": "custom-images/bread.png",
+        "questions": [
+            {
+                "prompt": "Provide a detailed description of the food you see in the image.",
+                "answer": "The image shows a man sitting at a dining table, enjoying a meal consisting of a variety of food items. He is eating a slice of pizza, and there are also two sandwiches on the table. In addition to the main dishes, there are some bowls and a cup present on the table. One of the bowls is placed near the man, while the other is further away. The cup is located on the right side of the table. The man is seated on a chair, and the dining table occupies most of the space in the image."
+            },
+            {
+                "prompt": "Provide a detailed list of the ingredients of the food in the image.",
+                "answer": "In the image, there is a person sitting at a table with a plate of food, which includes a slice of pizza, a sandwich, and some bread. The pizza slice is topped with pepperoni, and the sandwich appears to be a sub sandwich. There is also a glass of beer on the table, which complements the meal."
+            },
+            {
+                "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate.",
+                "answer": "The food in the image, which includes a slice of pizza, a sandwich, and some bread, weighs approximately 500 grams."
+            }
+        ]
+    },
+    {
+        "image_path": "custom-images/pizza.png",
+        "questions": [
+            {
+                "prompt": "Provide a detailed description of the food you see in the image.",
+                "answer": "The image features a person holding a slice of pizza in their hand, with the pizza being half-eaten. The pizza slice is placed on a white plate, which is placed on a dining table. The person is sitting at the table, and there is another person partially visible in the background. A cup can be seen on the table, possibly containing a beverage to accompany the pizza."
+            },
+            {
+                "prompt": "Provide a detailed list of the ingredients of the food in the image.",
+                "answer": "The image shows a slice of pizza with various toppings, including cheese and tomato sauce. The pizza is placed on a plate, and a person is holding the slice up to the camera. The toppings on the pizza are likely a combination of cheese, tomato sauce, and other ingredients that are commonly found on pizzas."
+            },
+            {
+                "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate.",
+                "answer": "The food in the image, which is a slice of pizza, weighs approximately 100 grams."
+            }
+        ]
+    },
+    {
+        "image_path": "custom-images/seaweed.png",
+        "questions": [
+            {
+                "prompt": "Provide a detailed description of the food you see in the image.",
+                "answer": "The image features a woman sitting at a dining table, enjoying a meal consisting of sushi. She is holding a piece of sushi in her hand, and there are several other pieces of sushi spread across the table. The sushi appears to be of various types and sizes, indicating a diverse selection of dishes for her to enjoy. The woman is also wearing a pink shirt, which adds a pop of color to the scene."
+            },
+            {
+                "prompt": "Provide a detailed list of the ingredients of the food in the image.",
+                "answer": "The image features a woman eating a meal consisting of sushi rolls. The sushi rolls are filled with rice and seaweed, and they are accompanied by a variety of other food items. The woman is holding a sushi roll in her hand, while there are several other sushi rolls placed on a table. Additionally, there are multiple carrots in the scene, which could be part of the meal or a separate dish. The woman is wearing a pink shirt, and she is also holding a cell phone."
+            },
+            {
+                "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate.",
+                "answer": "The image shows a woman holding a piece of sushi, which appears to be a roll. The sushi roll is filled with rice and seaweed, and it is placed on a table. It is difficult to provide an exact weight of the sushi roll, but it can be estimated to be around 100 grams."
+            }
+        ]
+    },
+    {
+        "image_path": "custom-images/sushi.png",
+        "questions": [
+            {
+                "prompt": "Provide a detailed description of the food you see in the image.",
+                "answer": "The image features a dining table with a variety of food items. There are several plates of sushi, including a plate with a piece of sushi on a black plate, and another plate with a piece of sushi on a white plate. The sushi is accompanied by rice and vegetables, such as carrots. The table also has a bowl of soup and a bowl of noodles, adding to the diverse selection of dishes. The table setting includes chopsticks, which are used to eat the sushi."
+            },
+            {
+                "prompt": "Provide a detailed list of the ingredients of the food in the image.",
+                "answer": "The image features a plate of sushi with various ingredients. The sushi rolls are topped with rice, and the plate also contains carrots and eggs. The carrots are scattered across the plate, and the eggs are placed in the middle of the sushi rolls. The combination of these ingredients creates a delicious and visually appealing meal."
+            },
+            {
+                "prompt": "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate.",
+                "answer": "The food in the image weighs approximately 100 grams."
+            }
+        ]
+    }
+]
