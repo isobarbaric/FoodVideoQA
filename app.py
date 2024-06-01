@@ -46,13 +46,10 @@ def describe_frame(frame_number: int,
 def describe_video(questions: list[str], 
                    video_path: Path, 
                    frame_dir: Path, 
-                   k: int = 5):
+                   k: int = 10):
     if not video_path.exists():
         raise ValueError(f"Provided file path {video_path} does not exist")
     
-    if not frame_dir.exists():
-        raise ValueError(f"No frames ex")
-
     extract_frames(video_path, frame_dir, k)
     images = []
 
@@ -63,7 +60,7 @@ def describe_video(questions: list[str],
         images.append(current_frame)
 
     answer = {
-        'video_name': video_name,
+        'video_name': video_path.name,
         'frames': images
     }
 
@@ -71,15 +68,21 @@ def describe_video(questions: list[str],
         
 
 def process_videos(video_dir: Path, 
-                   questions: list[str]):
+                   questions: list[str],
+                   output_file: Path,
+                   k: int = 10):
     if not video_dir.exists():
         raise ValueError(f"Provided file path {video_dir} does not exist")
 
     answers = []
-    for img in sorted(video_dir.iterdir()):
-        print(f"\n\nprocessing {img.name}...\n")
-        if img.suffix in ['.png', '.jpg']:
-            answers.append(describe_video(img, questions))
+    for video in sorted(video_dir.iterdir()):
+        print(f"\n\nprocessing {video.name}..")
+        if video.suffix in ['.mp4']:
+            frame_dir = Path("extracted-frames") / video.name
+            answers.append(describe_video(questions, video, frame_dir, k))
+
+        with open(output_file, 'w') as f:
+            json.dump(answers, f, indent=4) 
 
     return answers
 
@@ -87,14 +90,15 @@ def process_videos(video_dir: Path,
 if __name__ == "__main__":
     start = time.time()    
 
-    images_folder = Path("custom-images")
+    # images_folder = Path("custom-images")
+    # video_name = "0.mp4"
+    # video_path = Path("custom-videos") / video_name
+
+    # frame_dir = Path("extracted-frames") / video_name
+    # frame_dir.mkdir(parents=True, exist_ok=True)
+
     output_file = Path("data.json")
-
-    video_name = "0.mp4"
-    video_path = Path("custom-videos") / video_name
-
-    frame_dir = Path("extracted-frames") / video_name
-    frame_dir.mkdir(parents=True, exist_ok=True)
+    video_dir = Path("custom-videos")
 
     questions = [
         "Provide a detailed description of the food you see in the image.",
@@ -104,9 +108,11 @@ if __name__ == "__main__":
     ]
 
     # process_images(images_folder, questions, output_file)
-    answers = describe_video(questions, video_path, frame_dir, k = 10)
-    with open(output_file, 'w') as f:
-        json.dump(answers, f, indent=4)
+    # answers = describe_video(questions, video_path, frame_dir, k = 10)
+    process_videos(video_dir, questions, output_file, k = 50)
+
+    # with open(output_file, 'w') as f:
+    #     json.dump(answers, f, indent=4)
 
     end = time.time()    
     print(f"\n{round(end - start, 2)} seconds elapsed...")
