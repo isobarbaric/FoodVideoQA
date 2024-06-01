@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
     # process_images(images_folder, questions, output_file)
     # answers = describe_video(questions, video_path, frame_dir, k = 10)
-    process_videos(video_dir, questions, output_file, k = 50)
+    process_videos(video_dir, questions, output_file, k = 10)
 
     # with open(output_file, 'w') as f:
     #     json.dump(answers, f, indent=4)
