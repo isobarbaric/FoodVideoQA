@@ -27,17 +27,15 @@ def describe_frame(frame_number: int,
 
     for question in questions:
         result = subprocess.run(command, input=question, stdout=subprocess.PIPE, text=True)
-
         result = result.stdout
-
         split_result = result.split("ASSISTANT:")
+
         actual_response = split_result[1].strip()
         if actual_response.find("USER:") != -1:
             user_index = actual_response.find("USER:")
             actual_response = actual_response[:user_index]
 
         actual_response = actual_response.strip()
-
         answers['questions'].append({'prompt': question, 'answer': actual_response})
     
     return answers
@@ -90,13 +88,6 @@ def process_videos(video_dir: Path,
 if __name__ == "__main__":
     start = time.time()    
 
-    # images_folder = Path("custom-images")
-    # video_name = "0.mp4"
-    # video_path = Path("custom-videos") / video_name
-
-    # frame_dir = Path("extracted-frames") / video_name
-    # frame_dir.mkdir(parents=True, exist_ok=True)
-
     output_file = Path("data.json")
     video_dir = Path("custom-videos")
 
@@ -107,12 +98,7 @@ if __name__ == "__main__":
         "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response."
     ]
 
-    # process_images(images_folder, questions, output_file)
-    # answers = describe_video(questions, video_path, frame_dir, k = 10)
     process_videos(video_dir, questions, output_file, k = 10)
-
-    # with open(output_file, 'w') as f:
-    #     json.dump(answers, f, indent=4)
 
     end = time.time()    
     print(f"\n{round(end - start, 2)} seconds elapsed...")
