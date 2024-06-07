@@ -4,6 +4,8 @@ import spacy
 import subprocess
 import pandas as pd
 import pprint
+from pathlib import Path
+from nutritionverse import get_weight
 
 INGREDIENT_PROMPT_INDEX = 2
 
@@ -106,10 +108,31 @@ def create_df():
     
     return pd.DataFrame(data)
 
+def nutrition_verse():
+    video_dir = 'nutritionverse-videos-preprocessed'
+    metadata_dir = 'nutritionverse-metadata'
+
+    weight_ques = [
+        "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response."
+    ]    
+
+    data = []
+    for metadata_file in Path(metadata_dir).iterdir():
+        rn = {}
+        rn['actual_weight'] = get_weight(metadata_file, video_dir)
+
+        # get predicted weight from model
+
+    # compute percentage difference between predicted and actual
+        
+    return pd.DataFrame(data) 
+    
    
 if __name__ == "__main__":
     weight_map = extract_weights()
-    # print_weights_ingredients(weight_map)
+    print_weights_ingredients(weight_map)
 
-    df = create_df()
-    print(df)
+    # df = create_df()
+    # print(df)
+
+    # nutrition_verse()
