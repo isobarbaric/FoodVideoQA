@@ -2,6 +2,7 @@
 import json
 import spacy
 import subprocess
+import pandas as pd
 import pprint
 
 INGREDIENT_PROMPT_INDEX = 2
@@ -38,41 +39,46 @@ def extract_weights():
 
     return weight_map
 
+
 def video_ingredients(video_name: str) -> list:
     # check if video exists, collect data
     video_data = None
-
     for video in data:
         if video_name == video['video_name']:
             video_data = video['frames']
 
+    # if video doesn't exist, raise an error
     if not video_data:
         raise ValueError(f"{video_name} video not found")
 
     ingredients = set()
-    irrelevant_content = ['and', '.'] # DO NOT PUT , here
     for frame in video_data:
         frame_ingredients = frame['questions'][INGREDIENT_PROMPT_INDEX]['answer']
-        for word in irrelevant_content:
+
+        # clean up ingredients list
+        for word in ['and', '.']: # DO NOT PUT ',' here
             frame_ingredients = frame_ingredients.replace(word, '')
         processed_ingredients = [item.lower().strip() for item in frame_ingredients.split(', ')]
+
+        # union this with existing ingredients set
         ingredients |= set(processed_ingredients)
 
-    # remove singular, plural pairs
+    # remove words that represent the same item, just in different quantities
     singular_items = set()
+
     for item in ingredients:
+        # converting all nouns to singular form
         doc = nlp(item)
         singular_nouns = [token.lemma_ for token in doc if token.pos_ == "NOUN"]
-        singular_items.add(" ".join(singular_nouns))
+
+        # adding each token to set of singular items
+        word = " ".join(singular_nouns)
+        singular_items.add(word)
 
     # remove empty strings, single characters
-    answer = []
-    for item in singular_items:
-        if len(item) <= 1:
-            continue
-        answer.append(item)
+    answer = filter(lambda x: len(x) > 1, singular_items)
+    answer = sorted(answer)
 
-    answer.sort()
     return answer
 
 
@@ -85,7 +91,25 @@ def print_weights_ingredients(weight_map):
         print("ingredients:", ingredients)
         print()
 
+
+def create_df():
+    data = []
+    for video in weight_map.keys():
+        rn = dict()
+        ingredients = video_ingredients(video)
+        rn['video_name'] = video
+        rn['avg_weight'] = round(sum(weight_map[video])/len(weight_map[video]), 2) # this is in grams
+        rn['weights'] = weight_map[video]
+        rn['ingredients'] = ingredients
+
+        data.append(rn)
+    
+    return pd.DataFrame(data)
+
    
 if __name__ == "__main__":
     weight_map = extract_weights()
-    print_weights_ingredients(weight_map)
+    # print_weights_ingredients(weight_map)
+
+    df = create_df()
+    print(df)
