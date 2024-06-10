@@ -5,7 +5,7 @@ import subprocess
 import pandas as pd
 import pprint
 from pathlib import Path
-from nutritionverse import get_weight
+from nutrition_verse import get_weight
 
 INGREDIENT_PROMPT_INDEX = 2
 
