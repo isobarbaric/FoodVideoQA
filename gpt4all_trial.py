@@ -36,7 +36,7 @@ def load_frames():
 
 
 if __name__ == "__main__":
-    model = GPT4All("orca-mini-3b-gguf2-q4_0.gguf")
+    model = GPT4All("Meta-Llama-3-8B-Instruct.Q4_0.gguf")
     frames_dict = load_frames()
     with model.chat_session():
         general = "Given the following descriptions, find what has CHANGED between the current description and the previous one: "
