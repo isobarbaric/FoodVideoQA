@@ -3,6 +3,7 @@ import time
 import subprocess
 from pathlib import Path
 from video import extract_frames
+import pprint
 
 
 def describe_frame(frame_number: int, 
@@ -93,12 +94,24 @@ if __name__ == "__main__":
 
     questions = [
         "Provide a detailed description of the food you see in the image.",
-        "Provide a detailed description of what the person in the image is eating the food with.",
+        "Provide a detailed list of cutlery the person in the image is eating with. Just a list should suffice, don't bother including other details."
+        "Provide a detailed list of all utensils and cutlery in the image. Just a list should suffice, don't bother including other details."
         "Provide a detailed list of the ingredients of the food in the image. Only include a comma-separated list of items with no additional descriptions for each item in your response.",
         "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response."
     ]
 
     process_videos(video_dir, questions, output_file, k = 10)
+    
+    # sample_video = Path("extracted-frames/5.mp4/frame20.jpg")
+    # sample_video = Path("custom-images/broccoli.png")
 
-    end = time.time()    
-    print(f"\n{round(end - start, 2)} seconds elapsed...")
+    # # two variants: all in image vs only those eating with
+    # questions = [
+    #     "Provide a detailed list of cutlery the person in the image is eating with. Just a list should suffice, don't bother including other details."
+    #     "Provide a detailed list of all utensils and cutlery in the image. Just a list should suffice, don't bother including other details."
+    # ]
+    # response = describe_frame(20, sample_video, questions)
+    # pprint.pprint(response)
+
+    # end = time.time()    
+    # print(f"\n{round(end - start, 2)} seconds elapsed...")
