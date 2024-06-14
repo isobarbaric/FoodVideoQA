@@ -5,9 +5,6 @@ import subprocess
 import pandas as pd
 import pprint
 from pathlib import Path
-from nutrition_verse import get_weight
-
-INGREDIENT_PROMPT_INDEX = 2
 
 with open("data.json", 'r') as f:
     data = json.load(f)
@@ -21,28 +18,15 @@ except OSError:
     nlp = spacy.load("en_core_web_sm")
 
 
-def extract_weights():
-    with open("data.json", 'r') as file:
-        data = json.load(file)
-
-    weight_map = {}
-
-    for video in data:
-        video_name = video["video_name"]
-        weights = []
-
-        for frame in video["frames"]:
-            for question in frame["questions"]:
-                if "weight" in question["prompt"]:
-                    weight = int(question["answer"].split()[0].replace(',', ''))
-                    weights.append(weight)
-        
-        weight_map[video_name] = weights
-
-    return weight_map
-
-
-def video_ingredients(video_name: str) -> list:
+# prompt index is the question number in the list of prompts that corresponds to the query you are interested in
+def parse_comma_list(video_name: str, prompt_index: list) -> list:
+    """Parses a comma-separated list (list can include 'and') and extracts individual items.
+    
+    Filtering/cleaning criteria include:
+    - entries must be a noun
+    - singular, plural forms of the same entry are counted as a single entry
+    - duplicate entries are removed
+    """
     # check if video exists, collect data
     video_data = None
     for video in data:
@@ -55,7 +39,7 @@ def video_ingredients(video_name: str) -> list:
 
     ingredients = set()
     for frame in video_data:
-        frame_ingredients = frame['questions'][INGREDIENT_PROMPT_INDEX]['answer']
+        frame_ingredients = frame['questions'][prompt_index]['answer']
 
         # clean up ingredients list
         for word in ['and', '.']: # DO NOT PUT ',' here
@@ -83,56 +67,6 @@ def video_ingredients(video_name: str) -> list:
 
     return answer
 
-
-def print_weights_ingredients(weight_map):
-    for video in weight_map.keys():
-        ingredients = video_ingredients(video)
-        print(video)
-        print("avg weight: ", round(sum(weight_map[video])/len(weight_map[video]), 2), "grams")
-        print("weights:", weight_map[video])
-        print("ingredients:", ingredients)
-        print()
-
-
-def create_df():
-    data = []
-    for video in weight_map.keys():
-        rn = dict()
-        ingredients = video_ingredients(video)
-        rn['video_name'] = video
-        rn['avg_weight'] = round(sum(weight_map[video])/len(weight_map[video]), 2) # this is in grams
-        rn['weights'] = weight_map[video]
-        rn['ingredients'] = ingredients
-
-        data.append(rn)
-    
-    return pd.DataFrame(data)
-
-def nutrition_verse():
-    video_dir = 'nutritionverse-videos-preprocessed'
-    metadata_dir = 'nutritionverse-metadata'
-
-    weight_ques = [
-        "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response."
-    ]    
-
-    data = []
-    for metadata_file in Path(metadata_dir).iterdir():
-        rn = {}
-        rn['actual_weight'] = get_weight(metadata_file, video_dir)
-
-        # get predicted weight from model
-
-    # compute percentage difference between predicted and actual
-        
-    return pd.DataFrame(data) 
-    
    
 if __name__ == "__main__":
-    weight_map = extract_weights()
-    print_weights_ingredients(weight_map)
-
-    # df = create_df()
-    # print(df)
-
-    # nutrition_verse()
+    pass
