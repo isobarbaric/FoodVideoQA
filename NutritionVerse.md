@@ -114,3 +114,8 @@ weights:
 - Tailoring prompts to generate utensil descriptions
 - Confirmed with Yuhao on future tasks under More Tasks
 - Agreed on using GPT4All (with Llama3-instruct)
+
+### TODO: 6/17
+- Label frame-by-frame in `config-custom-videos/`
+- Use spacey for `gpt4all` responses
+- Devise parsing algorithm to compare specs of LLM responses vs our "desired" responses

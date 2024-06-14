@@ -5,6 +5,7 @@ import subprocess
 import pandas as pd
 import pprint
 from pathlib import Path
+from typing import List
 
 with open("data.json", 'r') as f:
     data = json.load(f)
@@ -66,6 +67,21 @@ def parse_comma_list(video_name: str, prompt_index: list) -> list:
     answer = sorted(answer)
 
     return answer
+
+
+def match_outputs(llm_lst: List[str], gt_lst: List[str]):
+    """
+    Matches outputs of a list from an LLM to a ground truth list.
+    
+    Whenever an identical entry is found in either, drops both entries from both lists. 
+    
+    If the `gt_lst` contains an entry that allows for multiple variations of a word, then that word is dropped from the `llm_lst` and not from the `gt_lst` in case of any future matches.
+    
+    Finally, after processing all elements, if a `gt_lst` has been matched before, it is dropped too.
+
+    Returns a diff between both lists
+    """
+    pass
 
    
 if __name__ == "__main__":
