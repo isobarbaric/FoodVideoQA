@@ -36,3 +36,5 @@ serve_images/
 node_modules/
 
 custom-videos
+custom-images
+extracted-frames
