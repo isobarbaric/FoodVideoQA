@@ -18,11 +18,16 @@ def infer_pose(img_path: Path, output_path: Path):
     detected_map = dwprocessor(input_image)
     detected_map = HWC3(detected_map)
 
-    output_path.mkdir(parents=True, exist_ok=True)
+    if not output_path.exists():
+        output_path.mkdir(parents=True, exist_ok=True)
+
     detected_map = cv2.resize(detected_map, (W, H), interpolation=cv2.INTER_LINEAR)
+    
+    # cv2.imwrite(output_path, detected_map)
     cv2.imwrite(output_path / img_path.name, detected_map)
     
 
+# TODO: set up an argparser for this stuff
 if __name__ == '__main__' :
     det_config = './dwpose/yolox_config/yolox_l_8xb8-300e_coco.py'
     det_ckpt = './ckpts/yolox_l_8x8_300e_coco_20211126_140236-d3bd2b23.pth'
@@ -31,11 +36,7 @@ if __name__ == '__main__' :
     device = "cuda:0"
 
     dwprocessor = DWposeDetector(det_config, det_ckpt, pose_config, pose_ckpt, device)
-    
-    image_dirs = ["./assets/test.jpeg", "./assets/test1.jpeg", "./assets/test2.jpeg", "./assets/test3.jpeg"]
-    save_dir = Path("./outputs")
 
-    for image_dir in image_dirs:
-        curr_image_dir = Path(image_dir)
-        curr_save_dir = Path(save_dir)
-        infer_pose(curr_image_dir, curr_save_dir)
+    img_path = Path("assets/test3.jpg")
+    output_path = Path("outputs/pose-test3.jpg")
+    infer_pose(img_path, output_path)
