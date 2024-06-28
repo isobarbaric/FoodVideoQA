@@ -39,3 +39,5 @@ custom-videos
 custom-images
 extracted-frames
 *.mp4
+
+word2vec/

@@ -1,0 +1,190 @@
+video_name: "1.mp4"
+frames:
+  - number: 5
+    utensils:
+      - spoon || blue spoon
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - rice || fried rice
+      - cucumber || lemon
+      - carrot
+      - beans || green beans || peas || green peas
+
+  - number: 10
+    utensils:
+      - spoon || brown spoon || chopsticks
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - cucumber || lemon
+
+  - number: 15
+    utensils:
+      - spoon || blue spoon
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - rice || fried rice
+      - cucumber || lemon
+      - carrot
+      - beans || green beans || peas || green peas
+
+  - number: 20
+    utensils:
+      - spoon || green spoon || chopsticks || green chopsticks
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - rice || fried rice
+      - cucumber || lemon
+      - carrot
+      - beans || green beans || peas || green peas
+
+  - number: 25
+    utensils:
+      - spoon || blue spoon
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - rice || fried rice
+      - cucumber || lemon
+      - carrot
+      - beans || green beans || peas || green peas
+
+  - number: 30
+    utensils:
+      - spoon || blue spoon
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - rice || fried rice
+      - cucumber || lemon
+      - carrot
+      - beans || green beans || peas || green peas
+
+  - number: 35
+    utensils:
+      - spoon || blue spoon
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - rice || fried rice
+      - cucumber || lemon
+      - carrot
+      - beans || green beans || peas || green peas
+
+  - number: 40
+    utensils:
+      - spoon || blue spoon
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - rice || fried rice
+      - cucumber || lemon
+      - carrot
+      - beans || green beans || peas || green peas
+
+  - number: 45
+    utensils:
+      - spoon || blue spoon
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - rice || fried rice
+      - cucumber || lemon
+      - carrot
+      - beans || green beans || peas || green peas
+
+  - number: 50
+    utensils:
+      - spoon || blue spoon
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - rice || fried rice
+      - cucumber || lemon
+      - carrot
+      - beans || green beans || peas || green peas
+
+  - number: 55
+    utensils:
+      - spoon || blue spoon
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - rice || fried rice
+      - cucumber || lemon
+      - carrot
+      - beans || green beans || peas || green peas
+
+  - number: 60
+    utensils:
+      - spoon || blue spoon
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - rice || fried rice
+      - cucumber || lemon
+      - carrot
+      - beans || green beans || peas || green peas
+
+  - number: 65
+    utensils:
+      - spoon || blue spoon
+      - fork || green fork
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - rice || fried rice
+      - cucumber || lemon
+      - carrot
+      - beans || green beans || peas || green peas
+
+  - number: 70
+    utensils:
+      - spoon || green spoon
+      - fork || green fork
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - rice || fried rice
+      - cucumber || lemon
+      - carrot
+      - beans || green beans || peas || green peas
+
+  - number: 75
+    utensils:
+      - spoon || blue spoon
+      - fork || green fork || spoon || green spoon
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - rice || fried rice
+      - cucumber || lemon
+      - carrot
+      - beans || green beans || peas || green peas
+    
+  - number: 80
+    utensils:
+      - spoon || blue spoon
+      - fork || green fork || spoon || green spoon
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - rice || fried rice
+      - cucumber || lemon
+      - carrot
+      - beans || green beans || peas || green peas
+    
+  - number: 85
+    utensils:
+      - spoon || blue spoon
+      - fork || green fork || spoon || green spoon
+      - cup || brown cup
+    ingredients:
+      - egg || omelette
+      - rice || fried rice
+      - cucumber || lemon
+      - carrot
+      - beans || green beans || peas || green peas
