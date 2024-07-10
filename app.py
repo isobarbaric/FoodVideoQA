@@ -110,7 +110,7 @@ if __name__ == "__main__":
 
     sample_frame = Path("../DWPose/assets/test1.jpg")
 
-    two variants: all in image vs only those eating with
+    # two variants: all in image vs only those eating with
     questions = [
         "Analyze the provided image and determine if the person in the frame is currently chewing on food. Look for signs such as mouth movements, visible food particles, cheek bulging, or other indicators of chewing. Provide a clear answer: 'true' if the person is chewing on food, or 'false' if they are not."
     ]
