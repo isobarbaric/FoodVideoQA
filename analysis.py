@@ -93,6 +93,7 @@ def match_outputs(llm_lst: List[str], gt_lst: List[str]):
 
     # need to ensure all words in a single multiple match key are in lowercase form
     multiple_matches_used = {}    
+    true_positive = []
 
     for word in gt_lst:
         if any(char in word for char in ['|', ',']):
@@ -102,11 +103,13 @@ def match_outputs(llm_lst: List[str], gt_lst: List[str]):
         if word in gt_lst:
             gt_edit_lst.remove(word)
             llm_edit_lst.remove(word)
+            true_positive.append(word)
         else:
             for key, value in multiple_matches_used.items():
                 if word in key:
                     multiple_matches_used[key] = True
                     llm_edit_lst.remove(word)
+                    true_positive.append(word)
                     # no gt_edit_lst here since we keep multiple matches even if we have a single match alr
     
     for key, value in multiple_matches_used.items():
@@ -118,12 +121,15 @@ def match_outputs(llm_lst: List[str], gt_lst: List[str]):
             # gt_edit_lst += individual_items
             gt_edit_lst.append(individual_items[0])
 
-    diff = {'LLM': [], 'Ground Truth': []}
+    # diff = {'LLM': [], 'Ground Truth': []}
+    diff = {'False Positive': [], 'False Negative': [], 'True Positive': []}
 
     for word in llm_edit_lst:
-        diff['LLM'].append(word)
+        diff['False Positive'].append(word)
     for word in gt_edit_lst:
-        diff['Ground Truth'].append(word)
+        diff['False Negative'].append(word)
+    for word in true_positive:
+        diff['True Positive'].append(word)
 
     return diff
 
@@ -144,11 +150,9 @@ def compute_diff_score(diff_dict: Dict[str, List[str]]):
     dists = []
     
     # step 1
-    for llm_word in diff_dict['LLM']:
-        # embeddings = model[word]
-        # cosine_dist = model.distances(embeddings, diff_dict['Ground Truth'])
+    for llm_word in diff_dict['False Positive']:
         cosine_dist = []
-        for gt_word in diff_dict['Ground Truth']:
+        for gt_word in diff_dict['False Negative']:
             try:
                 dist = model.distance(llm_word, gt_word)
                 cosine_dist.append(dist)
@@ -159,11 +163,9 @@ def compute_diff_score(diff_dict: Dict[str, List[str]]):
             dists.append(min(cosine_dist))
 
     # step 2
-    for gt_word in diff_dict['Ground Truth']:
-        # embeddings = model[word]
-        # cosine_dist = model.distances(embeddings, diff_dict['LLM'])
+    for gt_word in diff_dict['False Negative']:
         cosine_dist = []
-        for llm_word in diff_dict['LLM']:
+        for llm_word in diff_dict['False Positive']:
             try:
                 dist = model.distance(gt_word, llm_word)
                 cosine_dist.append(dist)
@@ -176,8 +178,12 @@ def compute_diff_score(diff_dict: Dict[str, List[str]]):
     return sum(dists)
 
 
-def parse_yaml(file_path: str):
-    with open(file_path, 'r') as file:
+def parse_yaml(config_path: str):
+    config_path = Path(config_path)
+    if not config_path.exists():
+        raise ValueError(f"File {config_path} doesn't exist")
+
+    with open(config_path, 'r') as file:
         data = yaml.safe_load(file)
 
     parsed_data = {
