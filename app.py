@@ -5,7 +5,8 @@ from pathlib import Path
 from video import extract_frames
 import pprint
 import json
-
+from analysis import utensils
+from tqdm import tqdm
 
 def describe_frame(frame_number: int, 
                    image_file: Path, 
@@ -75,7 +76,7 @@ def process_videos(video_dir: Path,
         raise ValueError(f"Provided file path {video_dir} does not exist")
 
     answers = []
-    for video in sorted(video_dir.iterdir()):
+    for video in tqdm(sorted(video_dir.iterdir())):
         print(f"\n\nprocessing {video.name}..")
         if video.suffix in ['.mp4']:
             # generalize this to
@@ -91,31 +92,31 @@ def process_videos(video_dir: Path,
 if __name__ == "__main__":
     start = time.time()    
 
-    # output_file = Path("data.json")
-    # video_dir = Path("custom-videos")
+    output_file = Path("data.json")
+    video_dir = Path("custom-videos")
 
-    # questions = [
-    #     "Provide a detailed description of the food you see in the image.",
-    #     "Provide a detailed list of cutlery the person in the image is eating with. Just a list should suffice, don't bother including other details.",
-    #     "Provide a detailed list of all utensils and cutlery in the image. Just a list should suffice, don't bother including other details.",
-    #     "Provide a detailed list of the ingredients of the food in the image. Only include a comma-separated list of items with no additional descriptions for each item in your response.",
-    #     "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response."
-    # ]
+    questions = [
+        "Provide a detailed description of the food you see in the image.",
+       f"Provide a list of cutlery/utensils that the person in the image is eating with, from this list: {utensils}.",
+        f"Analyze the provided image and provide a list of which utensils are in the image from this list: {utensils}." ,
+        "Provide a detailed list of the ingredients of the food in the image. Only include a comma-separated list of items with no additional descriptions for each item in your response.",
+        "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response."
+    ]
 
-    # # process_videos(video_dir, questions, output_file, k = 5)
+    process_videos(video_dir, questions, output_file, k = 20)
 
     ###
     # temporary testing code goes below this line    
     ###
 
-    sample_frame = Path("../DWPose/assets/test1.jpg")
+    # sample_frame = Path("extracted-frames/4.mp4/frame15.jpg")
 
-    # two variants: all in image vs only those eating with
-    questions = [
-        "Analyze the provided image and determine if the person in the frame is currently chewing on food. Look for signs such as mouth movements, visible food particles, cheek bulging, or other indicators of chewing. Provide a clear answer: 'true' if the person is chewing on food, or 'false' if they are not."
-    ]
-    response = describe_frame(20, sample_frame, questions)
-    pprint.pprint(response)
+    # questions = [
+    #    f"Provide a list of cutlery/utensils that the person in the image is eating with, from this list: {utensils}.",
+    # ]
+
+    # response = describe_frame(20, sample_frame, questions)
+    # pprint.pprint(response)
 
     ###
     # temporary testing code ends above this line    

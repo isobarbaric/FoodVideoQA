@@ -8,7 +8,7 @@ import pprint
 from pathlib import Path
 from typing import List, Dict
 import gensim.downloader
-import pathlib as Path
+from pathlib import Path
 from gensim.models import KeyedVectors
 import yaml
 
@@ -23,8 +23,24 @@ except OSError:
     subprocess.run(["python3", "-m", "spacy", "download", "en_core_web_sm"])
     nlp = spacy.load("en_core_web_sm")
 
-
-INGREDIENT_PROMPT_INDEX = 3
+# constants
+utensils = [ 
+    "spoon",
+    "fork",
+    "knife",
+    "chopstick",
+    "spork",
+    "ladle",
+    "tongs",
+    "spatula",
+    "straw",
+    "bowl",
+    "cup",
+    "glass"
+]
+UTENSILS_EATING_INDEX = 1
+UTENSILS_PROMPT_INDEX = 2
+INGREDIENTS_PROMPT_INDEX = 3
 
 # prompt index is the question number in the list of prompts that corresponds to the query you are interested in
 def parse_comma_list(list_str: str) -> list:
@@ -35,20 +51,6 @@ def parse_comma_list(list_str: str) -> list:
     - singular, plural forms of the same entry are counted as a single entry
     - duplicate entries are removed
     """
-    # # check if video exists, collect data
-    # video_data = None
-    # for video in data:
-    #     if video_name == video['video_name']:
-    #         video_data = video['frames']
-
-    # # if video doesn't exist, raise an error
-    # if not video_data:
-    #     raise ValueError(f"{video_name} video not found")
-
-    # ingredients = set()
-    # for frame in video_data:
-    #     frame_ingredients = frame['questions'][prompt_index]['answer']
-
     # clean up ingredients list
     for word in ['and', '.']: # DO NOT PUT ',' here
         list_str = list_str.replace(word, '')
@@ -74,6 +76,18 @@ def parse_comma_list(list_str: str) -> list:
     answer = sorted(answer)
 
     return answer
+
+
+def parse_utensils_list(utensil_response: str):
+    for word in [',', '-', '.',]:
+        utensil_response = utensil_response.replace(word, '')    
+    print(utensil_response)
+
+    cleaned_utensils = []
+    for word in utensil_response.split(' '):
+        if word.lower() in utensils:
+            cleaned_utensils.append(word.lower())
+    return cleaned_utensils
 
 
 def match_outputs(llm_lst: List[str], gt_lst: List[str]):
@@ -211,19 +225,19 @@ def get_video_frame_data(video_name: str, frame_number: int, prompt_index: int):
             for frame in video['frames']:
                 if frame['frame_number'] == frame_number:
                     data_list = frame['questions'][prompt_index]['answer']
-                    return parse_comma_list(data_list)
+                    if prompt_index == INGREDIENTS_PROMPT_INDEX:
+                        return parse_comma_list(data_list)
+                    elif prompt_index == UTENSILS_PROMPT_INDEX:
+                        return parse_utensils_list(data_list)
+                    elif prompt_index == UTENSILS_EATING_INDEX:
+                        return parse_utensils_list(data_list)
 
             raise ValueError(f"Provided video name does not have any data on frame #{frame_number}") 
 
     raise ValueError(f"Provided video name {video_name} does not exist in data.json")
 
 
-def compare_pred(video_name: str, frame_number: int):
-    # config_file = Path(f"config-custom-videos/{video_name}.yaml")
-   
-    # if not config_file.exists():
-    #     raise ValueError(f"Provided video name {video_name} does not have a corresponding yaml file")
-    
+def compare_pred(video_name: str, frame_number: int, prompt_index: int):
     yaml_data = parse_yaml(f"config-custom-videos/{video_name}.yaml")
     frame_data = yaml_data['frames'] 
 
@@ -235,7 +249,9 @@ def compare_pred(video_name: str, frame_number: int):
     if not gt_lst:
         raise ValueError(f"Provided frame number does not exist in config file")
     
-    llm_lst = get_video_frame_data(video_name, frame_number, INGREDIENT_PROMPT_INDEX)
+    # prompt_index can be either INGREDIENTS_PROMPT_INDEX or UTENSILS_PROMPT_INDEX
+    llm_lst = get_video_frame_data(video_name, frame_number, prompt_index)
+    print(f"LLM list: {llm_lst}, GT list: {gt_lst}")
 
     diff = match_outputs(llm_lst, gt_lst)
     score = compute_diff_score(diff)
