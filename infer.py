@@ -7,9 +7,7 @@ from pathlib import Path
 from utils import *
 from dwpose import DWposeDetector
 
-
 def infer_pose(img_path: Path, output_path: Path):
-    # img_path = img_path.absolute()
     input_image = cv2.imread(img_path)
 
     H, W, C = input_image.shape
@@ -18,9 +16,11 @@ def infer_pose(img_path: Path, output_path: Path):
     
     detected_map = dwprocessor(input_image)
     detected_map = HWC3(detected_map)
-
+    
     # if not output_path.exists():
     #     output_path.mkdir(parents=True, exist_ok=True)
+
+    # print(f"height: {H}, weight: {W}")
 
     detected_map = cv2.resize(detected_map, (W, H), interpolation=cv2.INTER_LINEAR)
     
@@ -41,9 +41,13 @@ if __name__ == '__main__' :
 
     dwprocessor = DWposeDetector(det_config, det_ckpt, pose_config, pose_ckpt, device)
 
-    for img_num in range(1, 9):
-        img_path = Path(f"assets/test{img_num}.jpg")
-        assert img_path.exists()
-        output_path = Path(f"outputs/test{img_num}.jpg")
-        infer_pose(img_path, output_path)
-        print(f"{img_path} done")
+    img_path = Path("assets/test1.jpg")
+    output_path = Path("outputs/test1.jpg")
+    infer_pose(img_path, output_path)
+
+    # for img_num in range(1, 9):
+    #     img_path = Path(f"assets/test{img_num}.jpg")
+    #     assert img_path.exists()
+    #     output_path = Path(f"outputs/test{img_num}.jpg")
+    #     infer_pose(img_path, output_path)
+    #     print(f"{img_path} done")
