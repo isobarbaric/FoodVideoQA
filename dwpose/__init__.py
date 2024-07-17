@@ -30,7 +30,7 @@ def draw_pose(pose, H, W):
     return canvas
 
 
-class DWposeDetector:
+class PoseDetector:
     def __init__(self, det_config, det_ckpt, pose_config, pose_ckpt, device):
 
         self.pose_estimation = Wholebody(det_config, det_ckpt, pose_config, pose_ckpt, device)

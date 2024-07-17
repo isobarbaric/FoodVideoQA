@@ -5,7 +5,7 @@ from PIL import Image
 from pathlib import Path
 
 from utils import *
-from dwpose import DWposeDetector
+from dwpose import PoseDetector
 
 def infer_pose(img_path: Path, output_path: Path):
     input_image = cv2.imread(img_path)
@@ -39,7 +39,7 @@ if __name__ == '__main__' :
     pose_ckpt = './ckpts/dw-ll_ucoco_384.pth'
     device = "cuda:0"
 
-    dwprocessor = DWposeDetector(det_config, det_ckpt, pose_config, pose_ckpt, device)
+    dwprocessor = PoseDetector(det_config, det_ckpt, pose_config, pose_ckpt, device)
 
     img_path = Path("assets/test1.jpg")
     output_path = Path("outputs/test1.jpg")
