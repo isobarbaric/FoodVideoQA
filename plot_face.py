@@ -75,9 +75,9 @@ def _is_mouth_open(landmarks: FacialLandmarks) -> bool:
   lip_bottom = np.array(landmarks.lip_bottom_y)
   lip_top = np.array(landmarks.lip_top_y)
 
-  distance = (lip_top - lip_bottom)
-  # print(distance)
-  distance = np.mean(distance)
+  distance = lip_top - lip_bottom
+  print(distance)
+  distance = abs(np.mean(distance))
   
   # don't think I need to adjust this since DWPose always seems to output images of the same dimension
   # distance /= H
@@ -109,15 +109,11 @@ def determine_mouth_open(pose_detector: PoseDetector, img_path: Path, output_pat
 
 
 if __name__ == "__main__":
-  det_config = './dwpose/yolox_config/yolox_l_8xb8-300e_coco.py'
-  det_ckpt = './ckpts/yolox_l_8x8_300e_coco_20211126_140236-d3bd2b23.pth'
-  pose_config = './dwpose/dwpose_config/dwpose-l_384x288.py'
-  pose_ckpt = './ckpts/dw-ll_ucoco_384.pth'
-  device = "cuda:0"
-
-  pose_detector = PoseDetector(det_config, det_ckpt, pose_config, pose_ckpt, device)
+  pose_detector = PoseDetector()
 
   for img_num in range(1, 9):
     img_path = Path(f"assets/test{img_num}.jpg")
     output_path = Path(f"outputs/test{img_num}_mouth.jpg")
-    mouth_open = determine_mouth_open(pose_detector, img_path, output_path)
+    # mouth_open = determine_mouth_open(pose_detector, img_path, output_path)
+    mouth_open = determine_mouth_open(pose_detector, img_path)
+    print(f"test{img_num}: {mouth_open}")

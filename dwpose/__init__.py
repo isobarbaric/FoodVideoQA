@@ -11,6 +11,7 @@ import torch
 import numpy as np
 from . import util
 from .wholebody import Wholebody
+from dataclasses import dataclass
 
 def draw_pose(pose, H, W):
     bodies = pose['bodies']
@@ -20,20 +21,29 @@ def draw_pose(pose, H, W):
     subset = bodies['subset']
     
     canvas = np.zeros(shape=(H, W, 3), dtype=np.uint8)
-
     canvas = util.draw_bodypose(canvas, candidate, subset)
-
     canvas = util.draw_handpose(canvas, hands)
-
     canvas = util.draw_facepose(canvas, faces)
 
     return canvas
 
 
-class PoseDetector:
-    def __init__(self, det_config, det_ckpt, pose_config, pose_ckpt, device):
+@dataclass
+class PoseDetectorConfig:
+  det_config: str = './dwpose/yolox_config/yolox_l_8xb8-300e_coco.py'
+  det_ckpt: str = './ckpts/yolox_l_8x8_300e_coco_20211126_140236-d3bd2b23.pth'
+  pose_config: str = './dwpose/dwpose_config/dwpose-l_384x288.py'
+  pose_ckpt: str = './ckpts/dw-ll_ucoco_384.pth'
+  device: str = "cuda:0"
 
-        self.pose_estimation = Wholebody(det_config, det_ckpt, pose_config, pose_ckpt, device)
+
+class PoseDetector:
+    def __init__(self, config: PoseDetectorConfig = PoseDetectorConfig):
+        self.pose_estimation = Wholebody(config.det_config, 
+                                         config.det_ckpt,
+                                         config.pose_config,
+                                         config.pose_ckpt, 
+                                         config.device)
 
     def __call__(self, oriImg):
         oriImg = oriImg.copy()
