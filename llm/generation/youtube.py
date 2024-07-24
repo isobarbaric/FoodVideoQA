@@ -35,16 +35,8 @@ def trim_video(video_path: str, start_time: int, end_time: int):
     console.print(f"[yellow]Trimmed video {video_path} successfully; video starts at {start_time} and ends at {end_time}[/yellow]")
 
 
-# download_video seems to only download the video, so remove_audio isn't necessary for the timebeing 
-# def remove_audio(video_path: Path):
-#     video = VideoFileClip(video_path)
-#     video_without_audio = video.without_audio()
-#     video_without_audio.write_videofile(video_path, codec="libx264")
-
-
 if __name__ == "__main__":
     fire.Fire({
         '--download': download_video,
         '--trim': trim_video,
-        # 'remove-audio': remove_audio
     })
