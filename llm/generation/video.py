@@ -2,6 +2,12 @@ import cv2
 from pathlib import Path
 import shutil
 
+ROOT_DIR = Path(__file__).parent.parent.parent
+DATA_DIR = ROOT_DIR / "data"
+LLM_DATA_DIR = DATA_DIR / "llm"
+LLM_VIDEO_DIR = LLM_DATA_DIR / "videos"
+LLM_FRAME_DIR = LLM_DATA_DIR / "frames"
+
 def extract_frames(video_path: Path, 
                    frame_dir: Path, 
                    k: int = 10):
@@ -43,9 +49,7 @@ def extract_frames(video_path: Path,
 
 if __name__ == "__main__":
     video_name = "0.mp4"
-    video_path = Path("custom-videos") / video_name
+    video_path = LLM_VIDEO_DIR / video_name
+    frame_path = LLM_FRAME_DIR / video_name
 
-    extracted_path = Path("extracted-frames") / video_name
-    extracted_path.mkdir(parents=True, exist_ok=True)
-
-    extract_frames(video_path, extracted_path)
+    extract_frames(video_path, frame_path)

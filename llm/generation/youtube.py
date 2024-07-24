@@ -1,13 +1,22 @@
-from pytube import YouTube
+from pytubefix import YouTube
 import fire
-from pathlib import Path
 from rich.console import Console
-from moviepy.editor import VideoFileClip
-from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip 
+from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).parent.parent.parent
+DATA_DIR = ROOT_DIR / "data"
+LLM_DATA_DIR = DATA_DIR / "llm"
+LLM_VIDEO_DIR = LLM_DATA_DIR / "videos"
 
 console = Console()
+    
+def download_video(youtube_url: str, output_path: Path = LLM_VIDEO_DIR / "video_1.mp4"):
+    output_path = Path(output_path)
 
-def download_video(youtube_url: str, output_path: str):
+    if output_path.exists():
+        raise ValueError(f"A video already exists at the provided output path {output_path}")
+
     try:
         youtube = YouTube(youtube_url)
         output_path = Path(output_path)
@@ -35,6 +44,7 @@ def trim_video(video_path: str, start_time: int, end_time: int):
     console.print(f"[yellow]Trimmed video {video_path} successfully; video starts at {start_time} and ends at {end_time}[/yellow]")
 
 
+# TODO: Redo the CLI
 if __name__ == "__main__":
     fire.Fire({
         '--download': download_video,

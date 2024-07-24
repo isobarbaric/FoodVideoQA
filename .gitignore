@@ -41,3 +41,4 @@ extracted-frames
 *.mp4
 
 word2vec/
+data/*
