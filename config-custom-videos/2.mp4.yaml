@@ -1,6 +1,4 @@
-video_name:
-  1.mp4
-
+video_name: "2.mp4"
 frames:
   - number: 5
     utensils:

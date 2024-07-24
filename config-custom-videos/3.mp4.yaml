@@ -1,12 +1,11 @@
-video_name:
-  3.mp4
-
-# redo
-frame:
-  number: 5
-  utensils:
-    - spoon || purple spoon || blue spoon
-    - glass || beer glass || 
-
-  ingredients:
-    - oatmeal || baby food || pudding || congee || porridge || rice porridge || gruel
+video_name: "3.mp4"
+frames:
+  - number: 20
+    utensils:
+      - spoon || blue spoon
+      - glass || cup || beer glass
+    ingredients:
+      - pizza
+      - pie || cake || lasagna
+      - pickles || cucumber
+      - mayonnaise || butter
