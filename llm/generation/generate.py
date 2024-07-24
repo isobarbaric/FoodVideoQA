@@ -29,7 +29,7 @@ utensils = [
     "glass"
 ]
 
-def describe_frame(frame_number: int, 
+def _describe_frame(frame_number: int, 
                    image_file: Path, 
                    questions: list[str]):
     if not image_file.exists():
@@ -47,20 +47,20 @@ def describe_frame(frame_number: int,
     return answers
 
 
-def describe_video(questions: list[str], 
+def _describe_video(questions: list[str], 
                    video_path: Path, 
                    frame_dir: Path, 
-                   k: int = 10):
+                   frame_step_size: int = 10):
     if not video_path.exists():
         raise ValueError(f"Provided file path {video_path} does not exist")
     
-    extract_frames(video_path, frame_dir, k)
+    extract_frames(video_path, frame_dir, frame_step_size)
     images = []
 
     for frame in sorted(frame_dir.iterdir()):
         print(f"- processing {frame.name}...")
         frame_num = int(frame.name[frame.name.find('frame')+5:frame.name.find('.')])
-        current_frame = describe_frame(frame_num, frame, questions)
+        current_frame = _describe_frame(frame_num, frame, questions)
         images.append(current_frame)
 
     answer = {
@@ -75,7 +75,7 @@ def process_videos(video_dir: Path,
                    frame_dir: Path,
                    questions: list[str],
                    output_file: Path,
-                   k: int = 10):
+                   frame_step_size: int = 10):
     if not video_dir.exists():
         raise ValueError(f"Provided file path {video_dir} does not exist")
 
@@ -85,7 +85,7 @@ def process_videos(video_dir: Path,
         if video.suffix in ['.mp4']:
             # generalize this to
             frame = frame_dir / video.name
-            answers.append(describe_video(questions, video, frame, k))
+            answers.append(_describe_video(questions, video, frame, frame_step_size))
 
         with open(output_file, 'w') as f:
             json.dump(answers, f, indent=4) 
@@ -108,7 +108,7 @@ if __name__ == "__main__":
         "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response."
     ]
 
-    process_videos(video_dir, frame_dir, questions, output_file, k = 20)
+    process_videos(video_dir, frame_dir, questions, output_file, frame_step_size = 20)
 
     ###
     # temporary testing code goes below this line    
