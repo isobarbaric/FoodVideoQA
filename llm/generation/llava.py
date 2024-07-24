@@ -3,8 +3,9 @@ import torch
 from PIL import Image
 from pathlib import Path
 
+# using LLaVA-v1.6
 processor = LlavaNextProcessor.from_pretrained("llava-hf/llava-v1.6-mistral-7b-hf")
-model = LlavaNextForConditionalGeneration.from_pretrained("llava-hf/llava-v1.6-mistral-7b-hf", torch_dtype=torch.float16, low_cpu_mem_usage=True, use_cache=True) 
+model = LlavaNextForConditionalGeneration.from_pretrained("llava-hf/llava-v1.6-mistral-7b-hf", torch_dtype=torch.float16, low_cpu_mem_usage=True) 
 model.generation_config.pad_token_id = model.generation_config.eos_token_id
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

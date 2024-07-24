@@ -11,7 +11,9 @@ import gensim.downloader
 from pathlib import Path
 from gensim.models import KeyedVectors
 import yaml
+from ..generation.generate import utensils
 
+# TODO: update the file path to data.json (using pathlib)
 with open("data.json", 'r') as f:
     data = json.load(f)
 
@@ -24,20 +26,6 @@ except OSError:
     nlp = spacy.load("en_core_web_sm")
 
 # constants
-utensils = [ 
-    "spoon",
-    "fork",
-    "knife",
-    "chopstick",
-    "spork",
-    "ladle",
-    "tongs",
-    "spatula",
-    "straw",
-    "bowl",
-    "cup",
-    "glass"
-]
 UTENSILS_EATING_INDEX = 1
 UTENSILS_PROMPT_INDEX = 2
 INGREDIENTS_PROMPT_INDEX = 3

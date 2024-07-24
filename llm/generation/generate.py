@@ -5,7 +5,7 @@ from pathlib import Path
 from .video import extract_frames
 import pprint
 import json
-from ..analysis.analysis import utensils
+from .llava import get_response 
 from tqdm import tqdm
 
 ROOT_DIR = Path(__file__).parent.parent.parent
@@ -14,37 +14,34 @@ LLM_DATA_DIR = DATA_DIR / "llm"
 LLM_VIDEO_DIR = LLM_DATA_DIR / "videos"
 LLM_FRAME_DIR = LLM_DATA_DIR / "frames"
 
+utensils = [ 
+    "spoon",
+    "fork",
+    "knife",
+    "chopstick",
+    "spork",
+    "ladle",
+    "tongs",
+    "spatula",
+    "straw",
+    "bowl",
+    "cup",
+    "glass"
+]
+
 def describe_frame(frame_number: int, 
                    image_file: Path, 
                    questions: list[str]):
     if not image_file.exists():
         raise ValueError(f"No image exists at {image_file.absolute()}")
 
-    model_path = "liuhaotian/llava-v1.5-7b"
-    command = [
-        "python3", "-W ignore", "-m",  
-        "llava.serve.cli",
-        "--model-path", model_path,
-        "--image-file", image_file
-    ]
-    command.append("--load-4bit")
-    
     answers = {}
 
     answers['frame_number'] = frame_number
     answers['questions'] = []
 
     for question in questions:
-        result = subprocess.run(command, input=question, stdout=subprocess.PIPE, text=True)
-        result = result.stdout
-        split_result = result.split("ASSISTANT:")
-
-        actual_response = split_result[1].strip()
-        if actual_response.find("USER:") != -1:
-            user_index = actual_response.find("USER:")
-            actual_response = actual_response[:user_index]
-
-        actual_response = actual_response.strip()
+        actual_response = get_response(question, image_file)
         answers['questions'].append({'prompt': question, 'answer': actual_response})
     
     return answers
@@ -61,7 +58,7 @@ def describe_video(questions: list[str],
     images = []
 
     for frame in sorted(frame_dir.iterdir()):
-        print(f"\n\nprocessing {frame.name}...\n")
+        print(f"- processing {frame.name}...")
         frame_num = int(frame.name[frame.name.find('frame')+5:frame.name.find('.')])
         current_frame = describe_frame(frame_num, frame, questions)
         images.append(current_frame)
@@ -84,7 +81,7 @@ def process_videos(video_dir: Path,
 
     answers = []
     for video in tqdm(sorted(video_dir.iterdir())):
-        print(f"\n\nprocessing {video.name}..")
+        print(f"\nprocessing {video.name}..")
         if video.suffix in ['.mp4']:
             # generalize this to
             frame = frame_dir / video.name
@@ -105,7 +102,7 @@ if __name__ == "__main__":
 
     questions = [
         "Provide a detailed description of the food you see in the image.",
-       f"Provide a list of cutlery/utensils that the person in the image is eating with, from this list: {utensils}.",
+        f"Provide a list of cutlery/utensils that the person in the image is eating with, from this list: {utensils}.",
         f"Analyze the provided image and provide a list of which utensils are in the image from this list: {utensils}." ,
         "Provide a detailed list of the ingredients of the food in the image. Only include a comma-separated list of items with no additional descriptions for each item in your response.",
         "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response."
