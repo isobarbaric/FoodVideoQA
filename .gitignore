@@ -42,3 +42,5 @@ extracted-frames
 
 word2vec/
 data/
+
+*.jpg
