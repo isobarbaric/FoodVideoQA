@@ -2,10 +2,10 @@ import json
 import time
 import subprocess
 from pathlib import Path
-from .video import extract_frames
+from .video_utils import extract_frames
 import pprint
 import json
-from .llava import get_response 
+from .models import get_response 
 from tqdm import tqdm
 
 ROOT_DIR = Path(__file__).parent.parent.parent
