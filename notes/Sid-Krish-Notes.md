@@ -292,3 +292,5 @@ pipe = pipeline(task="zero-shot-object-detection", model="IDEA-Research/groundin
 results = pipe('http://images.cocodataset.org/val2017/000000039769.jpg', candidate_labels=[preprocess_caption(text)], threshold=0.3)
 print(results)
 ```
+- found a newer version of LLaVA-1.6 (LLaVA-Next) and LLaVA-Next-Video, and am now experimenting with using transformers
+- 

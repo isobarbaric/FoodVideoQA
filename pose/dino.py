@@ -8,12 +8,13 @@ import cv2
 from PIL import Image
 import numpy as np
 
+ROOT = Path(__file__).parent.parent
+IMAGE_DIR = ROOT / "data" / "llm" / "misc-images"
+INPUT_DIR = IMAGE_DIR / "input"
+OUTPUT_DIR = IMAGE_DIR / "output"
+
 models = Literal["IDEA-Research/grounding-dino-tiny", "IDEA-Research/grounding-dino-base"]
 SUPPORTED_MODELS = get_args(models)
-
-# colors for visualization
-COLORS = [[0.000, 0.447, 0.741], [0.850, 0.325, 0.098], [0.929, 0.694, 0.125],
-          [0.494, 0.184, 0.556], [0.466, 0.674, 0.188], [0.301, 0.745, 0.933]]
 
 
 def get_model(model_name: str):
@@ -64,7 +65,6 @@ def make_get_bounding_boxes(model_name: str):
     """
     processor, model, device = get_model(model_name)
 
-    # TODO: generalize the code to use pipeline? (worth?)
     def generate_bounding_boxes(labels: list, image_path: Path):
         """
         Generate bounding boxes for the given labels in the image.
@@ -174,15 +174,52 @@ def draw_bounding_boxes(
         cv2.destroyAllWindows()
 
 
+def get_mouth_bbox(bounding_boxes: dict) -> list:
+    scores = bounding_boxes['scores'].cpu().numpy()
+    labels = bounding_boxes['labels']
+    boxes = bounding_boxes['boxes'].cpu().numpy()
+
+    mouth_bboxes = []
+    for scores, label, bbox in zip(scores, labels, boxes):
+        if label == 'mouth':
+            mouth_bboxes.append(bbox)
+    
+    if len(mouth_bboxes) == 0:
+        raise IndexError(f"No bounding box found associated with label 'mouth'")
+
+    if len(mouth_bboxes) > 1:
+        raise ValueError(f"More than one bounding box found with label 'mouth'")
+
+    return mouth_bboxes[0]
+
+
+def get_food_bboxes(bounding_boxes) -> list[list]:
+    scores = bounding_boxes['scores'].cpu().numpy()
+    labels = bounding_boxes['labels']
+    boxes = bounding_boxes['boxes'].cpu().numpy()
+
+    food_bboxes = []
+    for scores, label, bbox in zip(scores, labels, boxes):
+        if label == 'food':
+            food_bboxes.append(bbox)
+
+    return food_bboxes
+    
+
 if __name__ == "__main__":
     model_name = "IDEA-Research/grounding-dino-base"
     generate_bounding_boxes = make_get_bounding_boxes(model_name)
 
-    root = Path(__file__).parent
-    image_path = Path(root / "cat.jpg")
-    output_path = Path(root / "dino.jpg")
+    image_path = INPUT_DIR / "eat-2.jpg"
+    output_path = OUTPUT_DIR / "dino-2.jpg"
 
-    # text = "a cat. a remote control."
-    labels = ["a cat", "a remote control"]
+    labels = ["food", "mouth"]
     bounding_boxes = generate_bounding_boxes(labels, image_path)
-    draw_bounding_boxes(image_path, bounding_boxes, output_path)
+    pprint.pprint(bounding_boxes)
+    # draw_bounding_boxes(image_path, bounding_boxes, output_path)
+
+    mouth_bbox = get_mouth_bbox(bounding_boxes)
+    pprint.pprint(mouth_bbox)
+
+    food_bboxes = get_food_bboxes(bounding_boxes)
+    pprint.pprint(food_bboxes)

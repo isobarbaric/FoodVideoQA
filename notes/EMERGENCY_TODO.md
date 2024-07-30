@@ -1,0 +1,2 @@
+- change file paths for data.json references everywhere
+- add console color printing everywhere
