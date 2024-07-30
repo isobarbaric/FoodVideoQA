@@ -55,6 +55,36 @@ def preprocess_labels(labels: list) -> str:
     return combined_labels
 
 
+@dataclass
+class BoundingBox:
+    bounding_box: np.ndarray
+    label: str
+    score: float
+
+    @property
+    def xmin(self) -> float:
+        return self.bounding_box[0]
+
+    @property
+    def ymin(self) -> float:
+        return self.bounding_box[1]
+
+    @property
+    def xmax(self) -> float:
+        return self.bounding_box[2]
+
+    @property
+    def ymax(self) -> float:
+        return self.bounding_box[3]
+
+    @property
+    def center(self) -> tuple[int, int]:
+        xmin, ymin, xmax, ymax = self.bounding_box
+        x_mid = (xmin + xmax) / 2
+        y_mid = (ymin + ymax) / 2
+        return x_mid, y_mid
+
+
 def make_get_bounding_boxes(model_name: str):
     """
     Create a function for generating bounding boxes using the specified model.
@@ -136,7 +166,7 @@ def draw_text(
 # TODO: refactor this to use list[DINOBoundingBox]
 def draw_bounding_boxes(
     image_path: Path, 
-    bounding_boxes_data: dict, 
+    bounding_boxes: list[BoundingBox], 
     output_path: Path,
     show: bool = False
 ):
@@ -151,18 +181,14 @@ def draw_bounding_boxes(
     """
     image = cv2.imread(str(image_path))
 
-    scores = bounding_boxes_data['scores'].cpu().numpy()
-    labels = bounding_boxes_data['labels']
-    boxes = bounding_boxes_data['boxes'].cpu().numpy()
-
-    for score, label, (xmin, ymin, xmax, ymax) in zip(scores, labels, boxes):
-        img_label = f'{label}: {score:0.2f}'
-        x, y = round(xmin), round(ymin)
+    for bbox in bounding_boxes:
+        img_label = f'{bbox.label}: {bbox.score:0.2f}'
+        x, y = round(bbox.xmin), round(bbox.ymin)
 
         # w = change in x
-        w = round(xmax) - round(xmin)
+        w = round(bbox.xmax) - round(bbox.xmin)
         # h = change in y
-        h = round(ymax) - round(ymin)
+        h = round(bbox.ymax) - round(bbox.ymin)
 
         cv2.rectangle(image, (x, y), (x+w, y+h), color=(36, 80, 203), thickness=2)
         draw_text(image, img_label, (x, y))
@@ -177,35 +203,6 @@ def draw_bounding_boxes(
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-
-@dataclass
-class BoundingBox:
-    bounding_box: np.ndarray
-    label: str
-    score: float
-
-    @property
-    def xmin(self) -> float:
-        return self.bounding_box[0]
-
-    @property
-    def ymin(self) -> float:
-        return self.bounding_box[1]
-
-    @property
-    def xmax(self) -> float:
-        return self.bounding_box[2]
-
-    @property
-    def ymax(self) -> float:
-        return self.bounding_box[3]
-
-    @property
-    def center(self) -> tuple[int, int]:
-        xmin, ymin, xmax, ymax = self.bounding_box
-        x_mid = (xmin + xmax) / 2
-        y_mid = (ymin + ymax) / 2
-        return x_mid, y_mid
 
 
 def process_bounding_boxes(bounding_boxes_data: dict) -> list[BoundingBox]:
@@ -237,24 +234,40 @@ def get_food_bboxes(bounding_boxes: list[BoundingBox]):
     return bboxes
 
 
+def get_closest_food_bbox(mouth_bbox: BoundingBox, food_bboxes: list[BoundingBox]) -> BoundingBox:
+    bbox_dists = []
+    for bbox in food_bboxes:
+        # print(f"mouth bbox: {mouth_bbox.center}")        
+        # print(f"food bbox: {bbox.center}")        
+        dist = ((mouth_bbox.center[0] - bbox.center[0]) ** 2) + ((mouth_bbox.center[1] - bbox.center[1]) ** 2) 
+        dist = np.sqrt(dist)
+        bbox_dists.append([dist, bbox])
+
+    bbox_dists.sort()
+    return bbox_dists[0]
+
+
 if __name__ == "__main__":
     model_name = "IDEA-Research/grounding-dino-base"
     generate_bounding_boxes = make_get_bounding_boxes(model_name)
 
-    image_path = INPUT_DIR / "eat-2.jpg"
-    output_path = OUTPUT_DIR / "dino-2.jpg"
+    image_path = INPUT_DIR / "eat-3.jpg"
+    output_path = OUTPUT_DIR / "dino-3.jpg"
 
     labels = ["food", "mouth"]
     bounding_boxes = generate_bounding_boxes(labels, image_path)
+    draw_bounding_boxes(image_path, bounding_boxes, output_path)
+
     print("all bounding boxes:")
     pprint.pprint(bounding_boxes)
 
-    # draw_bounding_boxes(image_path, bounding_boxes, output_path)
-
     mouth_bbox = get_mouth_bbox(bounding_boxes)
-    print("\nmouth bounding box:")
-    pprint.pprint(mouth_bbox)
+    # print("\nmouth bounding box:")
+    # pprint.pprint(mouth_bbox)
 
     food_bboxes = get_food_bboxes(bounding_boxes)
-    print("\nfood bounding boxes:")
-    pprint.pprint(food_bboxes)
+    # print("\nfood bounding boxes:")
+    # pprint.pprint(food_bboxes)
+
+    closest_bbox = get_closest_food_bbox(mouth_bbox, food_bboxes)
+    pprint.pprint(closest_bbox)
