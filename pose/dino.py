@@ -120,8 +120,6 @@ def draw_text(
     Returns:
         tuple: Size of the drawn text.
     """
-    print(f"image: {type(image)}")
-
     x, y = pos
     text_size, _ = cv2.getTextSize(text, font, font_scale, font_thickness)
     text_w, text_h = text_size
