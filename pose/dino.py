@@ -4,23 +4,26 @@ from PIL import Image
 from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection 
 import pprint
 import matplotlib.pyplot as plt
-import matplotlib
-import numpy as np
 from pathlib import Path
 from typing import Literal, get_args
 
 models = Literal["IDEA-Research/grounding-dino-tiny", "IDEA-Research/grounding-dino-base"]
 SUPPORTED_MODELS = get_args(models)
 
-
-model_name = "IDEA-Research/grounding-dino-base"
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-processor = AutoProcessor.from_pretrained(model_name)
-model = AutoModelForZeroShotObjectDetection.from_pretrained(model_name).to(device)
-
 # colors for visualization
 COLORS = [[0.000, 0.447, 0.741], [0.850, 0.325, 0.098], [0.929, 0.694, 0.125],
           [0.494, 0.184, 0.556], [0.466, 0.674, 0.188], [0.301, 0.745, 0.933]]
+
+
+def get_model(model_name: str):
+    if model_name not in SUPPORTED_MODELS:
+        raise ValueError(f"{model_name} model not supported; supported models are {SUPPORTED_MODELS}")
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    processor = AutoProcessor.from_pretrained(model_name)
+    model = AutoModelForZeroShotObjectDetection.from_pretrained(model_name).to(device)
+
+    return processor, model, device
 
 
 def preprocess_labels(labels: list) -> str:
@@ -28,23 +31,28 @@ def preprocess_labels(labels: list) -> str:
     return combined_labels
 
 
-def generate_bounding_boxes(labels: list, image: Image):
-    text = preprocess_labels(labels)
-    # print(f"text: {text}")
+def make_get_bounding_boxes(model_name: str):
+    processor, model, device = get_model(model_name)
 
-    inputs = processor(images=image, text=text, return_tensors="pt").to(device)
-    with torch.no_grad():
-        outputs = model(**inputs)
+    # TODO: generalize the code to use pipeline? (worth?)
+    def generate_bounding_boxes(labels: list, image: Image):
+        text = preprocess_labels(labels)
+        inputs = processor(images=image, text=text, return_tensors="pt").to(device)
 
-    results = processor.post_process_grounded_object_detection(
-        outputs,
-        inputs.input_ids,
-        box_threshold=0.4,
-        text_threshold=0.3,
-        target_sizes=[image.size[::-1]]
-    )
+        with torch.no_grad():
+            outputs = model(**inputs)
 
-    return results[0]
+        results = processor.post_process_grounded_object_detection(
+            outputs,
+            inputs.input_ids,
+            box_threshold=0.4,
+            text_threshold=0.3,
+            target_sizes=[image.size[::-1]]
+        )
+
+        return results[0]
+    
+    return generate_bounding_boxes
 
 
 def draw_bounding_boxes(
@@ -52,11 +60,6 @@ def draw_bounding_boxes(
     bounding_boxes: dict, 
     output_path: Path = None
 ):
-    # if output_path:
-    #     plt.switch_backend('Agg')
-    # else:
-    #     plt.switch_backend('TkAgg')
-
     plt.figure(figsize=(16,10))
     plt.imshow(image)
     ax = plt.gca()
@@ -84,12 +87,16 @@ def draw_bounding_boxes(
 
 
 if __name__ == "__main__":
-    image_url = "http://images.cocodataset.org/val2017/000000039769.jpg"
-    image = Image.open(requests.get(image_url, stream=True).raw)
+    model_name = "IDEA-Research/grounding-dino-tiny"
+    generate_bounding_boxes = make_get_bounding_boxes(model_name)
 
     # text = "a cat. a remote control."
     labels = ["a cat", "a remote control"]
-
+    image_url = "http://images.cocodataset.org/val2017/000000039769.jpg"
+    image = Image.open(requests.get(image_url, stream=True).raw)
     bounding_boxes = generate_bounding_boxes(labels, image)
-    output_path = Path("haha.jpg")
+
+    root = Path(__file__).parent
+    output_path = Path(root / "dino.jpg")
+
     draw_bounding_boxes(image, bounding_boxes, output_path)
