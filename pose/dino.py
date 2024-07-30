@@ -1,11 +1,11 @@
-import requests
 import torch
 from PIL import Image
 from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection 
 import pprint
-import matplotlib.pyplot as plt
 from pathlib import Path
 from typing import Literal, get_args
+import cv2
+from PIL import Image
 
 models = Literal["IDEA-Research/grounding-dino-tiny", "IDEA-Research/grounding-dino-base"]
 SUPPORTED_MODELS = get_args(models)
@@ -35,8 +35,9 @@ def make_get_bounding_boxes(model_name: str):
     processor, model, device = get_model(model_name)
 
     # TODO: generalize the code to use pipeline? (worth?)
-    def generate_bounding_boxes(labels: list, image: Image):
+    def generate_bounding_boxes(labels: list, image_path: Path):
         text = preprocess_labels(labels)
+        image = Image.open(image_path)
         inputs = processor(images=image, text=text, return_tensors="pt").to(device)
 
         with torch.no_grad():
@@ -55,48 +56,70 @@ def make_get_bounding_boxes(model_name: str):
     return generate_bounding_boxes
 
 
-def draw_bounding_boxes(
-    image: Image, 
-    bounding_boxes: dict, 
-    output_path: Path = None
+def draw_text(
+    img, 
+    text,
+    pos,
+    font=cv2.FONT_HERSHEY_SIMPLEX,
+    font_scale=0.35,
+    font_thickness=1,
+    text_color=(0, 0, 0),
+    text_color_bg=(31, 132, 187)
 ):
-    plt.figure(figsize=(16,10))
-    plt.imshow(image)
-    ax = plt.gca()
-    colors = COLORS * 100
+    x, y = pos
+    text_size, _ = cv2.getTextSize(text, font, font_scale, font_thickness)
+    text_w, text_h = text_size
+
+    cv2.rectangle(img, (x, y - text_h), (x + text_w, y), text_color_bg, -1)
+    cv2.putText(img, text, (x, y), font, font_scale, text_color, font_thickness)
+
+    return text_size
+
+
+def draw_bounding_boxes(
+    image_path: Path, 
+    bounding_boxes: dict, 
+    output_path: Path,
+    show: bool = False
+):
+    image = cv2.imread(str(image_path))
 
     scores = bounding_boxes['scores'].cpu().numpy()
     labels = bounding_boxes['labels']
     boxes = bounding_boxes['boxes'].cpu().numpy()
 
-    for score, label, (xmin, ymin, xmax, ymax), c in zip(scores, labels, boxes, colors):
-        ax.add_patch(plt.Rectangle((xmin, ymin), xmax - xmin, ymax - ymin,
-                                   fill=False, color=c, linewidth=3))
+    for score, label, (xmin, ymin, xmax, ymax) in zip(scores, labels, boxes):
         img_label = f'{label}: {score:0.2f}'
-        ax.text(xmin, ymin, img_label, fontsize=15,
-                bbox=dict(facecolor='yellow', alpha=0.5))
-    plt.axis('off')
-    plt.tight_layout()
+        x, y = round(xmin), round(ymin)
 
-    if output_path is not None:
-        if not output_path.exists():
-            output_path.touch()
-        plt.savefig(output_path)
-    else:
-        plt.show()
+        # w = change in x
+        w = round(xmax) - round(xmin)
+        # h = change in y
+        h = round(ymax) - round(ymin)
+
+        cv2.rectangle(image, (x, y), (x+w, y+h), color=(36, 80, 203), thickness=2)
+        draw_text(image, img_label, (x, y))
+
+    if not output_path.exists():
+        output_path.touch()
+    cv2.imwrite(str(output_path), image)
+        
+    if show:
+        img = cv2.imread(str(output_path))
+        cv2.imshow('image', img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
-    model_name = "IDEA-Research/grounding-dino-tiny"
+    model_name = "IDEA-Research/grounding-dino-base"
     generate_bounding_boxes = make_get_bounding_boxes(model_name)
+
+    root = Path(__file__).parent
+    image_path = Path(root / "cat.jpg")
+    output_path = Path(root / "dino.jpg")
 
     # text = "a cat. a remote control."
     labels = ["a cat", "a remote control"]
-    image_url = "http://images.cocodataset.org/val2017/000000039769.jpg"
-    image = Image.open(requests.get(image_url, stream=True).raw)
-    bounding_boxes = generate_bounding_boxes(labels, image)
-
-    root = Path(__file__).parent
-    output_path = Path(root / "dino.jpg")
-
-    draw_bounding_boxes(image, bounding_boxes, output_path)
+    bounding_boxes = generate_bounding_boxes(labels, image_path)
+    draw_bounding_boxes(image_path, bounding_boxes, output_path)
