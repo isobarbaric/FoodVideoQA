@@ -8,6 +8,7 @@ import cv2
 from PIL import Image
 import numpy as np
 from dataclasses import dataclass
+from strenum import StrEnum
 
 ROOT = Path(__file__).parent.parent
 IMAGE_DIR = ROOT / "data" / "llm" / "misc-images"
@@ -16,6 +17,41 @@ OUTPUT_DIR = IMAGE_DIR / "output"
 
 models = Literal["IDEA-Research/grounding-dino-tiny", "IDEA-Research/grounding-dino-base"]
 SUPPORTED_MODELS = get_args(models)
+
+
+@dataclass
+class BoundingBox:
+    bounding_box: np.ndarray
+    label: str
+    score: float
+
+    @property
+    def xmin(self) -> float:
+        return self.bounding_box[0]
+
+    @property
+    def ymin(self) -> float:
+        return self.bounding_box[1]
+
+    @property
+    def xmax(self) -> float:
+        return self.bounding_box[2]
+
+    @property
+    def ymax(self) -> float:
+        return self.bounding_box[3]
+
+    @property
+    def center(self) -> tuple[int, int]:
+        xmin, ymin, xmax, ymax = self.bounding_box
+        x_mid = (xmin + xmax) / 2
+        y_mid = (ymin + ymax) / 2
+        return x_mid, y_mid
+
+
+class Labels(StrEnum):
+    MOUTH = "mouth"
+    FOOD = "food"
 
 
 def get_model(model_name: str):
@@ -55,36 +91,6 @@ def preprocess_labels(labels: list) -> str:
     return combined_labels
 
 
-@dataclass
-class BoundingBox:
-    bounding_box: np.ndarray
-    label: str
-    score: float
-
-    @property
-    def xmin(self) -> float:
-        return self.bounding_box[0]
-
-    @property
-    def ymin(self) -> float:
-        return self.bounding_box[1]
-
-    @property
-    def xmax(self) -> float:
-        return self.bounding_box[2]
-
-    @property
-    def ymax(self) -> float:
-        return self.bounding_box[3]
-
-    @property
-    def center(self) -> tuple[int, int]:
-        xmin, ymin, xmax, ymax = self.bounding_box
-        x_mid = (xmin + xmax) / 2
-        y_mid = (ymin + ymax) / 2
-        return x_mid, y_mid
-
-
 def make_get_bounding_boxes(model_name: str):
     """
     Create a function for generating bounding boxes using the specified model.
@@ -96,7 +102,7 @@ def make_get_bounding_boxes(model_name: str):
     """
     processor, model, device = get_model(model_name)
 
-    def generate_bounding_boxes(labels: list, image_path: Path) -> BoundingBox:
+    def generate_bounding_boxes(image_path: Path, labels: list = [Labels.MOUTH, Labels.FOOD]) -> BoundingBox:
         """
         Generate bounding boxes for the given labels in the image.
 
@@ -163,7 +169,6 @@ def draw_text(
     return text_size
 
 
-# TODO: refactor this to use list[DINOBoundingBox]
 def draw_bounding_boxes(
     image_path: Path, 
     bounding_boxes: list[BoundingBox], 
@@ -204,7 +209,6 @@ def draw_bounding_boxes(
         cv2.destroyAllWindows()
 
 
-
 def process_bounding_boxes(bounding_boxes_data: dict) -> list[BoundingBox]:
     scores = bounding_boxes_data['scores'].cpu().numpy()
     labels = bounding_boxes_data['labels']
@@ -237,8 +241,6 @@ def get_food_bboxes(bounding_boxes: list[BoundingBox]):
 def get_closest_food_bbox(mouth_bbox: BoundingBox, food_bboxes: list[BoundingBox]) -> BoundingBox:
     bbox_dists = []
     for bbox in food_bboxes:
-        # print(f"mouth bbox: {mouth_bbox.center}")        
-        # print(f"food bbox: {bbox.center}")        
         dist = ((mouth_bbox.center[0] - bbox.center[0]) ** 2) + ((mouth_bbox.center[1] - bbox.center[1]) ** 2) 
         dist = np.sqrt(dist)
         bbox_dists.append([dist, bbox])
@@ -254,8 +256,7 @@ if __name__ == "__main__":
     image_path = INPUT_DIR / "eat-3.jpg"
     output_path = OUTPUT_DIR / "dino-3.jpg"
 
-    labels = ["food", "mouth"]
-    bounding_boxes = generate_bounding_boxes(labels, image_path)
+    bounding_boxes = generate_bounding_boxes(image_path)
     draw_bounding_boxes(image_path, bounding_boxes, output_path)
 
     print("all bounding boxes:")
