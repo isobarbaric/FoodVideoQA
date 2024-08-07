@@ -9,6 +9,7 @@ from PIL import Image
 import numpy as np
 from dataclasses import dataclass
 from strenum import StrEnum
+from shapely.geometry import Polygon
 
 ROOT = Path(__file__).parent.parent
 IMAGE_DIR = ROOT / "data" / "llm" / "misc-images"
@@ -47,6 +48,10 @@ class BoundingBox:
         x_mid = (xmin + xmax) / 2
         y_mid = (ymin + ymax) / 2
         return x_mid, y_mid
+
+    @property
+    def area(self) -> float:
+        return (self.xmax - self.xmin) * (self.ymax - self.ymin)
 
 
 class Labels(StrEnum):
@@ -238,29 +243,63 @@ def get_food_bboxes(bounding_boxes: list[BoundingBox]):
     return bboxes
 
 
+def distance(bbox1: BoundingBox, bbox2: BoundingBox) -> float:
+   return np.sqrt(((bbox1.center[0] - bbox2.center[0]) ** 2) + 
+                  ((bbox1.center[1] - bbox2.center[1]) ** 2))
+
+
 def get_closest_food_bbox(mouth_bbox: BoundingBox, food_bboxes: list[BoundingBox]) -> BoundingBox:
     bbox_dists = []
     for bbox in food_bboxes:
-        dist = ((mouth_bbox.center[0] - bbox.center[0]) ** 2) + ((mouth_bbox.center[1] - bbox.center[1]) ** 2) 
-        dist = np.sqrt(dist)
+        dist = distance(mouth_bbox, bbox)
         bbox_dists.append([dist, bbox])
 
     bbox_dists.sort()
-    return bbox_dists[0]
+    return bbox_dists[0][1]
+
+
+# integrate this into class itself?
+def bbox_intersection(bbox1: BoundingBox, bbox2: BoundingBox) -> float:
+    # polygon = Polygon([(3, 3), (5, 3), (5, 5), (3, 5)])
+    # (xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax)
+    # other_polygon = Polygon([(1, 1), (4, 1), (4, 3.5), (1, 3.5)])
+    # (xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax)
+    union = bbox1.area + bbox2.area
+    print(f"bbox1: {bbox1.area}, bbox2: {bbox2.area}, union: {union}")
+
+    bbox1_poly = Polgyon([
+        (bbox1.xmin, bbox1.ymin),
+        (bbox1.xmax, bbox1.ymin),
+        (bbox1.xmax, bbox1.ymax),
+        (bbox1.xmin, bbox1.ymax)
+    ])
+    bbox2_poly = Polgyon([
+        (bbox2.xmin, bbox2.ymin),
+        (bbox2.xmax, bbox2.ymin),
+        (bbox2.xmax, bbox2.ymax),
+        (bbox2.xmin, bbox2.ymax)
+    ])
+    intersection = bbox1_poly.intersection(bbox2_poly)
+
+    # intersection = np.lVkkkkkk
+    # union = np.logical_or(bbox1, bbox2)
+    # iou_score = np.sum(intersection) / np.sum(union)
+    # print(f"IoU is: {iou_score}")
+
 
 
 if __name__ == "__main__":
     model_name = "IDEA-Research/grounding-dino-base"
     generate_bounding_boxes = make_get_bounding_boxes(model_name)
 
-    image_path = INPUT_DIR / "eat-3.jpg"
-    output_path = OUTPUT_DIR / "dino-3.jpg"
+    image_path = INPUT_DIR / "eat-2.jpg"
+    output_path = OUTPUT_DIR / "dino-2.jpg"
 
     bounding_boxes = generate_bounding_boxes(image_path)
     draw_bounding_boxes(image_path, bounding_boxes, output_path)
 
-    print("all bounding boxes:")
-    pprint.pprint(bounding_boxes)
+    # print("all bounding boxes:")
+    # pprint.pprint(bounding_boxes)
 
     mouth_bbox = get_mouth_bbox(bounding_boxes)
     # print("\nmouth bounding box:")
@@ -270,5 +309,7 @@ if __name__ == "__main__":
     # print("\nfood bounding boxes:")
     # pprint.pprint(food_bboxes)
 
-    closest_bbox = get_closest_food_bbox(mouth_bbox, food_bboxes)
-    pprint.pprint(closest_bbox)
+    closest_food_bbox = get_closest_food_bbox(mouth_bbox, food_bboxes)
+    pprint.pprint(closest_food_bbox)
+
+    bbox_intersection(mouth_bbox, closest_food_bbox)
