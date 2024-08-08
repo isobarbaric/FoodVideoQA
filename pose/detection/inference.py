@@ -1,6 +1,6 @@
 import cv2
 from pathlib import Path
-from pose.detection.utils import *
+from pose.detection.inference_utils import HWC3, resize_image
 from pose.detection.pose_detector import PoseDetector
 
 ROOT_DIR = Path(__file__).parent.parent.parent
