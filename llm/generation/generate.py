@@ -5,8 +5,9 @@ from pathlib import Path
 from .video_utils import extract_frames
 import pprint
 import json
-from .models import get_response 
+from llm.generation.models import make_get_response
 from tqdm import tqdm
+from typing import Callable
 
 ROOT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT_DIR / "data"
@@ -29,9 +30,10 @@ utensils = [
     "glass"
 ]
 
-def _describe_frame(frame_number: int, 
-                   image_file: Path, 
-                   questions: list[str]):
+def _describe_frame(get_response: Callable[[str, Path], str],
+                    frame_number: int, 
+                    image_file: Path, 
+                    questions: list[str]):
     if not image_file.exists():
         raise ValueError(f"No image exists at {image_file.absolute()}")
 
@@ -47,20 +49,22 @@ def _describe_frame(frame_number: int,
     return answers
 
 
-def _describe_video(questions: list[str], 
-                   video_path: Path, 
-                   frame_dir: Path, 
-                   frame_step_size: int = 10):
+def _describe_video(model_name: str,
+                    questions: list[str], 
+                    video_path: Path, 
+                    frame_dir: Path, 
+                    frame_step_size: int = 10):
     if not video_path.exists():
-        raise ValueError(f"Provided file path {video_path} does not exist")
+        video_path.mkdir(parents=True)
     
     extract_frames(video_path, frame_dir, frame_step_size)
     images = []
 
+    get_response = make_get_response(model_name)
     for frame in sorted(frame_dir.iterdir()):
         print(f"- processing {frame.name}...")
         frame_num = int(frame.name[frame.name.find('frame')+5:frame.name.find('.')])
-        current_frame = _describe_frame(frame_num, frame, questions)
+        current_frame = _describe_frame(get_response, frame_num, frame, questions)
         images.append(current_frame)
 
     answer = {
@@ -71,7 +75,8 @@ def _describe_video(questions: list[str],
     return answer
         
 
-def process_videos(video_dir: Path,
+def process_videos(model_name: str,
+                   video_dir: Path,
                    frame_dir: Path,
                    questions: list[str],
                    output_file: Path,
@@ -85,7 +90,7 @@ def process_videos(video_dir: Path,
         if video.suffix in ['.mp4']:
             # generalize this to
             frame = frame_dir / video.name
-            answers.append(_describe_video(questions, video, frame, frame_step_size))
+            answers.append(_describe_video(model_name, questions, video, frame, frame_step_size))
 
         with open(output_file, 'w') as f:
             json.dump(answers, f, indent=4) 
@@ -108,7 +113,8 @@ if __name__ == "__main__":
         "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response."
     ]
 
-    process_videos(video_dir, frame_dir, questions, output_file, frame_step_size = 20)
+    model_name = "llava-hf/llava-v1.6-mistral-7b-hf"
+    process_videos(model_name, video_dir, frame_dir, questions, output_file, frame_step_size = 20)
 
     ###
     # temporary testing code goes below this line    
