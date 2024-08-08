@@ -9,24 +9,23 @@ os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 import torch
 import numpy as np
-from pose.detection.dwpose.drawing_utils import draw_bodypose, draw_facepose, draw_handpose
-from pose.detection.dwpose.wholebody import Wholebody
+from pose.detection.drawing_utils import draw_bodypose, draw_facepose, draw_handpose
+from pose.detection.wholebody import Wholebody
 from dataclasses import dataclass
 from pathlib import Path
 
-ROOT_DIR = Path(__file__).parent.parent.parent.parent
+ROOT_DIR = Path(__file__).parent.parent.parent
 POSE_DIR = ROOT_DIR / "pose"
 DETECTION_DIR = POSE_DIR / "detection"
-DWPOSE_DIR = DETECTION_DIR / "dwpose"
 
 # TODO: setting the path of the ckpts/ dir isn't working
 @dataclass
 class PoseDetectorConfig:
-  det_config: str = DWPOSE_DIR / 'config/yolox_l_8xb8-300e_coco.py'
-#   det_ckpt: str = DWPOSE_DIR / '/ckpts/detection_model.pth'
+  det_config: str = DETECTION_DIR / 'config/yolox_l_8xb8-300e_coco.py'
+#   det_ckpt: str = DETECTION_DIR / '/ckpts/detection_model.pth'
   det_ckpt: str = None
-  pose_config: str = DWPOSE_DIR / 'config/dwpose-l_384x288.py'
-#   pose_ckpt: str = DWPOSE_DIR / '/ckpts/pose_model.pth'
+  pose_config: str = DETECTION_DIR / 'config/dwpose-l_384x288.py'
+#   pose_ckpt: str = DETECTION_DIR / '/ckpts/pose_model.pth'
   pose_ckpt: str = None
   device: str = "cuda"
 
