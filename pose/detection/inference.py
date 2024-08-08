@@ -7,7 +7,7 @@ ROOT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT_DIR / "data"
 POSE_DATA_DIR = DATA_DIR / "pose"
 IMG_SOURCE_DIR = POSE_DATA_DIR / "assets"
-IMAGE_PLOT_OUTPUT_DIR = POSE_DATA_DIR / "image-plot"
+INFERENCE_OUTPUT_DIR = POSE_DATA_DIR / "inference"
 
 
 def infer_pose(pose_detector: PoseDetector, img_path: Path, output_path: Path):
@@ -39,6 +39,6 @@ if __name__ == '__main__' :
 
     for img_num in range(1, 5):
         img_path = IMG_SOURCE_DIR / f"test{img_num}.jpg"
-        output_path = IMAGE_PLOT_OUTPUT_DIR / f"test{img_num}.jpg"
+        output_path = INFERENCE_OUTPUT_DIR / f"test{img_num}.jpg"
         infer_pose(pose_detector, img_path, output_path)
         print(f"{img_path} done")
