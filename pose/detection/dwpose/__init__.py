@@ -12,6 +12,7 @@ import numpy as np
 from . import util
 from .wholebody import Wholebody
 from dataclasses import dataclass
+from pathlib import Path
 
 def draw_pose(pose, H, W):
     bodies = pose['bodies']
@@ -27,14 +28,21 @@ def draw_pose(pose, H, W):
 
     return canvas
 
+ROOT_DIR = Path(__file__).parent.parent.parent.parent
+POSE_DIR = ROOT_DIR / "pose"
+DETECTION_DIR = POSE_DIR / "detection"
+DWPOSE_DIR = DETECTION_DIR / "dwpose"
 
+# TODO: setting the path of the ckpts/ dir isn't working
 @dataclass
 class PoseDetectorConfig:
-  det_config: str = './dwpose/yolox_config/yolox_l_8xb8-300e_coco.py'
-  det_ckpt: str = './ckpts/yolox_l_8x8_300e_coco_20211126_140236-d3bd2b23.pth'
-  pose_config: str = './dwpose/dwpose_config/dwpose-l_384x288.py'
-  pose_ckpt: str = './ckpts/dw-ll_ucoco_384.pth'
-  device: str = "cuda:0"
+  det_config: str = DWPOSE_DIR / 'config/yolox_l_8xb8-300e_coco.py'
+#   det_ckpt: str = DWPOSE_DIR / '/ckpts/detection_model.pth'
+  det_ckpt: str = None
+  pose_config: str = DWPOSE_DIR / 'config/dwpose-l_384x288.py'
+#   pose_ckpt: str = DWPOSE_DIR / '/ckpts/pose_model.pth'
+  pose_ckpt: str = None
+  device: str = "cuda"
 
 
 class PoseDetector:
@@ -45,7 +53,7 @@ class PoseDetector:
                                          config.pose_ckpt, 
                                          config.device)
 
-    def __call__(self, oriImg):
+    def __call__(self, oriImg, infer: bool = False):
         oriImg = oriImg.copy()
         H, W, C = oriImg.shape
         with torch.no_grad():
@@ -78,5 +86,7 @@ class PoseDetector:
             bodies = dict(candidate=body, subset=score)
             pose = dict(bodies=bodies, hands=hands, faces=faces)
 
-            # return draw_pose(pose, H, W)
+            if infer:
+                return draw_pose(pose, H, W)
+
             return faces

@@ -3,8 +3,14 @@ import numpy as np
 from pathlib import Path
 import cv2
 from dataclasses import dataclass
-from utils import *
-from dwpose import PoseDetector
+from pose.detection.utils import *
+from pose.detection.dwpose import PoseDetector
+
+ROOT_DIR = Path(__file__).parent.parent.parent
+DATA_DIR = ROOT_DIR / "data"
+POSE_DATA_DIR = DATA_DIR / "pose"
+IMG_SOURCE_DIR = POSE_DATA_DIR / "assets"
+FACE_PLOT_OUTPUT_DIR = POSE_DATA_DIR / "face-plot"
 
 # constants
 MOUTH_START_INDEX = 48
@@ -12,6 +18,7 @@ MOUTH_END_INDEX = 69
 H = 480
 W = 640
 
+LIP_SEPARATION_THRESHOLD = 8
 
 @dataclass
 class FacialLandmarks:
@@ -76,21 +83,20 @@ def _is_mouth_open(landmarks: FacialLandmarks) -> bool:
   lip_top = np.array(landmarks.lip_top_y)
 
   distance = lip_top - lip_bottom
-  print(distance)
+  # print(distance)
   distance = abs(np.mean(distance))
   
   # don't think I need to adjust this since DWPose always seems to output images of the same dimension
   # distance /= H
 
-  threshold = 8
-  return distance > threshold
+  return distance > LIP_SEPARATION_THRESHOLD
 
 
-def determine_mouth_open(pose_detector: PoseDetector, img_path: Path, output_path=False) -> bool:
+def determine_mouth_open(pose_detector: PoseDetector, img_path: Path, output_path: Path = None) -> bool:
   landmarks = _get_landmarks(pose_detector, img_path)
   mouth_open = _is_mouth_open(landmarks)
 
-  if output_path:
+  if output_path is not None:
     plt.figure(figsize=(8, 8))
     plt.scatter(landmarks.face_x, landmarks.face_y, c='gray', marker='o')
     plt.scatter(landmarks.mouth_x, landmarks.mouth_y, c='blue', marker='o')
@@ -111,9 +117,8 @@ def determine_mouth_open(pose_detector: PoseDetector, img_path: Path, output_pat
 if __name__ == "__main__":
   pose_detector = PoseDetector()
 
-  for img_num in range(1, 9):
-    img_path = Path(f"assets/test{img_num}.jpg")
-    output_path = Path(f"outputs/test{img_num}_mouth.jpg")
-    # mouth_open = determine_mouth_open(pose_detector, img_path, output_path)
-    mouth_open = determine_mouth_open(pose_detector, img_path)
+  for img_num in range(1, 5):
+    img_path = IMG_SOURCE_DIR / f"test{img_num}.jpg"
+    output_path = FACE_PLOT_OUTPUT_DIR / f"test{img_num}.jpg"
+    mouth_open = determine_mouth_open(pose_detector, img_path, output_path)
     print(f"test{img_num}: {mouth_open}")
