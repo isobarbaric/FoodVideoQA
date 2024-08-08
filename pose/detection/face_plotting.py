@@ -3,7 +3,7 @@ import numpy as np
 from pathlib import Path
 import cv2
 from dataclasses import dataclass
-from pose.detection.utils import *
+from pose.detection.inference_utils import HWC3, resize_image
 from pose.detection.pose_detector import PoseDetector
 
 ROOT_DIR = Path(__file__).parent.parent.parent
