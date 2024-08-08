@@ -22,7 +22,7 @@ def infer_pose(pose_detector: PoseDetector, img_path: Path, output_path: Path):
     
     # turned on infer flag to create a plot instead of returning landmarks
     # TODO: make "infer" flag something more intuitive
-    detected_map = pose_detector(input_image, infer=True)
+    detected_map = pose_detector.infer(input_image)
     detected_map = HWC3(detected_map)
     
     detected_map = cv2.resize(detected_map, (W, H), interpolation=cv2.INTER_LINEAR)
@@ -36,6 +36,9 @@ def infer_pose(pose_detector: PoseDetector, img_path: Path, output_path: Path):
 # TODO: modify __call__ in PoseDetector to return canvas & face data so that infer_pose works
 if __name__ == '__main__' :
     pose_detector = PoseDetector()
+
+    if not INFERENCE_OUTPUT_DIR.exists():
+        INFERENCE_OUTPUT_DIR.mkdir(parents=True, exist_ok=False)
 
     for img_num in range(1, 5):
         img_path = IMG_SOURCE_DIR / f"test{img_num}.jpg"

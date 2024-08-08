@@ -68,7 +68,7 @@ def _get_landmarks(pose_detector: PoseDetector, img_path: str) -> FacialLandmark
   input_image = HWC3(input_image)
   input_image = resize_image(input_image, resolution=512)
   
-  face_data = pose_detector(input_image)
+  face_data = pose_detector.get_face(input_image)
   mouth_data = face_data[0]
   
   # handling reflecting the image
@@ -116,6 +116,9 @@ def determine_mouth_open(pose_detector: PoseDetector, img_path: Path, output_pat
 
 if __name__ == "__main__":
   pose_detector = PoseDetector()
+
+  if not FACE_PLOT_OUTPUT_DIR.exists():
+    FACE_PLOT_OUTPUT_DIR.mkdir(parents=True, exist_ok=False)
 
   for img_num in range(1, 5):
     img_path = IMG_SOURCE_DIR / f"test{img_num}.jpg"

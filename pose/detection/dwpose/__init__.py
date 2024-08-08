@@ -14,20 +14,6 @@ from .wholebody import Wholebody
 from dataclasses import dataclass
 from pathlib import Path
 
-def draw_pose(pose, H, W):
-    bodies = pose['bodies']
-    faces = pose['faces']
-    hands = pose['hands']
-    candidate = bodies['candidate']
-    subset = bodies['subset']
-    
-    canvas = np.zeros(shape=(H, W, 3), dtype=np.uint8)
-    canvas = util.draw_bodypose(canvas, candidate, subset)
-    canvas = util.draw_handpose(canvas, hands)
-    canvas = util.draw_facepose(canvas, faces)
-
-    return canvas
-
 ROOT_DIR = Path(__file__).parent.parent.parent.parent
 POSE_DIR = ROOT_DIR / "pose"
 DETECTION_DIR = POSE_DIR / "detection"
@@ -53,7 +39,22 @@ class PoseDetector:
                                          config.pose_ckpt, 
                                          config.device)
 
-    def __call__(self, oriImg, infer: bool = False):
+
+    def _draw_pose(self, pose, H, W):
+        bodies = pose['bodies']
+        faces = pose['faces']
+        hands = pose['hands']
+        candidate = bodies['candidate']
+        subset = bodies['subset']
+        
+        canvas = np.zeros(shape=(H, W, 3), dtype=np.uint8)
+        canvas = util.draw_bodypose(canvas, candidate, subset)
+        canvas = util.draw_handpose(canvas, hands)
+        canvas = util.draw_facepose(canvas, faces)
+
+        return canvas
+
+    def _extract_keypoints(self, oriImg):
         oriImg = oriImg.copy()
         H, W, C = oriImg.shape
         with torch.no_grad():
@@ -76,9 +77,7 @@ class PoseDetector:
             candidate[un_visible] = -1
 
             foot = candidate[:,18:24]
-
             faces = candidate[:,24:92]
-            # print(f"shape, {faces.shape}, faces: {faces}")
 
             hands = candidate[:,92:113]
             hands = np.vstack([hands, candidate[:,113:]])
@@ -86,7 +85,14 @@ class PoseDetector:
             bodies = dict(candidate=body, subset=score)
             pose = dict(bodies=bodies, hands=hands, faces=faces)
 
-            if infer:
-                return draw_pose(pose, H, W)
+        return bodies, pose, (H, W)
 
-            return faces
+
+    def infer(self, oriImg):
+        _, pose, (H, W) = self._extract_keypoints(oriImg)
+        return self._draw_pose(pose, H, W)
+
+
+    def get_face(self, oriImg):
+        _, pose, _ = self._extract_keypoints(oriImg) 
+        return pose['faces']
