@@ -1,7 +1,7 @@
 import cv2
 from pathlib import Path
 from pose.detection.utils import *
-from pose.detection.dwpose import PoseDetector
+from pose.detection.dwpose.pose_detector import PoseDetector
 
 ROOT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT_DIR / "data"

@@ -9,8 +9,8 @@ os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 import torch
 import numpy as np
-from . import util
-from .wholebody import Wholebody
+from pose.detection.dwpose.drawing_utils import draw_bodypose, draw_facepose, draw_handpose
+from pose.detection.dwpose.wholebody import Wholebody
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -48,9 +48,9 @@ class PoseDetector:
         subset = bodies['subset']
         
         canvas = np.zeros(shape=(H, W, 3), dtype=np.uint8)
-        canvas = util.draw_bodypose(canvas, candidate, subset)
-        canvas = util.draw_handpose(canvas, hands)
-        canvas = util.draw_facepose(canvas, faces)
+        canvas = draw_bodypose(canvas, candidate, subset)
+        canvas = draw_handpose(canvas, hands)
+        canvas = draw_facepose(canvas, faces)
 
         return canvas
 

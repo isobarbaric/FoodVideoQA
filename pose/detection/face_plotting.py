@@ -4,7 +4,7 @@ from pathlib import Path
 import cv2
 from dataclasses import dataclass
 from pose.detection.utils import *
-from pose.detection.dwpose import PoseDetector
+from pose.detection.dwpose.pose_detector import PoseDetector
 
 ROOT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT_DIR / "data"
@@ -93,6 +93,9 @@ def _is_mouth_open(landmarks: FacialLandmarks) -> bool:
 
 
 def determine_mouth_open(pose_detector: PoseDetector, img_path: Path, output_path: Path = None) -> bool:
+  if not img_path.exists():
+    raise ValueError(f"No image found at image path {img_path}")
+
   landmarks = _get_landmarks(pose_detector, img_path)
   mouth_open = _is_mouth_open(landmarks)
 
