@@ -1,6 +1,6 @@
 from transformers import LlavaForConditionalGeneration
 from transformers import LlavaNextProcessor, LlavaNextForConditionalGeneration
-from transformers import AutoProcessor, AutoModelForCausalLM
+from transformers import AutoModel, AutoProcessor, AutoModelForCausalLM
 import torch
 from PIL import Image
 from pathlib import Path
@@ -34,7 +34,9 @@ def get_model(model_name: str):
       model = LlavaNextForConditionalGeneration.from_pretrained(model_name, torch_dtype=torch.float16) 
       model.to(device)
     case _:
-      raise ValueError(f"Model {model_name} not configured yet")
+      processor = AutoProcessor.from_pretrained(model_name)
+      model = AutoModel(model_name)
+      model.to(device)
     
   # disabling status message doing the same implicitly
   model.generation_config.pad_token_id = model.generation_config.eos_token_id
