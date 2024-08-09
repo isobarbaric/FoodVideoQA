@@ -68,7 +68,9 @@ def _get_landmarks(pose_detector: PoseDetector, img_path: str) -> FacialLandmark
   input_image = HWC3(input_image)
   input_image = resize_image(input_image, resolution=512)
   
-  face_data = pose_detector.get_face(input_image)
+  data = pose_detector.extract_data(input_image)
+  face_data = data.faces
+
   mouth_data = face_data[0]
   
   # handling reflecting the image

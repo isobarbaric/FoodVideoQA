@@ -30,6 +30,20 @@ class PoseDetectorConfig:
   device: str = "cuda"
 
 
+@dataclass
+class PoseData:
+    H: int
+    W: int
+    faces: np.ndarray
+    hands: np.ndarray
+    body: np.ndarray
+    foot: np.ndarray
+
+    @property
+    def pose(self):
+        return dict(bodies=self.body, hands=self.hands, faces=self.faces)
+
+
 class PoseDetector:
     def __init__(self, config: PoseDetectorConfig = PoseDetectorConfig):
         self.pose_estimation = Wholebody(config.det_config, 
@@ -53,7 +67,7 @@ class PoseDetector:
 
         return canvas
 
-    def _extract_keypoints(self, oriImg):
+    def extract_data(self, oriImg) -> PoseData:
         oriImg = oriImg.copy()
         H, W, C = oriImg.shape
         with torch.no_grad():
@@ -82,16 +96,11 @@ class PoseDetector:
             hands = np.vstack([hands, candidate[:,113:]])
             
             bodies = dict(candidate=body, subset=score)
-            pose = dict(bodies=bodies, hands=hands, faces=faces)
 
-        return bodies, pose, (H, W)
-
-
-    def infer(self, oriImg):
-        _, pose, (H, W) = self._extract_keypoints(oriImg)
-        return self._draw_pose(pose, H, W)
+        return PoseData(H=H, W=W, faces=faces, hands=hands, body=bodies, foot=foot)
 
 
-    def get_face(self, oriImg):
-        _, pose, _ = self._extract_keypoints(oriImg) 
-        return pose['faces']
+    def infer(self, oriImg) -> np.ndarray:
+        keypoints = self.extract_data(oriImg)
+        return self._draw_pose(keypoints.pose, keypoints.H, keypoints.W)
+
