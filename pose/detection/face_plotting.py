@@ -91,7 +91,7 @@ def _is_mouth_open(landmarks: FacialLandmarks) -> bool:
   # don't think I need to adjust this since DWPose always seems to output images of the same dimension
   # distance /= H
 
-  return distance > LIP_SEPARATION_THRESHOLD
+  return distance >= LIP_SEPARATION_THRESHOLD
 
 
 def determine_mouth_open(pose_detector: PoseDetector, img_path: Path, output_path: Path = None) -> bool:
@@ -113,7 +113,7 @@ def determine_mouth_open(pose_detector: PoseDetector, img_path: Path, output_pat
     plt.title('2D Face Plot')
 
     plt.savefig(output_path, format='png', dpi=300)
-    print(f"Plot saved as {output_path}")
+    # print(f"Plot saved as {output_path}")
     plt.close()
   
   return mouth_open
