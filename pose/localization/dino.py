@@ -3,19 +3,24 @@ from PIL import Image
 from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection 
 import pprint
 from pathlib import Path
-from typing import Literal, get_args
+from typing import Literal, Callable, get_args
 from PIL import Image
+from rich.console import Console
 from pose.localization.bbox import BoundingBox, Labels
 from pose.localization.bbox_utils import get_food_bboxes, get_closest_food_bbox, get_mouth_bbox, bbox_intersection
 from pose.localization.draw_utils import draw_bounding_boxes
 
-ROOT = Path(__file__).parent.parent
-IMAGE_DIR = ROOT / "data" / "llm" / "misc-images"
-INPUT_DIR = IMAGE_DIR / "input"
-OUTPUT_DIR = IMAGE_DIR / "output"
+# TODO: make video and frame folder under data/ directory
+ROOT_DIR = Path(__file__).parent.parent.parent
+DATA_DIR = ROOT_DIR / "data"
+LOCALIZATION_DIR = DATA_DIR / "localization"
+IMAGE_INPUT_DIR = LOCALIZATION_DIR / "assets"
+IMAGE_OUTPUT_DIR = LOCALIZATION_DIR / "outputs"
 
 models = Literal["IDEA-Research/grounding-dino-tiny", "IDEA-Research/grounding-dino-base"]
 SUPPORTED_MODELS = get_args(models)
+
+IOU_THRESHOLD = 0.05
 
 
 def get_model(model_name: str):
@@ -78,6 +83,7 @@ def make_get_bounding_boxes(model_name: str):
     """
     processor, model, device = get_model(model_name)
 
+    # TODO: make this modular for some model
     def generate_bounding_boxes(image_path: Path, labels: list = [Labels.MOUTH, Labels.FOOD]) -> BoundingBox:
         """
         Generate bounding boxes for the given labels in the image.
@@ -110,28 +116,64 @@ def make_get_bounding_boxes(model_name: str):
     return generate_bounding_boxes
 
 
+# TODO: setup logger for errors
+def determine_iou(
+    generate_bounding_boxes: Callable[[Path], list[BoundingBox]], 
+    image_path: Path, 
+    output_path: Path = None
+):
+    if not image_path.exists():
+        raise ValueError(f"No image found at image path {image_path}")
+
+    bounding_boxes = generate_bounding_boxes(image_path)
+
+    if output_path is not None:
+        draw_bounding_boxes(image_path, bounding_boxes, output_path)
+
+    try:
+        mouth_bbox = get_mouth_bbox(bounding_boxes)
+    except Exception as e:
+        return False, Exception(e)
+
+    try:
+        food_bboxes = get_food_bboxes(bounding_boxes)
+    except Exception as e:
+        return False, Exception(e)
+    
+    try:
+        closest_food_bbox = get_closest_food_bbox(mouth_bbox, food_bboxes)
+    except Exception as e:
+        return False, Exception(e)
+
+    if output_path is not None:
+        draw_bounding_boxes(image_path, [closest_food_bbox, mouth_bbox], output_path)
+
+    iou = bbox_intersection(mouth_bbox, closest_food_bbox)
+
+    status = iou >= IOU_THRESHOLD
+    if status:
+        msg = "eating"
+    else:
+        msg = "not eating"
+
+    return iou >= IOU_THRESHOLD, msg
+
+
 if __name__ == "__main__":
+    console = Console()
+
     model_name = "IDEA-Research/grounding-dino-base"
     generate_bounding_boxes = make_get_bounding_boxes(model_name)
 
-    image_path = INPUT_DIR / "eat-2.jpg"
-    output_path = OUTPUT_DIR / "dino-2.jpg"
+    for img_num in range(1, 20):
+        console.print(f"[orange]processing image #{img_num}...[/orange]")
+        image_path = IMAGE_INPUT_DIR / f"test{img_num}.jpg"
+        output_path = IMAGE_OUTPUT_DIR / f"test{img_num}.jpg"
 
-    bounding_boxes = generate_bounding_boxes(image_path)
-    draw_bounding_boxes(image_path, bounding_boxes, output_path)
-
-    # print("all bounding boxes:")
-    # pprint.pprint(bounding_boxes)
-
-    mouth_bbox = get_mouth_bbox(bounding_boxes)
-    # print("\nmouth bounding box:")
-    # pprint.pprint(mouth_bbox)
-
-    food_bboxes = get_food_bboxes(bounding_boxes)
-    # print("\nfood bounding boxes:")
-    # pprint.pprint(food_bboxes)
-
-    closest_food_bbox = get_closest_food_bbox(mouth_bbox, food_bboxes)
-    pprint.pprint(closest_food_bbox)
-
-    bbox_intersection(mouth_bbox, closest_food_bbox)
+        status, msg = determine_iou(image_path, output_path)
+        if status:
+            console.print(f"[green]{msg}[/green]")
+        else:
+            console.print(f"[red]{msg}[/red]")
+        
+        console.print()

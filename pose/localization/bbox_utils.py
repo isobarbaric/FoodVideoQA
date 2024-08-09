@@ -19,6 +19,9 @@ def get_closest_food_bbox(mouth_bbox: BoundingBox, food_bboxes: list[BoundingBox
         dist = distance(mouth_bbox, bbox)
         bbox_dists.append([dist, bbox])
 
+    if len(bbox_dists) == 0:
+        raise IndexError(f"No bounding boxes associated with label '{Labels.FOOD}'")
+
     bbox_dists.sort()
     return bbox_dists[0][1]
 
@@ -41,8 +44,6 @@ def bbox_intersection(bbox1: BoundingBox, bbox2: BoundingBox) -> float:
     # (xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax)
     # other_polygon = Polygon([(1, 1), (4, 1), (4, 3.5), (1, 3.5)])
     # (xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax)
-    union = bbox1.area + bbox2.area
-    print(f"bbox1: {bbox1.area}, bbox2: {bbox2.area}, union: {union}")
 
     bbox1_ = Polygon([
         (bbox1.xmin, bbox1.ymin),
@@ -59,6 +60,8 @@ def bbox_intersection(bbox1: BoundingBox, bbox2: BoundingBox) -> float:
 
     intersection = bbox1_.intersection(bbox2_).area
     union = bbox1_.union(bbox2_).area
+
+    print(f"intersection: {intersection}, union: {union}")
 
     return intersection / union
 
