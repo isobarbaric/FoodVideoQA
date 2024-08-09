@@ -5,7 +5,7 @@ from pose.detection.pose_detector import PoseDetector
 
 ROOT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT_DIR / "data"
-POSE_DATA_DIR = DATA_DIR / "pose"
+POSE_DATA_DIR = DATA_DIR / "detection"
 IMG_SOURCE_DIR = POSE_DATA_DIR / "assets"
 INFERENCE_OUTPUT_DIR = POSE_DATA_DIR / "inference"
 
@@ -20,8 +20,6 @@ def infer_pose(pose_detector: PoseDetector, img_path: Path, output_path: Path):
     input_image = HWC3(input_image)
     input_image = resize_image(input_image, resolution=512)
     
-    # turned on infer flag to create a plot instead of returning landmarks
-    # TODO: make "infer" flag something more intuitive
     detected_map = pose_detector.infer(input_image)
     detected_map = HWC3(detected_map)
     

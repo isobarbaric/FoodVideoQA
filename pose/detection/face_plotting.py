@@ -8,7 +8,7 @@ from pose.detection.pose_detector import PoseDetector
 
 ROOT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT_DIR / "data"
-POSE_DATA_DIR = DATA_DIR / "pose"
+POSE_DATA_DIR = DATA_DIR / "detection"
 IMG_SOURCE_DIR = POSE_DATA_DIR / "assets"
 FACE_PLOT_OUTPUT_DIR = POSE_DATA_DIR / "face-plot"
 
