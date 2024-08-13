@@ -5,6 +5,7 @@ import cv2
 from dataclasses import dataclass
 from pose.detection.inference_utils import HWC3, resize_image
 from pose.detection.pose_detector import PoseDetector
+from utils.constants import LIP_SEPARATION_THRESHOLD
 
 ROOT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT_DIR / "data"
@@ -17,8 +18,6 @@ MOUTH_START_INDEX = 48
 MOUTH_END_INDEX = 69
 H = 480
 W = 640
-
-LIP_SEPARATION_THRESHOLD = 8
 
 @dataclass
 class FacialLandmarks:

@@ -9,6 +9,7 @@ from rich.console import Console
 from pose.localization.bbox import BoundingBox, Labels
 from pose.localization.bbox_utils import get_food_bboxes, get_closest_food_bbox, get_mouth_bbox, bbox_intersection
 from pose.localization.draw_utils import draw_bounding_boxes
+from utils.constants import IOU_THRESHOLD
 
 # TODO: make video and frame folder under data/ directory
 ROOT_DIR = Path(__file__).parent.parent.parent
@@ -19,8 +20,6 @@ IMAGE_OUTPUT_DIR = LOCALIZATION_DIR / "outputs"
 
 models = Literal["IDEA-Research/grounding-dino-tiny", "IDEA-Research/grounding-dino-base"]
 SUPPORTED_MODELS = get_args(models)
-
-IOU_THRESHOLD = 0.05
 
 
 def get_model(model_name: str):

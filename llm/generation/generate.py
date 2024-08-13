@@ -1,6 +1,5 @@
 import json
 import time
-import subprocess
 from pathlib import Path
 from .video_utils import extract_frames
 import pprint
@@ -8,6 +7,7 @@ import json
 from llm.generation.models import make_get_response
 from tqdm import tqdm
 from typing import Callable
+from utils.constants import FRAME_STEP_SIZE, UTENSILS
 
 ROOT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT_DIR / "data"
@@ -15,20 +15,6 @@ LLM_DATA_DIR = DATA_DIR / "llm"
 LLM_VIDEO_DIR = LLM_DATA_DIR / "videos"
 LLM_FRAME_DIR = LLM_DATA_DIR / "frames"
 
-utensils = [ 
-    "spoon",
-    "fork",
-    "knife",
-    "chopstick",
-    "spork",
-    "ladle",
-    "tongs",
-    "spatula",
-    "straw",
-    "bowl",
-    "cup",
-    "glass"
-]
 
 def _describe_frame(get_response: Callable[[str, Path], str],
                     frame_number: int, 
@@ -80,7 +66,7 @@ def process_videos(model_name: str,
                    frame_dir: Path,
                    questions: list[str],
                    output_file: Path,
-                   frame_step_size: int = 10):
+                   frame_step_size: int = FRAME_STEP_SIZE):
     if not video_dir.exists():
         raise ValueError(f"Provided file path {video_dir} does not exist")
 
@@ -107,8 +93,8 @@ if __name__ == "__main__":
 
     questions = [
         "Provide a detailed description of the food you see in the image.",
-        f"Provide a list of cutlery/utensils that the person in the image is eating with, from this list: {utensils}.",
-        f"Analyze the provided image and provide a list of which utensils are in the image from this list: {utensils}." ,
+        f"Provide a list of cutlery/utensils that the person in the image is eating with, from this list: {UTENSILS}.",
+        f"Analyze the provided image and provide a list of which utensils are in the image from this list: {UTENSILS}." ,
         "Provide a detailed list of the ingredients of the food in the image. Only include a comma-separated list of items with no additional descriptions for each item in your response.",
         "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response."
     ]

@@ -2,7 +2,7 @@ import yaml
 import spacy
 import subprocess
 from pathlib import Path
-from llm.generation.generate import utensils
+from llm.generation.generate import UTENSILS
 
 
 # load small spaCy English model
@@ -57,7 +57,7 @@ def parse_utensils_list(utensil_response: str):
 
     cleaned_utensils = []
     for word in utensil_response.split(' '):
-        if word.lower() in utensils:
+        if word.lower() in UTENSILS:
             cleaned_utensils.append(word.lower())
     return cleaned_utensils
 
