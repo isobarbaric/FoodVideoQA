@@ -4,41 +4,23 @@ from pathlib import Path
 from pose.localization.bbox import BoundingBox
 
     
-def draw_line(
-    image_path: Path,
-    ycoord: int,
-    output_path: Path,
-    line_color: tuple[int, int, int] = (4, 145, 84),
-    line_thickness: int = 6,
-    show: bool = False,
-):
-    image = cv2.imread(str(image_path))
+def draw_line(image: np.ndarray,
+              ycoord: int,
+              line_color: tuple[int, int, int] = (4, 145, 84),
+              line_thickness: int = 4):
     width = image.shape[1]
-    print(image.shape)
-
     cv2.line(image, (0, ycoord), (width, ycoord), line_color, line_thickness)
-
-    if not output_path.exists():
-        output_path.touch()
-    cv2.imwrite(str(output_path), image)
-
-    if show:
-        img = cv2.imread(str(output_path))
-        cv2.imshow('image', img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+    return image
 
 
-def draw_text(
-    image: np.ndarray, 
-    text: str,
-    pos: tuple[int, int],
-    font = cv2.FONT_HERSHEY_SIMPLEX,
-    font_scale: float = 0.35,
-    font_thickness: int = 1,
-    text_color: tuple[int, int, int] = (0, 0, 0),
-    text_color_bg: tuple[int, int, int] = (31, 132, 187)
-):
+def draw_text(image: np.ndarray, 
+              text: str,
+              pos: tuple[int, int],
+              font = cv2.FONT_HERSHEY_SIMPLEX,
+              font_scale: float = 0.35,
+              font_thickness: int = 1,
+              text_color: tuple[int, int, int] = (0, 0, 0),
+              text_color_bg: tuple[int, int, int] = (31, 132, 187)):
     """
     Draw text on an image with a background rectangle.
 
@@ -64,12 +46,8 @@ def draw_text(
     return text_size
 
 
-def draw_bounding_boxes(
-    image_path: Path,
-    bounding_boxes: list[BoundingBox], 
-    output_path: Path,
-    show: bool = False
-):
+def draw_bounding_boxes(image: np.ndarray,
+                        bounding_boxes: list[BoundingBox]):
     """
     Draw bounding boxes on an image and save or display the result.
 
@@ -79,8 +57,6 @@ def draw_bounding_boxes(
         output_path (Path): Path to save the output image with bounding boxes.
         show (bool, optional): Whether to display the image with bounding boxes. Defaults to False.
     """
-    image = cv2.imread(str(image_path))
-
     for bbox in bounding_boxes:
         img_label = f'{bbox.label}: {bbox.score:0.2f}'
         x, y = round(bbox.xmin), round(bbox.ymin)
@@ -93,12 +69,4 @@ def draw_bounding_boxes(
         cv2.rectangle(image, (x, y), (x+w, y+h), color=(36, 80, 203), thickness=2)
         draw_text(image, img_label, (x, y))
 
-    if not output_path.exists():
-        output_path.touch()
-    cv2.imwrite(str(output_path), image)
-        
-    if show:
-        img = cv2.imread(str(output_path))
-        cv2.imshow('image', img)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+    return image
