@@ -13,6 +13,8 @@ def get_food_bboxes(bounding_boxes: list[BoundingBox]):
     return bboxes
 
 
+# TODO: put get_closest and get_furthest in 2 different functions (DRY)
+# => function to sort bboxes by distance (add param reverse=True)
 def get_closest_food_bbox(mouth_bbox: BoundingBox, food_bboxes: list[BoundingBox]) -> BoundingBox:
     bbox_dists = []
     for bbox in food_bboxes:
@@ -23,6 +25,19 @@ def get_closest_food_bbox(mouth_bbox: BoundingBox, food_bboxes: list[BoundingBox
         raise IndexError(f"No bounding boxes associated with label '{Labels.FOOD}'")
 
     bbox_dists.sort()
+    return bbox_dists[0][1]
+
+
+def get_furthest_food_bbox(mouth_bbox: BoundingBox, food_bboxes: list[BoundingBox]) -> BoundingBox:
+    bbox_dists = []
+    for bbox in food_bboxes:
+        dist = distance(mouth_bbox, bbox)
+        bbox_dists.append([dist, bbox])
+
+    if len(bbox_dists) == 0:
+        raise IndexError(f"No bounding boxes associated with label '{Labels.FOOD}'")
+
+    bbox_dists.sort(reverse=True)
     return bbox_dists[0][1]
 
 

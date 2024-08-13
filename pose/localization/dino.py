@@ -7,8 +7,8 @@ from typing import Literal, Callable, get_args
 from PIL import Image
 from rich.console import Console
 from pose.localization.bbox import BoundingBox, Labels
-from pose.localization.bbox_utils import get_food_bboxes, get_closest_food_bbox, get_mouth_bbox, bbox_intersection
-from pose.localization.draw_utils import draw_bounding_boxes
+from pose.localization.bbox_utils import get_food_bboxes, get_closest_food_bbox, get_mouth_bbox, bbox_intersection, get_furthest_food_bbox
+from pose.localization.draw_utils import draw_bounding_boxes, draw_line
 from utils.constants import IOU_THRESHOLD
 
 # TODO: make video and frame folder under data/ directory
@@ -143,9 +143,17 @@ def determine_iou(
         closest_food_bbox = get_closest_food_bbox(mouth_bbox, food_bboxes)
     except Exception as e:
         return False, Exception(e)
+    
+    try:
+        furthest_food_bbox = get_furthest_food_bbox(mouth_bbox, food_bboxes)
+    except Exception as e:
+        return False, Exception(e)
 
-    if output_path is not None:
-        draw_bounding_boxes(image_path, [closest_food_bbox, mouth_bbox], output_path)
+    # TODO: this is overwriting draw_bounding_boxes
+    draw_line(image_path, int(furthest_food_bbox.ymax), output_path)
+
+    # if output_path is not None:
+    #     draw_bounding_boxes(image_path, [closest_food_bbox, mouth_bbox], output_path)
 
     iou = bbox_intersection(mouth_bbox, closest_food_bbox)
 

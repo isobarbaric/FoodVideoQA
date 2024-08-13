@@ -3,12 +3,37 @@ import cv2
 from pathlib import Path
 from pose.localization.bbox import BoundingBox
 
+    
+def draw_line(
+    image_path: Path,
+    ycoord: int,
+    output_path: Path,
+    line_color: tuple[int, int, int] = (4, 145, 84),
+    line_thickness: int = 6,
+    show: bool = False,
+):
+    image = cv2.imread(str(image_path))
+    width = image.shape[1]
+    print(image.shape)
+
+    cv2.line(image, (0, ycoord), (width, ycoord), line_color, line_thickness)
+
+    if not output_path.exists():
+        output_path.touch()
+    cv2.imwrite(str(output_path), image)
+
+    if show:
+        img = cv2.imread(str(output_path))
+        cv2.imshow('image', img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
 
 def draw_text(
     image: np.ndarray, 
     text: str,
     pos: tuple[int, int],
-    font=cv2.FONT_HERSHEY_SIMPLEX,
+    font = cv2.FONT_HERSHEY_SIMPLEX,
     font_scale: float = 0.35,
     font_thickness: int = 1,
     text_color: tuple[int, int, int] = (0, 0, 0),
@@ -40,7 +65,7 @@ def draw_text(
 
 
 def draw_bounding_boxes(
-    image_path: Path, 
+    image_path: Path,
     bounding_boxes: list[BoundingBox], 
     output_path: Path,
     show: bool = False
