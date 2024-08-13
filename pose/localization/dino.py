@@ -72,11 +72,11 @@ def process_bounding_boxes(bounding_boxes_data: dict) -> list[BoundingBox]:
 
 
 def make_get_bounding_boxes(model_name: str):
-    """
+    f"""
     Create a function for generating bounding boxes using the specified model.
 
     Args:
-        model_name (str): Name of the model to use.
+        model_name (str): Name of the model to use. Supported models include {SUPPORTED_MODELS}
     Returns:
         function: A function that takes labels and an image path, and returns bounding boxes for the objects.
     """
@@ -149,12 +149,7 @@ def determine_iou(
 
     iou = bbox_intersection(mouth_bbox, closest_food_bbox)
 
-    status = iou >= IOU_THRESHOLD
-    if status:
-        msg = "eating"
-    else:
-        msg = "not eating"
-
+    msg = 'successful determination'
     return iou >= IOU_THRESHOLD, msg
 
 
@@ -169,10 +164,10 @@ if __name__ == "__main__":
         image_path = IMAGE_INPUT_DIR / f"test{img_num}.jpg"
         output_path = IMAGE_OUTPUT_DIR / f"test{img_num}.jpg"
 
-        status, msg = determine_iou(image_path, output_path)
+        status, msg = determine_iou(generate_bounding_boxes, image_path, output_path)
         if status:
-            console.print(f"[green]{msg}[/green]")
+            console.print(f"[green]iou threshold met[/green]")
         else:
-            console.print(f"[red]{msg}[/red]")
+            console.print(f"[red]iou threshold not met[/red]")
         
         console.print()
