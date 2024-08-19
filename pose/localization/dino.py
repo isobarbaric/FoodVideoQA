@@ -8,7 +8,7 @@ from PIL import Image
 from rich.console import Console
 from pose.localization.bbox import BoundingBox, Labels
 from pose.localization.bbox_utils import get_food_bboxes, get_closest_food_bbox, get_mouth_bbox, bbox_intersection, get_furthest_food_bbox
-from pose.localization.draw_utils import draw_bounding_boxes, draw_line
+from pose.localization.draw_utils import draw_bounding_boxes
 from utils.constants import IOU_THRESHOLD
 import cv2
 import numpy as np
@@ -148,8 +148,6 @@ def determine_iou(
         furthest_food_bbox = get_furthest_food_bbox(mouth_bbox, food_bboxes)
     except Exception as e:
         return False, Exception(e)
-
-    image = draw_line(image, int(furthest_food_bbox.ymax))
 
     if output_path is not None:
         if not output_path.exists():
