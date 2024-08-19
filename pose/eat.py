@@ -20,8 +20,8 @@ def determine_eating(
     output_path: Path = None
 ):
     mouth_open = determine_mouth_open(pose_detector, image_path, output_path)
-    status, _ = determine_iou(generate_bounding_boxes, image_path, output_path)
-    return mouth_open and status
+    iou_condition, status_msg = determine_iou(generate_bounding_boxes, image_path, output_path)
+    return mouth_open and iou_condition, status_msg
 
 
 if __name__ == "__main__":
@@ -36,11 +36,11 @@ if __name__ == "__main__":
         image_path = IMAGE_INPUT_DIR / f"test{img_num}.jpg"
         output_path = IMAGE_OUTPUT_DIR / f"test{img_num}.jpg"
 
-        eating = determine_eating(generate_bounding_boxes, pose_detector, image_path, output_path)
+        eating, msg = determine_eating(generate_bounding_boxes, pose_detector, image_path, output_path)
         if eating:
-            console.print("[green]person is eating[/green]")
+            console.print(f"[green]{msg}[/green]")
         else:
-            console.print("[red]person is not eating[/red]")
+            console.print(f"[red]{msg}[/red]")
         
         console.print()
         

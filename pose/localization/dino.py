@@ -129,36 +129,45 @@ def determine_iou(
     bounding_boxes = generate_bounding_boxes(image_path)
     image = cv2.imread(image_path)
 
+    if output_path is not None:
+        if not output_path.exists():
+            output_path.touch()
+        image = draw_bounding_boxes(image, bounding_boxes)
+        cv2.imwrite(str(output_path), image)
+
     try:
         mouth_bbox = get_mouth_bbox(bounding_boxes)
     except Exception as e:
-        return False, Exception(e)
+        return False, str(Exception(e))
 
     try:
         food_bboxes = get_food_bboxes(bounding_boxes)
     except Exception as e:
-        return False, Exception(e)
+        return False, str(Exception(e))
     
     try:
         closest_food_bbox = get_closest_food_bbox(mouth_bbox, food_bboxes)
     except Exception as e:
-        return False, Exception(e)
+        return False, str(Exception(e))
     
     try:
         furthest_food_bbox = get_furthest_food_bbox(mouth_bbox, food_bboxes)
     except Exception as e:
-        return False, Exception(e)
+        return False, str(Exception(e))
 
     if output_path is not None:
-        if not output_path.exists():
-            output_path.touch()
         image = draw_bounding_boxes(image, [closest_food_bbox, mouth_bbox])
         cv2.imwrite(str(output_path), image)
 
     iou = bbox_intersection(mouth_bbox, closest_food_bbox)
 
-    msg = 'successful determination'
-    return iou >= IOU_THRESHOLD, msg
+    condition = iou >= IOU_THRESHOLD
+    if condition:
+        status_msg = 'iou threshold met'
+    else:
+        status_msg = 'iou threshold not met'
+
+    return condition, status_msg
 
 
 if __name__ == "__main__":
@@ -172,10 +181,10 @@ if __name__ == "__main__":
         image_path = IMAGE_INPUT_DIR / f"test{img_num}.jpg"
         output_path = IMAGE_OUTPUT_DIR / f"test{img_num}.jpg"
 
-        status, msg = determine_iou(generate_bounding_boxes, image_path, output_path)
-        if status:
-            console.print(f"[green]iou threshold met[/green]")
+        condition, status_msg = determine_iou(generate_bounding_boxes, image_path, output_path)
+        if condition:
+            console.print(f"[green]{status_msg}[/green]")
         else:
-            console.print(f"[red]iou threshold not met[/red]")
+            console.print(f"[red]{status_msg}[/red]")
         
         console.print()

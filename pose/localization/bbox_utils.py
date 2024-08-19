@@ -53,13 +53,7 @@ def get_mouth_bbox(bounding_boxes: list[BoundingBox]):
     return bboxes[0]
 
 
-# integrate this into class itself?
 def bbox_intersection(bbox1: BoundingBox, bbox2: BoundingBox) -> float:
-    # polygon = Polygon([(3, 3), (5, 3), (5, 5), (3, 5)])
-    # (xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax)
-    # other_polygon = Polygon([(1, 1), (4, 1), (4, 3.5), (1, 3.5)])
-    # (xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax)
-
     bbox1_ = Polygon([
         (bbox1.xmin, bbox1.ymin),
         (bbox1.xmax, bbox1.ymin),
@@ -75,8 +69,6 @@ def bbox_intersection(bbox1: BoundingBox, bbox2: BoundingBox) -> float:
 
     intersection = bbox1_.intersection(bbox2_).area
     union = bbox1_.union(bbox2_).area
-
-    print(f"intersection: {intersection}, union: {union}")
 
     return intersection / union
 
