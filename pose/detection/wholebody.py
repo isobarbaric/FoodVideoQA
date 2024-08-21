@@ -14,6 +14,10 @@ class Wholebody:
                  det_config=None, det_ckpt=None, 
                  pose_config=None, pose_ckpt=None,
                  device="cpu"):
+
+        # convert to string
+        det_ckpt = str(det_ckpt)
+        pose_ckpt = str(pose_ckpt)
                 
         if det_ckpt is None:
             det_ckpt = 'https://download.openmmlab.com/mmdetection/v2.0/yolox/yolox_l_8x8_300e_coco/yolox_l_8x8_300e_coco_20211126_140236-d3bd2b23.pth'

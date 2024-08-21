@@ -1,0 +1,29 @@
+[tool.poetry]
+name = "nutritionverse-llm"
+version = "0.1.0"
+description = "Extract nutrition insights from video data using advanced deep learning models."
+authors = ["Krish Shah <shahkrish2016@gmail.com>", "Siddharth Viswanath <siddharth.n.viswanath@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pathlib = "^1.0.1"
+spacy = "^3.7.5"
+gensim = "^4.3.2"
+rich = "^13.7.1"
+tqdm = "^4.66.5"
+transformers = "^4.44.0"
+torch = "^2.4.0"
+pillow = "^10.4.0"
+pyyaml = "^6.0.2"
+pytubefix = "^6.12.0"
+moviepy = "^1.0.3"
+click = "^8.1.7"
+numpy = "^2.1.0"
+matplotlib = "^3.9.2"
+opencv-python = "^4.10.0.84"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

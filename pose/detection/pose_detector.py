@@ -22,11 +22,9 @@ DETECTION_DIR = POSE_DIR / "detection"
 @dataclass
 class PoseDetectorConfig:
   det_config: str = DETECTION_DIR / 'config/yolox_l_8xb8-300e_coco.py'
-#   det_ckpt: str = DETECTION_DIR / '/ckpts/detection_model.pth'
-  det_ckpt: str = None
+  det_ckpt: str = DETECTION_DIR / 'ckpts/detection_model.pth'
   pose_config: str = DETECTION_DIR / 'config/dwpose-l_384x288.py'
-#   pose_ckpt: str = DETECTION_DIR / '/ckpts/pose_model.pth'
-  pose_ckpt: str = None
+  pose_ckpt: str = DETECTION_DIR / 'ckpts/pose_model.pth'
   device: str = "cuda"
 
 
