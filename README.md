@@ -1,5 +1,7 @@
 # NutritionVerse-LLM
 
+>[Video metadata](https://docs.google.com/spreadsheets/d/1WNfDNICa5WdvEl8qDeNTEkO1e3Mvv6gJKwoE2ofs81w/edit?usp=sharing)
+
 ## Main Features
 1. Food & Utensil Detection
 2. Food & Utensil Analysis
