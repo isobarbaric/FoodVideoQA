@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
 
 ---
-### Food Items Eaten Throughout Video - `llm/generation/`
+### Food Items Eaten Throughout Video - `llm/frame_diff/`
 **Functionality**: 
 - Tracks and identifies food items consumed/introduced on a frame-by-frame basis.
 - Summarizes all food items consumed throughout video. 
@@ -190,10 +190,13 @@ Only mention the food items that are NEW or ABSENT. If there are none in either 
 """
 ```
 
+TODO:
+- Need to incorporate a parser (from word2vec) since LLM sometimes outputs missing utensils
+
 #### Usage:
 Run the following command from the `NutritionVerse-LLM` directory:
 ```bash
 python3 -m llm.eaten
 ```
 ---
-### Food Item(s) Eaten Throughout Video
+

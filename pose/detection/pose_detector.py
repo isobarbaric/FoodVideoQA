@@ -18,7 +18,6 @@ ROOT_DIR = Path(__file__).parent.parent.parent
 POSE_DIR = ROOT_DIR / "pose"
 DETECTION_DIR = POSE_DIR / "detection"
 
-# TODO: setting the path of the ckpts/ dir isn't working
 @dataclass
 class PoseDetectorConfig:
   det_config: str = DETECTION_DIR / 'config/yolox_l_8xb8-300e_coco.py'
