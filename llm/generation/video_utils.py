@@ -11,6 +11,18 @@ LLM_FRAME_DIR = LLM_DATA_DIR / "frames"
 def extract_frames(video_path: Path, 
                    frame_dir: Path, 
                    k: int = 10):
+    """
+    Extract frames from a video file and save every k-th frame as a JPEG image.
+
+    Args:
+        video_path (Path): The path to the video file from which frames will be extracted.
+        frame_dir (Path): The directory where the extracted frames will be saved.
+        k (int, optional): The interval at which frames will be saved (e.g., every k-th frame). Defaults to 10.
+
+    Raises:
+        ValueError: If the provided video file path does not exist.
+        RuntimeError: If the video file cannot be opened by OpenCV.
+    """
     if not video_path.exists():
         raise ValueError(f"Provided file path {video_path} does not exist")
 
@@ -23,9 +35,8 @@ def extract_frames(video_path: Path,
     video = cv2.VideoCapture(str(video_path))
     current_frame = 1
 
-    # TODO: raise a relevant error here
     if not video.isOpened():
-        pass
+        raise RuntimeError(f"Cannot open video file {video_path}")
 
     while video.isOpened():
         # videoture each frame
@@ -34,8 +45,6 @@ def extract_frames(video_path: Path,
         if ret:
             if current_frame % k == 0:
                 name = 'frame' + str(current_frame) + '.jpg'
-                # print(f'Creating: {name}')
-
                 # save frame as a jpg file
                 cv2.imwrite(str(frame_dir / name), frame)
 

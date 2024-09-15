@@ -16,13 +16,27 @@ JSON_DATA = LLM_DATA_DIR / 'data.json'
 with open(JSON_DATA, 'r') as f:
     data = json.load(f)
 
-# constants
+# constants - defined as written in the data.json file
 UTENSILS_EATING_INDEX = 1
 UTENSILS_PROMPT_INDEX = 2
 INGREDIENTS_PROMPT_INDEX = 3
 
 
 def get_video_frame_data(video_name: str, frame_number: int, prompt_index: int):
+    """
+    Retrieve and parse data for a specific frame and prompt from the video data.
+
+    Args:
+        video_name (str): The name of the video containing the frame.
+        frame_number (int): The number of the frame to retrieve data for.
+        prompt_index (int): Index indicating which prompt's data to retrieve.
+
+    Returns:
+        list: A parsed list of data corresponding to the specified prompt index.
+
+    Raises:
+        ValueError: If the video name or frame number does not exist in the data, or if the prompt_index is invalid.
+    """
     with open('data.json', 'r') as f:
         video_data = json.load(f)
 
@@ -44,6 +58,22 @@ def get_video_frame_data(video_name: str, frame_number: int, prompt_index: int):
 
 
 def compare_pred(video_name: str, frame_number: int, prompt_index: int):
+    """
+    Compare the predictions for a specific frame against ground truth data.
+
+    Args:
+        video_name (str): The name of the video for which to compare predictions.
+        frame_number (int): The number of the frame to compare.
+        prompt_index (int): Index indicating which prompt's data to compare.
+
+    Returns:
+        tuple: A tuple containing:
+            - A list of differences between the predicted and ground truth data.
+            - A computed score indicating the accuracy of the predictions.
+
+    Raises:
+        ValueError: If the frame number does not exist in the configuration file or if the prompt_index is invalid.
+    """
     yaml_data = parse_yaml(f"config-custom-videos/{video_name}.yaml")
     frame_data = yaml_data['frames'] 
 

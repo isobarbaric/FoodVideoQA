@@ -20,6 +20,21 @@ def _describe_frame(get_response: Callable[[str, Path], str],
                     frame_number: int, 
                     image_file: Path, 
                     questions: list[str]):
+    """
+    Generate descriptions for a specific frame by asking a series of questions about the image.
+
+    Args:
+        get_response (Callable[[str, Path], str]): Function to obtain responses from a model given a prompt and an image.
+        frame_number (int): The number of the frame being described.
+        image_file (Path): Path to the image file of the frame.
+        questions (list[str]): List of questions to ask about the frame.
+
+    Returns:
+        dict: A dictionary containing the frame number and answers to each question.
+    
+    Raises:
+        ValueError: If the image file does not exist.
+    """
     if not image_file.exists():
         raise ValueError(f"No image exists at {image_file.absolute()}")
 
@@ -40,6 +55,22 @@ def _describe_video(model_name: str,
                     video_path: Path, 
                     frame_dir: Path, 
                     frame_step_size: int = 10):
+    """
+    Process a video by extracting frames, describing each frame, and compiling the results.
+
+    Args:
+        model_name (str): The name of the model to use for generating descriptions.
+        questions (list[str]): List of questions to ask about each frame.
+        video_path (Path): Path to the video file.
+        frame_dir (Path): Directory where extracted frames will be saved.
+        frame_step_size (int, optional): Interval for extracting frames from the video. Defaults to 10.
+
+    Returns:
+        dict: A dictionary containing the video name and descriptions of each frame.
+    
+    Raises:
+        ValueError: If the video file does not exist.
+    """
     if not video_path.exists():
         video_path.mkdir(parents=True)
     
@@ -67,6 +98,23 @@ def process_videos(model_name: str,
                    questions: list[str],
                    output_file: Path,
                    frame_step_size: int = FRAME_STEP_SIZE):
+    """
+    Process all videos in a directory by extracting frames, generating descriptions, and saving the results to a file.
+
+    Args:
+        model_name (str): The name of the model to use for generating descriptions.
+        video_dir (Path): Directory containing video files to process.
+        frame_dir (Path): Directory where extracted frames will be saved.
+        questions (list[str]): List of questions to ask about each frame.
+        output_file (Path): Path to the file where results will be saved.
+        frame_step_size (int, optional): Interval for extracting frames from the video. Defaults to FRAME_STEP_SIZE.
+
+    Returns:
+        list[dict]: A list of dictionaries containing descriptions of each video.
+    
+    Raises:
+        ValueError: If the video directory does not exist.
+    """
     if not video_dir.exists():
         raise ValueError(f"Provided file path {video_dir} does not exist")
 
@@ -102,9 +150,9 @@ if __name__ == "__main__":
     model_name = "llava-hf/llava-v1.6-mistral-7b-hf"
     process_videos(model_name, video_dir, frame_dir, questions, output_file, frame_step_size = 20)
 
-    ###
-    # temporary testing code goes below this line    
-    ###
+    """
+    temporary testing code goes below this line
+    """
 
     # sample_frame = Path("extracted-frames/4.mp4/frame15.jpg")
 
@@ -115,9 +163,9 @@ if __name__ == "__main__":
     # response = describe_frame(20, sample_frame, questions)
     # pprint.pprint(response)
 
-    ###
-    # temporary testing code ends above this line    
-    ###
+    """
+    temporary testing code ends above this line
+    """
 
     end = time.time()    
     print(f"\n{round(end - start, 2)} seconds elapsed...")

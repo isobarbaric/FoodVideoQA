@@ -3,17 +3,19 @@ from gensim.models import KeyedVectors
 import gensim.downloader
 
 
-def match_outputs(llm_lst: list[str], gt_lst: list[str]):
+def match_outputs(llm_lst: list[str], gt_lst: list[str]) -> dict:
     """
-    Matches outputs of a list from an LLM to a ground truth list.
-    
-    Whenever an identical entry is found in either, drops both entries from both lists. 
-    
-    If the `gt_lst` contains an entry that allows for multiple variations of a word, then that word is dropped from the `llm_lst` and not from the `gt_lst` in case of any future matches.
-    
-    Finally, after processing all elements, if a `gt_lst` has been matched before, it is dropped too.
+    Matches the outputs from a list of LLM predictions to a ground truth list. 
 
-    Returns a diff between both lists: a dictionary
+    Identical entries in both lists are considered true positives and removed from both. If the ground truth list contains entries
+    that allow for multiple variations, only one of those variations is removed from the LLM list.
+
+    Args:
+        llm_lst (list[str]): List of predictions from the LLM.
+        gt_lst (list[str]): List of ground truth values.
+
+    Returns:
+        dict: A dictionary containing lists of 'False Positive', 'False Negative', and 'True Positive' items.
     """
     gt_edit_lst = gt_lst.copy()
     llm_edit_lst = llm_lst.copy()
@@ -37,7 +39,6 @@ def match_outputs(llm_lst: list[str], gt_lst: list[str]):
                     multiple_matches_used[key] = True
                     llm_edit_lst.remove(word)
                     true_positive.append(word)
-                    # no gt_edit_lst here since we keep multiple matches even if we have a single match alr
     
     for key, value in multiple_matches_used.items():
         if value:
@@ -45,23 +46,27 @@ def match_outputs(llm_lst: list[str], gt_lst: list[str]):
         else:
             individual_items = [item.strip() for item in key.split('||')]
             gt_edit_lst.remove(key)
-            # gt_edit_lst += individual_items
             gt_edit_lst.append(individual_items[0])
 
-    # diff = {'LLM': [], 'Ground Truth': []}
-    diff = {'False Positive': [], 'False Negative': [], 'True Positive': []}
-
-    for word in llm_edit_lst:
-        diff['False Positive'].append(word)
-    for word in gt_edit_lst:
-        diff['False Negative'].append(word)
-    for word in true_positive:
-        diff['True Positive'].append(word)
+    diff = {
+        'False Positive': llm_edit_lst,
+        'False Negative': gt_edit_lst,
+        'True Positive': true_positive
+    }
 
     return diff
 
 
-def compute_diff_score(diff_dict: dict[str, list[str]]):
+def compute_diff_score(diff_dict: dict[str, list[str]]) -> float:
+    """
+    Computes the similarity score between 'False Positive' and 'False Negative' entries using Word2Vec.
+
+    Args:
+        diff_dict (dict[str, list[str]]): Dictionary containing 'False Positive' and 'False Negative' lists.
+
+    Returns:
+        float: The computed similarity score based on Word2Vec distances.
+    """
     try:
         model = KeyedVectors.load("word2vec/word2vec.model")
     except:
@@ -76,7 +81,7 @@ def compute_diff_score(diff_dict: dict[str, list[str]]):
 
     dists = []
     
-    # step 1
+    # step 1 - find the closest word in 'False Negative' for each word in 'False Positive'
     for llm_word in diff_dict['False Positive']:
         cosine_dist = []
         for gt_word in diff_dict['False Negative']:
@@ -89,7 +94,7 @@ def compute_diff_score(diff_dict: dict[str, list[str]]):
         if len(cosine_dist) != 0:
             dists.append(min(cosine_dist))
 
-    # step 2
+    # step 2 - find the closest word in 'False Positive' for each word in 'False Negative'
     for gt_word in diff_dict['False Negative']:
         cosine_dist = []
         for llm_word in diff_dict['False Positive']:

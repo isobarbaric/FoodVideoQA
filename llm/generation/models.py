@@ -15,6 +15,21 @@ DEFAULT_MODEL = "llava-hf/llava-v1.6-mistral-7b-hf"
 
 
 def get_model(model_name: str):
+  """
+  Load and initialize the specified model and processor from the Hugging Face library.
+
+  Args:
+      model_name (str): The name of the model to load.
+
+  Returns:
+      tuple: A tuple containing:
+          - processor (PreTrainedProcessor): The processor for the specified model.
+          - model (PreTrainedModel): The model instance for the specified model.
+          - device (torch.device): The device to which the model is loaded (CPU or CUDA).
+  
+  Raises:
+      ValueError: If the provided model_name is not supported.
+  """
   if model_name not in SUPPORTED_MODELS:
     raise ValueError(f"{model_name} model not supported; supported models are {SUPPORTED_MODELS}")
 
@@ -44,15 +59,48 @@ def get_model(model_name: str):
   return processor, model, device
 
 
-# TODO: turn prompt into prompts
 def make_get_response(model_name: str = DEFAULT_MODEL):
+  """
+  Create a function to generate responses from a model given a prompt and an image.
+
+  Args:
+      model_name (str, optional): The name of the model to use. Defaults to DEFAULT_MODEL.
+
+  Returns:
+      function: A function that takes a prompt and an image path, and returns the model's response.
+  """
   processor, model, device = get_model(model_name)
 
+
   def clean_response(response: str):
+    """
+    Clean and format the model's response by extracting the relevant answer from the response text.
+
+    Args:
+        response (str): The raw response text from the model.
+
+    Returns:
+        str: The cleaned and formatted response.
+    """
     answer = response.split('ASSISTANT:')[-1]
     return answer.strip()
+  
 
   def get_response(prompt: str, img_path: Path, max_new_tokens: int = 75):
+    """
+    Generate a response from the model based on a prompt and an image.
+
+    Args:
+        prompt (str): The prompt to be processed by the model.
+        img_path (Path): The path to the image file.
+        max_new_tokens (int, optional): The maximum number of tokens to generate. Defaults to 75.
+
+    Returns:
+        str: The model's response to the prompt based on the image.
+    
+    Raises:
+        ValueError: If the image path does not exist.
+    """
     if not img_path.exists():
       raise ValueError(f"Image path {img_path} does not exist")
 
@@ -61,8 +109,6 @@ def make_get_response(model_name: str = DEFAULT_MODEL):
     inputs = processor(text=model_prompt, images=[image])
     inputs.to(device)
     output = model.generate(**inputs, max_new_tokens=max_new_tokens)
-
-    # special tokens are tokens that the model adds to your response to generate a response
     output = processor.decode(output[0], skip_special_tokens=True)
 
     return clean_response(output)
