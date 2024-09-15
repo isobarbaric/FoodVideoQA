@@ -12,6 +12,7 @@
 ## Folder Structure
 ```bash
 NutritionVerse-LLM/
+├── README.md
 ├── data/
 │   ├── detection/
 │   │   ├── assets/
@@ -46,16 +47,15 @@ NutritionVerse-LLM/
 │   │   ├── face_plotting.py
 │   │   ├── inference_utils.py
 │   │   ├── inference.py
-│   │   └── pose_detector.py
-│   ├── README.md
-│   ├── requirements.txt
-│   └── wholebody.py
-├── localization/
-│   ├── bbox_utils.py
-│   ├── bbox.py
-│   ├── dino.py
-│   ├── draw_utils.py
-│   └── eat.py
+│   │   ├── wholebody.py
+│   │   ├── requirements.txt
+│   │   └── pose_detector.py   
+│   └── localization/
+│       ├── bbox_utils.py
+│       ├── bbox.py
+│       ├── dino.py
+│       ├── draw_utils.py
+│       └── eat.py
 └── utils/
     └── constants.py
 
