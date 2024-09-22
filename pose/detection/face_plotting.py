@@ -109,7 +109,7 @@ def determine_mouth_open(pose_detector: PoseDetector, img_path: Path, output_pat
 
     plt.xlabel('X coordinate')
     plt.ylabel('Y coordinate')
-    plt.title('2D Face Plot')
+    plt.axis('off')
 
     plt.savefig(output_path, format='png', dpi=300)
     # print(f"Plot saved as {output_path}")
