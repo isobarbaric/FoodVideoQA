@@ -5,8 +5,7 @@ from pathlib import Path
 from llm.generation.generate import UTENSILS
 from typing import List, Dict
 
-
-# load small spaCy English model
+# load small spaCy English model: https://spacy.io/models/en
 def load_spacy_model() -> spacy.Language:
     """
     Load the spaCy English language model. If the model is not available, download it.
@@ -17,7 +16,6 @@ def load_spacy_model() -> spacy.Language:
     try:
         nlp = spacy.load("en_core_web_sm")
     except OSError:
-        # Download the English model if it doesn't exist
         subprocess.run(["python3", "-m", "spacy", "download", "en_core_web_sm"])
         nlp = spacy.load("en_core_web_sm")
     return nlp
@@ -25,7 +23,6 @@ def load_spacy_model() -> spacy.Language:
 nlp = load_spacy_model()
 
 
-# prompt index is the question number in the list of prompts that corresponds to the query you are interested in
 def parse_comma_list(list_str: str) -> List[str]:
     """
     Parse a comma-separated list of items, clean it, and extract unique nouns in their singular form.
@@ -36,8 +33,9 @@ def parse_comma_list(list_str: str) -> List[str]:
     Returns:
         List[str]: A sorted list of unique noun items in singular form.
     """
+
     # clean up ingredients list
-    for word in ['and', '.']: # DO NOT PUT ',' here
+    for word in ['and', '.']:
         list_str = list_str.replace(word, '')
     processed_ingredients = [item.lower().strip() for item in list_str.split(', ')]
 

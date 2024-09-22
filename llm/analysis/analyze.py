@@ -5,21 +5,22 @@ from typing import List, Dict
 from pathlib import Path
 from llm.analysis.parser import parse_comma_list, parse_yaml, parse_utensils_list
 from llm.analysis.scoring import match_outputs, compute_diff_score
+from rich.console import Console
 
+# directories
 ROOT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT_DIR / "data"
 LLM_DATA_DIR = DATA_DIR / "llm"
-JSON_DATA = LLM_DATA_DIR / 'data.json'
+JSON_DATA_PATH = LLM_DATA_DIR / 'data.json'
+VIDEO_ANALYSIS_DIR = LLM_DATA_DIR / "video-analysis"
 
 
-# TODO: instead of loading the data here, pass it as a file path instead
-with open(JSON_DATA, 'r') as f:
-    data = json.load(f)
-
-# constants - defined as written in the data.json file
+# constants: defined as written in the data.json file
 UTENSILS_EATING_INDEX = 1
 UTENSILS_PROMPT_INDEX = 2
 INGREDIENTS_PROMPT_INDEX = 3
+
+console = Console()
 
 
 def get_video_frame_data(video_name: str, frame_number: int, prompt_index: int):
@@ -37,8 +38,11 @@ def get_video_frame_data(video_name: str, frame_number: int, prompt_index: int):
     Raises:
         ValueError: If the video name or frame number does not exist in the data, or if the prompt_index is invalid.
     """
-    with open('data.json', 'r') as f:
+    with open(JSON_DATA_PATH, 'r') as f:
         video_data = json.load(f)
+
+
+    video_name = "video_" + video_name
 
     for video in video_data:
         if video_name == video['video_name']:
@@ -52,7 +56,7 @@ def get_video_frame_data(video_name: str, frame_number: int, prompt_index: int):
                     elif prompt_index == UTENSILS_EATING_INDEX:
                         return parse_utensils_list(data_list)
 
-            raise ValueError(f"Provided video name does not have any data on frame #{frame_number}") 
+            raise ValueError(f"Provided video name does not have any data on frame number: {frame_number}") 
 
     raise ValueError(f"Provided video name {video_name} does not exist in data.json")
 
@@ -74,7 +78,7 @@ def compare_pred(video_name: str, frame_number: int, prompt_index: int):
     Raises:
         ValueError: If the frame number does not exist in the configuration file or if the prompt_index is invalid.
     """
-    yaml_data = parse_yaml(f"config-custom-videos/{video_name}.yaml")
+    yaml_data = parse_yaml(VIDEO_ANALYSIS_DIR / f"{video_name}.yaml")
     frame_data = yaml_data['frames'] 
 
     gt_lst = None
@@ -91,7 +95,9 @@ def compare_pred(video_name: str, frame_number: int, prompt_index: int):
 
     # prompt_index can be either INGREDIENTS_PROMPT_INDEX or UTENSILS_PROMPT_INDEX
     llm_lst = get_video_frame_data(video_name, frame_number, prompt_index)
-    print(f"LLM list: {llm_lst}, GT list: {gt_lst}")
+    # print()
+    # console.print(f"LLM list: {llm_lst}", style="yellow")
+    # console.print(f"GT list: {gt_lst}", style="yellow")
 
     diff = match_outputs(llm_lst, gt_lst)
     score = compute_diff_score(diff)
@@ -100,54 +106,65 @@ def compare_pred(video_name: str, frame_number: int, prompt_index: int):
 
 
 if __name__ == "__main__":
-    # test #1
-    # llm_lst = ["omelette", "egg", "cucumber", "fries", "potato", "tomato"]
-    # gt_lst = ["carrot", "egg || omelette", "tomatoes || tomato", "potato || fries || potato fries"]
+    """
+    test #1
+    llm_lst = ["omelette", "egg", "cucumber", "fries", "potato", "tomato"]
+    gt_lst = ["carrot", "egg || omelette", "tomatoes || tomato", "potato || fries || potato fries"]
 
-    # diff = match_outputs(llm_lst, gt_lst)
-    # score = compute_diff_score(diff)
+    diff = match_outputs(llm_lst, gt_lst)
+    score = compute_diff_score(diff)
 
-    # print(f"Score: {score}, Diff: {diff}")
-
-
-    # # test #2
-    # llm_lst = ["spaghetti", "pasta", "meatballs", "tomato sauce", "cheese"]
-    # gt_lst = ["spaghetti || pasta", "meatball || meatballs", "tomato sauce || marinara", "cheese || parmesan"]
-
-    # diff = match_outputs(llm_lst, gt_lst)
-    # score = compute_diff_score(diff)
-
-    # print(f"Score: {score}, Diff: {diff}")
-
-
-    # # test #3
-    # llm_lst = ["pasta", "alfredo sauce", "chicken", "broccoli", "parmesan"]
-    # gt_lst = ["pasta || noodles", "alfredo sauce || white sauce", "chicken || turkey", "broccoli || peas", "parmesan || cheddar"]
-
-    # diff = match_outputs(llm_lst, gt_lst)
-    # score = compute_diff_score(diff)
-
-    # print(f"Score: {score}, Diff: {diff}")
-
-
-    # # test #4
-    # llm_lst = ["hamburger", "lettuce", "tomato", "pickles", "bun"]
-    # gt_lst = ["spinach", "pickles || relish", "bread roll"]
-
-    # diff = match_outputs(llm_lst, gt_lst)
-    # score = compute_diff_score(diff)
-
-    # print(f"Score: {score}, Diff: {diff}")
-    
-    # mp4_0_yaml = parse_yaml("config-custom-videos/0.mp4.yaml")
-    # pprint.pprint(mp4_0_yaml)
-
-    # data = get_video_frame_data(
-    #     video_name='0.mp4', 
-    #     frame_number=10, 
-    #     prompt_index=INGREDIENT_PROMPT_INDEX
-    # )
-    # print(data)
-
-    diff, score = compare_pred(video_name='2.mp4', frame_number=15, prompt_index=INGREDIENTS_PROMPT_INDEX)
     print(f"Score: {score}, Diff: {diff}")
+    """
+
+
+    """
+    test #2
+    llm_lst = ["spaghetti", "pasta", "meatballs", "tomato sauce", "cheese"]
+    gt_lst = ["spaghetti || pasta", "meatball || meatballs", "tomato sauce || marinara", "cheese || parmesan"]
+
+    diff = match_outputs(llm_lst, gt_lst)
+    score = compute_diff_score(diff)
+
+    print(f"Score: {score}, Diff: {diff}")
+    """
+
+
+    """
+    test #3
+    llm_lst = ["pasta", "alfredo sauce", "chicken", "broccoli", "parmesan"]
+    gt_lst = ["pasta || noodles", "alfredo sauce || white sauce", "chicken || turkey", "broccoli || peas", "parmesan || cheddar"]
+
+    diff = match_outputs(llm_lst, gt_lst)
+    score = compute_diff_score(diff)
+
+    print(f"Score: {score}, Diff: {diff}")
+    """
+
+
+    """
+    test #4
+    llm_lst = ["hamburger", "lettuce", "tomato", "pickles", "bun"]
+    gt_lst = ["spinach", "pickles || relish", "bread roll"]
+
+    diff = match_outputs(llm_lst, gt_lst)
+    score = compute_diff_score(diff)
+
+    print(f"Score: {score}, Diff: {diff}")
+    """
+    
+
+    """
+    mp4_0_yaml = parse_yaml("config-custom-videos/0.mp4.yaml")
+    pprint.pprint(mp4_0_yaml)
+
+    data = get_video_frame_data(
+        video_name='0.mp4', 
+        frame_number=10, 
+        prompt_index=INGREDIENT_PROMPT_INDEX
+    )
+    print(data)
+    """
+
+    # diff, score = compare_pred(video_name='2.mp4', frame_number=15, prompt_index=INGREDIENTS_PROMPT_INDEX)
+    # print(f"Score: {score}, Diff: {diff}")

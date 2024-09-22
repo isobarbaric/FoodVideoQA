@@ -1,6 +1,7 @@
 from pathlib import Path
 from gensim.models import KeyedVectors
 import gensim.downloader
+import numpy as np
 
 
 def match_outputs(llm_lst: list[str], gt_lst: list[str]) -> dict:
@@ -79,32 +80,22 @@ def compute_diff_score(diff_dict: dict[str, list[str]]) -> float:
         glove.save('word2vec/word2vec.model')
         model = KeyedVectors.load("word2vec/word2vec.model")
 
+    false_positive = [word for word in diff_dict['False Positive'] if word in model]
+    false_negative = [word for word in diff_dict['False Negative'] if word in model]
     dists = []
     
-    # step 1 - find the closest word in 'False Negative' for each word in 'False Positive'
-    for llm_word in diff_dict['False Positive']:
-        cosine_dist = []
-        for gt_word in diff_dict['False Negative']:
-            try:
-                dist = model.distance(llm_word, gt_word)
-                cosine_dist.append(dist)
-            except KeyError:
-                print(f"Word2Vec does not contain '{gt_word}'")
-                continue
-        if len(cosine_dist) != 0:
-            dists.append(min(cosine_dist))
+    # Step 1: Find the closest word in 'False Negative' for each word in 'False Positive'
+    for llm_word in false_positive:
+        if not false_negative:
+            continue
+        cosine_dists = model.distances(llm_word, false_negative)
+        dists.append(np.min(cosine_dists))
 
-    # step 2 - find the closest word in 'False Positive' for each word in 'False Negative'
-    for gt_word in diff_dict['False Negative']:
-        cosine_dist = []
-        for llm_word in diff_dict['False Positive']:
-            try:
-                dist = model.distance(gt_word, llm_word)
-                cosine_dist.append(dist)
-            except KeyError:
-                print(f"Word2Vec does not contain '{gt_word}'")
-                continue
-        if len(cosine_dist) != 0:
-            dists.append(min(cosine_dist))
+    # Step 2: Find the closest word in 'False Positive' for each word in 'False Negative'
+    for gt_word in false_negative:
+        if not false_positive:
+            continue
+        cosine_dists = model.distances(gt_word, false_positive)
+        dists.append(np.min(cosine_dists))
 
     return sum(dists)
