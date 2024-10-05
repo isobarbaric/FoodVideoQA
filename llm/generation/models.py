@@ -39,19 +39,16 @@ def get_model(model_name: str):
     case "liuhaotian/llava-v1.5-7b":
       processor = AutoProcessor.from_pretrained(model_name)
       model = AutoModelForCausalLM.from_pretrained(model_name)
-      model.to(device)
     case "llava-hf/llava-1.5-7b-hf":
       processor = AutoProcessor.from_pretrained(model_name)
       model = LlavaForConditionalGeneration.from_pretrained(model_name, torch_dtype=torch.float16)
-      model.to(device)
     case "llava-hf/llava-v1.6-mistral-7b-hf":
       processor = LlavaNextProcessor.from_pretrained(model_name)
       model = LlavaNextForConditionalGeneration.from_pretrained(model_name, torch_dtype=torch.float16) 
-      model.to(device)
     case _:
       processor = AutoProcessor.from_pretrained(model_name)
       model = AutoModel(model_name)
-      model.to(device)
+    model.to(device)
     
   # disabling status message doing the same implicitly
   model.generation_config.pad_token_id = model.generation_config.eos_token_id
