@@ -27,10 +27,10 @@ def determine_eating(
     pose_detector = PoseDetector()
 
     mouth_open = determine_mouth_open(pose_detector, image_path, face_plot_output_path)
-    iou_condition, status_msg = determine_iou(generate_bounding_boxes, image_path, bbox_output_path)
+    iou_condition, _ = determine_iou(generate_bounding_boxes, image_path, bbox_output_path)
 
     if include_mouth_open and include_iou:
-        return mouth_open and iou_condition, status_msg
+        return mouth_open and iou_condition
     elif include_mouth_open:
         return mouth_open
     elif include_iou:
@@ -60,9 +60,9 @@ if __name__ == "__main__":
         # load in ground truth here
         gt = None
 
-        combined, _ = determine_eating(generate_bounding_boxes, image_path, output_path)
-        mouth_only, _ = determine_eating(generate_bounding_boxes, image_path, output_path, include_mouth_open=True, include_iou=False)
-        iou_only, _ = determine_eating(generate_bounding_boxes, image_path, output_path, include_mouth_open=False, include_iou=True)
+        combined = determine_eating(generate_bounding_boxes, image_path, output_path)
+        mouth_only = determine_eating(generate_bounding_boxes, image_path, output_path, include_mouth_open=True, include_iou=False)
+        iou_only = determine_eating(generate_bounding_boxes, image_path, output_path, include_mouth_open=False, include_iou=True)
 
         if gt == combined:
             combined_cnt += 1
