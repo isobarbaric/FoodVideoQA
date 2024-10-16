@@ -30,10 +30,10 @@ def determine_eating(
     pose_detector = PoseDetector()
 
     mouth_open = determine_mouth_open(pose_detector, image_path, face_plot_output_path)
-    iou_condition, status_msg = determine_iou(generate_bounding_boxes, image_path, bbox_output_path)
+    iou_condition, _ = determine_iou(generate_bounding_boxes, image_path, bbox_output_path)
 
     if include_mouth_open and include_iou:
-        return mouth_open and iou_condition, status_msg
+        return mouth_open and iou_condition
     elif include_mouth_open:
         return mouth_open
     elif include_iou:
