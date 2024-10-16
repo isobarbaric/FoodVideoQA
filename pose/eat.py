@@ -21,19 +21,19 @@ def determine_eating(
     image_path: Path, 
     bbox_output_path: Path = None,
     face_plot_output_path: Path = None,
-    mouth_open: bool = True,
-    iou: bool = True
+    include_mouth_open: bool = True,
+    include_iou: bool = True
 ):
     pose_detector = PoseDetector()
 
     mouth_open = determine_mouth_open(pose_detector, image_path, face_plot_output_path)
     iou_condition, status_msg = determine_iou(generate_bounding_boxes, image_path, bbox_output_path)
 
-    if mouth_open and iou
+    if include_mouth_open and include_iou:
         return mouth_open and iou_condition, status_msg
-    elif mouth_open:
+    elif include_mouth_open:
         return mouth_open
-    elif iou:
+    elif include_iou:
         return iou_condition
     else:
         raise ValueError("atleast one of `mouth_open` and `iou` must be True")
@@ -61,8 +61,8 @@ if __name__ == "__main__":
         gt = None
 
         combined, _ = determine_eating(generate_bounding_boxes, image_path, output_path)
-        mouth_only, _ = determine_eating(generate_bounding_boxes, image_path, output_path, mouth_open=True, iou=False)
-        iou_only, _ = determine_eating(generate_bounding_boxes, image_path, output_path, mouth_open=False, iou=True)
+        mouth_only, _ = determine_eating(generate_bounding_boxes, image_path, output_path, include_mouth_open=True, include_iou=False)
+        iou_only, _ = determine_eating(generate_bounding_boxes, image_path, output_path, include_mouth_open=False, include_iou=True)
 
         if gt == combined:
             combined_cnt += 1
