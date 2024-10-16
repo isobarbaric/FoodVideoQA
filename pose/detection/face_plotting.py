@@ -100,6 +100,9 @@ def determine_mouth_open(pose_detector: PoseDetector, img_path: Path, output_pat
   landmarks = _get_landmarks(pose_detector, img_path)
   mouth_open = _is_mouth_open(landmarks)
 
+  if not output_path.parent.exists():
+    output_path.parent.mkdir(parents=True, exist_ok=False)
+
   if output_path is not None:
     plt.figure(figsize=(8, 8))
     plt.scatter(landmarks.face_x, landmarks.face_y, c='gray', marker='o')
