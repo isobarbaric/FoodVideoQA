@@ -73,7 +73,7 @@ def process_bounding_boxes(bounding_boxes_data: dict) -> list[BoundingBox]:
     return data
 
 
-def make_get_bounding_boxes(model_name: str):
+def make_get_bounding_boxes(model_name: str = "IDEA-Research/grounding-dino-base") -> Callable[[Path], list[BoundingBox]]:
     f"""
     Create a function for generating bounding boxes using the specified model.
 
