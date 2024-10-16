@@ -4,10 +4,9 @@ from .youtube import download_video, trim_video
 from .video_utils import extract_random_frames
 
 ROOT_DIR = Path(__file__).parent.parent.parent
-DATA_DIR = ROOT_DIR / "data"
-LLM_DATA_DIR = DATA_DIR / "llm"
-LLM_VIDEO_DIR = LLM_DATA_DIR / "videos"
-LLM_RANDOM_FRAME_DIR = LLM_DATA_DIR / "random_frames"
+DATASET_DIR = ROOT_DIR / "dataset"
+DATASET_VIDEO_DIR = DATASET_DIR / "videos"
+DATASET_FRAME_DIR = DATASET_DIR / "frames"
 
 # taken from 'Video Metadata' Spreadsheet
 YOUTUBE_URLS = [
@@ -52,14 +51,14 @@ YOUTUBE_URLS = [
 def download_all_videos():
     """Download all the YouTube videos in the YOUTUBE_URLS list."""
     for i, youtube_url in enumerate(YOUTUBE_URLS, start=1):
-        output_path = LLM_VIDEO_DIR / f"video_{i}.mp4"
+        output_path = DATASET_VIDEO_DIR / f"video_{i}.mp4"
         download_video(youtube_url, output_path, exists_ok=True)
 
 def slice_random_frames():
     """Slice random frames from all the downloaded videos."""
     for i in range(1, len(YOUTUBE_URLS) + 1):
-        video_path = LLM_VIDEO_DIR / f"video_{i}.mp4"
-        frame_dir = LLM_RANDOM_FRAME_DIR / f"video_{i}"
+        video_path = DATASET_VIDEO_DIR / f"video_{i}.mp4"
+        frame_dir = DATASET_FRAME_DIR / f"video_{i}"
         extract_random_frames(video_path, frame_dir, num_frames=10)
 
 if __name__ == "__main__":
