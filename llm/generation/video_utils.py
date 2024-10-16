@@ -1,6 +1,7 @@
 import cv2
 from pathlib import Path
 import shutil
+import numpy as np
 
 ROOT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT_DIR / "data"
@@ -9,7 +10,7 @@ LLM_VIDEO_DIR = LLM_DATA_DIR / "videos"
 LLM_FRAME_DIR = LLM_DATA_DIR / "frames"
 
 def extract_frames(video_path: Path, 
-                   frame_dir: Path, 
+                   frame_dir: Path = LLM_FRAME_DIR, 
                    k: int = 10):
     """
     Extract frames from a video file and save every k-th frame as a JPEG image.
@@ -50,6 +51,40 @@ def extract_frames(video_path: Path,
 
             # keep track of how many images you end up with
             current_frame += 1
+        else:
+            break
+
+    video.release()
+
+
+def extract_random_frames(video_path: Path, 
+                   frame_dir: Path = LLM_FRAME_DIR, 
+                   num_frames: int = 10):
+    """
+    Extract random frames from a video file and save them as JPEG images.
+    """
+
+    print(f"Extracting {num_frames} random frames from video: {video_path}")
+
+    if not video_path.exists():
+        raise ValueError(f"Provided file path {video_path} does not exist")
+
+    if frame_dir.exists():
+        shutil.rmtree(frame_dir)
+
+    frame_dir.mkdir(parents=True, exist_ok=True)
+
+    video = cv2.VideoCapture(str(video_path))
+    total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    for i in range(num_frames):
+        frame_number = np.random.randint(0, total_frames)
+        video.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
+        ret, frame = video.read()
+
+        if ret:
+            name = f"frame_{i}.jpg"
+            cv2.imwrite(str(frame_dir / name), frame)
         else:
             break
 
