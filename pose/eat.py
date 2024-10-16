@@ -11,36 +11,72 @@ DATA_DIR = ROOT_DIR / "data"
 LOCALIZATION_DIR = DATA_DIR / "localization"
 IMAGE_INPUT_DIR = LOCALIZATION_DIR / "assets"
 IMAGE_OUTPUT_DIR = LOCALIZATION_DIR / "outputs"
+FACE_PLOT_OUTPUT_DIR = LOCALIZATION_DIR / "face-plot"
 
+TOTAL_IMGS = 20
 
+# mouth_open_component, iou_component are available for running eblations
 def determine_eating(
     generate_bounding_boxes: Callable[[Path], list[BoundingBox]], 
-    pose_detector: PoseDetector, 
     image_path: Path, 
-    output_path: Path = None
+    bbox_output_path: Path = None,
+    face_plot_output_path: Path = None,
+    mouth_open_component: bool = True,
+    iou_component: bool = True
 ):
-    mouth_open = determine_mouth_open(pose_detector, image_path, output_path)
-    iou_condition, status_msg = determine_iou(generate_bounding_boxes, image_path, output_path)
-    return mouth_open and iou_condition, status_msg
+    pose_detector = PoseDetector()
+
+    mouth_open = determine_mouth_open(pose_detector, image_path, face_plot_output_path)
+    iou_condition, status_msg = determine_iou(generate_bounding_boxes, image_path, bbox_output_path)
+
+    if mouth_open_component and iou_component
+        return mouth_open and iou_condition, status_msg
+    elif mouth_open_component:
+        return mouth_open
+    elif iou_component:
+        return iou_condition
+    else:
+        raise ValueError("atleast one of `mouth_open_component` and `iou_component` must be True")
 
 
+# TODO: need to integrate ability to read in ground truth values (maybe make a dictionary here?)
 if __name__ == "__main__":
     console = Console()
 
     model_name = "IDEA-Research/grounding-dino-base"
     generate_bounding_boxes = make_get_bounding_boxes(model_name)
-    pose_detector = PoseDetector()
 
-    for img_num in range(1, 20):
+    mouth_open_correct_count = 0
+    iou_correct_count = 0
+    combined_correct_count = 0
+
+    valid_image_cnt = 0
+
+    for img_num in range(1, TOTAL_IMGS):
         console.print(f"[orange]processing image #{img_num}...[/orange]")
         image_path = IMAGE_INPUT_DIR / f"test{img_num}.jpg"
         output_path = IMAGE_OUTPUT_DIR / f"test{img_num}.jpg"
 
-        eating, msg = determine_eating(generate_bounding_boxes, pose_detector, image_path, output_path)
-        if eating:
-            console.print(f"[green]{msg}[/green]")
-        else:
-            console.print(f"[red]{msg}[/red]")
-        
-        console.print()
-        
+        # load in ground truth here
+        gt = None
+
+        combined, _ = determine_eating(generate_bounding_boxes, image_path, output_path)
+        mouth_only, _ = determine_eating(generate_bounding_boxes, image_path, output_path, mouth_open_component=True, iou_component=False)
+        iou_only, _ = determine_eating(generate_bounding_boxes, image_path, output_path, mouth_open_component=False, iou_component=True)
+
+        if gt == combined:
+            combined_correct_count += 1
+        if gt == mouth_only:
+            mouth_open_correct_count += 1
+        if gt == iou_only:
+            iou_correct_count += 1
+
+        valid_image_cnt += 1
+
+    mouth_only_accuracy = mouth_open_correct_count / valid_image_cnt
+    iou_only_accuracy = iou_correct_count / valid_image_cnt
+    combined_accuracy = combined_correct_count / valid_image_cnt
+
+    console.print(f"Mouth (only): {mouth_only_accuracy}")
+    console.print(f"IOU (only): {iou_only_accuracy}")
+    console.print(f"Mouth & IOU: {combined_accuracy}")
