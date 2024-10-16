@@ -31,7 +31,6 @@ def infer_pose(pose_detector: PoseDetector, img_path: Path, output_path: Path):
     cv2.imwrite(output_path, detected_map)
  
 
-# TODO: modify __call__ in PoseDetector to return canvas & face data so that infer_pose works
 if __name__ == '__main__' :
     pose_detector = PoseDetector()
 

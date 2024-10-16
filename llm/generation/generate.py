@@ -2,19 +2,11 @@ import json
 import time
 from pathlib import Path
 from .video_utils import extract_frames
-import pprint
 import json
 from llm.generation.models import make_get_response
 from tqdm import tqdm
 from typing import Callable
-from utils.constants import FRAME_STEP_SIZE, UTENSILS
-
-ROOT_DIR = Path(__file__).parent.parent.parent
-DATA_DIR = ROOT_DIR / "data"
-LLM_DATA_DIR = DATA_DIR / "llm"
-LLM_VIDEO_DIR = LLM_DATA_DIR / "videos"
-LLM_FRAME_DIR = LLM_DATA_DIR / "frames"
-
+import pprint
 
 def _describe_frame(get_response: Callable[[str, Path], str],
                     frame_number: int, 
@@ -77,10 +69,16 @@ def _describe_video(model_name: str,
     extract_frames(video_path, frame_dir, frame_step_size)
     images = []
 
+    def _get_frame_number(frame_path: Path):
+        return int(frame_path.name[frame_path.name.find('frame')+5:frame_path.name.find('.')])
+
+    def _sort_frames(frame_dir: Path):
+        return sorted(frame_dir.iterdir(), key=lambda x: _get_frame_number(x))
+
     get_response = make_get_response(model_name)
-    for frame in sorted(frame_dir.iterdir()):
+    for frame in _sort_frames(frame_dir):
         print(f"- processing {frame.name}...")
-        frame_num = int(frame.name[frame.name.find('frame')+5:frame.name.find('.')])
+        frame_num = _get_frame_number(frame)
         current_frame = _describe_frame(get_response, frame_num, frame, questions)
         images.append(current_frame)
 
@@ -92,12 +90,13 @@ def _describe_video(model_name: str,
     return answer
         
 
-def process_videos(model_name: str,
-                   video_dir: Path,
+def process_videos(video_dir: Path,
                    frame_dir: Path,
-                   questions: list[str],
-                   output_file: Path,
-                   frame_step_size: int = FRAME_STEP_SIZE):
+                   frame_step_size: int,
+                   questions: list[str] = [],
+                   model_name: str = "llava-hf/llava-v1.6-mistral-7b-hf",
+                   output_file: Path | None = None):
+                                      
     """
     Process all videos in a directory by extracting frames, generating descriptions, and saving the results to a file.
 
@@ -117,7 +116,7 @@ def process_videos(model_name: str,
     """
     if not video_dir.exists():
         raise ValueError(f"Provided file path {video_dir} does not exist")
-
+    
     answers = []
     for video in tqdm(sorted(video_dir.iterdir())):
         print(f"\nprocessing {video.name}..")
@@ -126,46 +125,61 @@ def process_videos(model_name: str,
             frame = frame_dir / video.name
             answers.append(_describe_video(model_name, questions, video, frame, frame_step_size))
 
-        with open(output_file, 'w') as f:
-            json.dump(answers, f, indent=4) 
+        if output_file:
+            with open(output_file, 'w') as f:
+                json.dump(answers, f, indent=4) 
 
     return answers
 
 
 if __name__ == "__main__":
-    start = time.time()    
+    from utils.constants import UTENSILS
 
-    output_file = LLM_DATA_DIR / "data.json"
+    ROOT_DIR = Path(__file__).parent.parent.parent
+    DATA_DIR = ROOT_DIR / "data"
+    LLM_DATA_DIR = DATA_DIR / "llm"
+    LLM_VIDEO_DIR = LLM_DATA_DIR / "videos"
+    LLM_FRAME_DIR = LLM_DATA_DIR / "frames"
+
+    start = time.time()    
+    output_file = LLM_DATA_DIR / "data_trial.json"
     video_dir = LLM_VIDEO_DIR
     frame_dir = LLM_FRAME_DIR
 
+    # questions = [
+    #     "Provide a detailed description of the food you see in the image.",
+    #     f"Provide a list of cutlery/utensils that the person in the image is eating with, from this list: {UTENSILS}.",
+    #     f"Analyze the provided image and provide a list of which utensils are in the image from this list: {UTENSILS}." ,
+    #     "Provide a detailed list of the ingredients of the food in the image. Only include a comma-separated list of items with no additional descriptions for each item in your response.",
+    #     "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response."
+    # ]
+
+    # model_name = "llava-hf/llava-v1.6-mistral-7b-hf"
+    # process_videos(model_name, video_dir, frame_dir, questions, output_file, frame_step_size = 20)
+
+    ###
+    # start - prompt experimentation section
+    ###
+
     questions = [
-        "Provide a detailed description of the food you see in the image.",
-        f"Provide a list of cutlery/utensils that the person in the image is eating with, from this list: {UTENSILS}.",
-        f"Analyze the provided image and provide a list of which utensils are in the image from this list: {UTENSILS}." ,
-        "Provide a detailed list of the ingredients of the food in the image. Only include a comma-separated list of items with no additional descriptions for each item in your response.",
-        "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response."
+        """Provide nutritional value (calories, protein, fat, carbohydrates) about the food you see in the image in bullet point format with JUST this information and nothing else: 
+        - Calories = ?
+        - Fats = ?%
+        - Protein = ?%
+        - Carbohydrates = ?% 
+        """
     ]
 
     model_name = "llava-hf/llava-v1.6-mistral-7b-hf"
-    process_videos(model_name, video_dir, frame_dir, questions, output_file, frame_step_size = 20)
+    frame_path = Path('data/llm/frames/video_1.mp4/frame480.jpg')
 
-    """
-    temporary testing code goes below this line
-    """
+    get_response = make_get_response(model_name)
+    frame_desc = _describe_frame(get_response, 20, frame_path, questions)
+    pprint.pprint(frame_desc)
 
-    # sample_frame = Path("extracted-frames/4.mp4/frame15.jpg")
+    ###
+    # end - prompt experimentation section
+    ###
 
-    # questions = [
-    #    f"Provide a list of cutlery/utensils that the person in the image is eating with, from this list: {utensils}.",
-    # ]
-
-    # response = describe_frame(20, sample_frame, questions)
-    # pprint.pprint(response)
-
-    """
-    temporary testing code ends above this line
-    """
-
-    end = time.time()    
+    end = time.time()   
     print(f"\n{round(end - start, 2)} seconds elapsed...")

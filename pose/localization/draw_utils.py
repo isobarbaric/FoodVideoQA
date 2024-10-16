@@ -20,7 +20,8 @@ def draw_text(image: np.ndarray,
               font_scale: float = 0.35,
               font_thickness: int = 1,
               text_color: tuple[int, int, int] = (0, 0, 0),
-              text_color_bg: tuple[int, int, int] = (31, 132, 187)):
+              text_color_bg: tuple[int, int, int] = (31, 132, 187),
+              have_bg: bool = True):
     """
     Draw text on an image with a background rectangle.
 
@@ -40,7 +41,8 @@ def draw_text(image: np.ndarray,
     text_size, _ = cv2.getTextSize(text, font, font_scale, font_thickness)
     text_w, text_h = text_size
 
-    cv2.rectangle(image, (x, y - text_h), (x + text_w, y), text_color_bg, -1)
+    if have_bg:
+        cv2.rectangle(image, (x, y - text_h), (x + text_w, y), text_color_bg, -1)
     cv2.putText(image, text, (x, y), font, font_scale, text_color, font_thickness)
 
     return text_size
