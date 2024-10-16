@@ -48,7 +48,7 @@ def get_model(model_name: str):
     case _:
       processor = AutoProcessor.from_pretrained(model_name)
       model = AutoModel(model_name)
-    model.to(device)
+  model.to(device)
     
   # disabling status message doing the same implicitly
   model.generation_config.pad_token_id = model.generation_config.eos_token_id
