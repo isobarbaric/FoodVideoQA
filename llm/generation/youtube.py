@@ -1,8 +1,8 @@
-from pytubefix import YouTube
 from rich.console import Console
 from moviepy.video.io.ffmpeg_tools import ffmpeg_extract_subclip
 from pathlib import Path
 import click
+import yt_dlp
 
 ROOT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT_DIR / "data"
@@ -10,7 +10,7 @@ LLM_DATA_DIR = DATA_DIR / "llm"
 LLM_VIDEO_DIR = LLM_DATA_DIR / "videos"
 
 
-def download_video(youtube_url: str, output_path: Path = LLM_VIDEO_DIR / "video_1.mp4"):
+def download_video(youtube_url: str, output_path: Path = LLM_VIDEO_DIR / "video.mp4", exists_ok: bool = False):
     """Download a video from YouTube.
 
     This command downloads a video from the provided YouTube URL and saves it to the specified output path.
@@ -22,24 +22,28 @@ def download_video(youtube_url: str, output_path: Path = LLM_VIDEO_DIR / "video_
         --output-path (str): 
             The file path where the downloaded video will be saved.
     """
-    output_path = Path(output_path)
+    output_path = str(output_path)
 
-    if output_path.exists():
-        raise ValueError(f"A video already exists at the provided output path {output_path}")
+    if Path(output_path).exists():
+        if not exists_ok:
+            raise ValueError(f"A video already exists at the provided output path {output_path}")
+        else:
+
+            Path(output_path).unlink()
 
     try:
-        youtube = YouTube(youtube_url)
-        output_path = Path(output_path)
+        print(f"Downloading video from YouTube URL: {youtube_url}")
+        ydl_opts = {
+            'outtmpl': output_path,
+            'format': 'best',
+        }
 
-        filename = output_path.name
-        output_path = output_path.parent
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([youtube_url])
 
-        video = youtube.streams.get_highest_resolution()
-        video.download(output_path=output_path, filename=filename)
-
-        click.echo(f"[yellow]YouTube video {youtube_url} downloaded successfully[/yellow]")
+        print(f"Downloaded video successfully to {output_path}")
     except Exception as e:
-        click.echo(f"[red]An error occurred: {e}[/red]")
+        print(f"An error occurred: {e}") 
 
 
 def trim_video(video_path: str, start_time: int, end_time: int):
@@ -71,7 +75,7 @@ def cli():
     pass
 
 
-@click.command()
+@cli.command()
 @click.argument('--youtube-url', required=True, type=str)
 @click.option('--output-path', type=click.Path(exists=True), help="Path to save the downloaded video.")
 def download(youtube_url: str, output_path: Path = None):
