@@ -1,4 +1,6 @@
 from pathlib import Path
+
+import torch
 from pose.localization.bbox import BoundingBox
 from typing import Callable
 from rich.console import Console
@@ -44,16 +46,19 @@ def determine_eating(
 
 # TODO: need to integrate ability to read in ground truth values (maybe make a dictionary here?)
 if __name__ == "__main__":
+    # print(torch.cuda.is_available())
+    # print(torch.cuda.current_device())
+    # print(torch.cuda.get_device_name(0))
     console = Console()
 
     model_name = "IDEA-Research/grounding-dino-base"
     generate_bounding_boxes = make_get_bounding_boxes(model_name)
 
-    mouth_open_cnt = 0
-    iou_cnt = 0
-    combined_cnt = 0
+    mouth_open_count = 0
+    iou_count = 0
+    combined_count = 0
 
-    valid_image_cnt = 0
+    valid_image_count = 0
 
     with open(GROUND_TRUTH_JSON, "r") as f:
         ground_truth = json.load(f)
@@ -64,33 +69,41 @@ if __name__ == "__main__":
             continue
         
         for img_num in range(1, 10):
-            console.print("[green]Processing[/green] ", video_dir.name, f"/frame_{img_num}")
+            console.print("[green]Processing[/green] ", video_dir.name, f"frame_{img_num}")
             image_path = video_dir / f"frame_{img_num}.jpg"
             output_path = IMAGE_OUTPUT_DIR / video_dir.name / f"frame_{img_num}.jpg"
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
-            combined, _ = determine_eating(generate_bounding_boxes, image_path, output_path)
+            combined = determine_eating(generate_bounding_boxes, image_path, output_path)
             mouth_only = determine_eating(generate_bounding_boxes, image_path, output_path, include_mouth_open=True, include_iou=False)
             iou_only = determine_eating(generate_bounding_boxes, image_path, output_path, include_mouth_open=False, include_iou=True)
 
             gt = True if ground_truth[video_dir.name][f"frame_{img_num}"] == 1 else False
 
             if gt == combined:
-                combined_cnt += 1
+                combined_count += 1
             if gt == mouth_only:
-                mouth_open_cnt += 1
+                mouth_open_count += 1
             if gt == iou_only:
-                iou_cnt += 1
-            
+                iou_count += 1
+
+            valid_image_count += 1
+
+            mouth_only_accuracy = mouth_open_count / valid_image_count
+            iou_only_accuracy = iou_count / valid_image_count
+            combined_accuracy = combined_count / valid_image_count
+
             console.print(f"GT: {gt} | Mouth: {mouth_only} | IOU: {iou_only} | Combined: {combined}")
+            console.print(f"Accuracy - Mouth only: {mouth_only_accuracy}", style="bold")
+            console.print(f"Accuracy - IOU only: {iou_only_accuracy}", style="bold")
+            console.print(f"Accuracy - Mouth & IOU combined: {combined_accuracy}", style="bold")
             console.print()
 
-            valid_image_cnt += 1
+    mouth_only_accuracy = mouth_open_count / valid_image_count
+    iou_only_accuracy = iou_count / valid_image_count
+    combined_accuracy = combined_count / valid_image_count
 
-    mouth_only_accuracy = mouth_open_cnt / valid_image_cnt
-    iou_only_accuracy = iou_cnt / valid_image_cnt
-    combined_accuracy = combined_cnt / valid_image_cnt
-
-    console.print(f"Mouth (only): {mouth_only_accuracy}")
-    console.print(f"IOU (only): {iou_only_accuracy}")
-    console.print(f"Mouth & IOU: {combined_accuracy}")
+    console.print(f"Final Results:", style="bold")
+    console.print(f"Accuracy - Mouth only: {mouth_only_accuracy}", style="green")
+    console.print(f"Accuracy - IOU only: {iou_only_accuracy}", style="blue")
+    console.print(f"Accuracy - Mouth & IOU combined: {combined_accuracy}", style="bold")

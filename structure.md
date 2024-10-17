@@ -204,6 +204,13 @@ python3 -m llm.eaten
 ```
 ---
 
+### Accuracy for Pose:
+```
+Final Results:
+Accuracy - Mouth only: 0.8158730158730159
+Accuracy - IOU only: 0.8571428571428571
+Accuracy - Mouth & IOU combined: 0.8571428571428571
+```
 
 ### Desired output of FoodVideoQA 
 - downstream task of ALL info per frame, when the food was consumed, etc...
