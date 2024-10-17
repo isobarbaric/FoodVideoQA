@@ -77,7 +77,7 @@ def extract_random_frames(video_path: Path,
     video = cv2.VideoCapture(str(video_path))
     total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
 
-    for i in range(num_frames+1):
+    for i in range(1, num_frames+1):
         frame_number = np.random.randint(0, total_frames)
         video.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
         ret, frame = video.read()

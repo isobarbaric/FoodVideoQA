@@ -62,5 +62,5 @@ def slice_random_frames():
         extract_random_frames(video_path, frame_dir, num_frames=10)
 
 if __name__ == "__main__":
-    download_all_videos()
+    # download_all_videos()
     slice_random_frames()

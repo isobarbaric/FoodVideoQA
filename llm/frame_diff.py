@@ -12,6 +12,11 @@ from transformers import GPTNeoForCausalLM, GPT2Tokenizer
 
 from pprint import pprint
 
+ROOT_DIR = Path(__file__).resolve().parents[1]
+DATA_DIR = ROOT_DIR / 'data'
+LLM_DATA_DIR = DATA_DIR / 'llm'
+DATA_JSON = LLM_DATA_DIR / 'data.json'
+
 # all LLMs similar supported by huggingface
 models = Literal[
     # very bad, terrible output
@@ -45,6 +50,9 @@ models = Literal[
 
     # default - llama3 (great results)
     'meta-llama/Meta-Llama-3-8B-Instruct',
+
+    # amazing (but very very large) - llama3.1 fine-tuned by NVIDIA
+    'nvidia/Llama-3.1-Nemotron-70B-Instruct-HF',
     
     # TODO: experiment with these
     'facebook/opt-350m',
@@ -101,6 +109,9 @@ def get_model(model_name: str):
     elif model_name == 'EleutherAI/gpt-neo-1.3B' or model_name == 'EleutherAI/gpt-neo-2.7B' or model_name == 'EleutherAI/gpt-j-6B':
         tokenizer = GPT2Tokenizer.from_pretrained(model_name, ignore_mismatched_sizes=True)
         model = GPTNeoForCausalLM.from_pretrained(model_name, ignore_mismatched_sizes=True)
+    elif model_name == 'nvidia/Llama-3.1-Nemotron-70B-Instruct-HF':
+        tokenizer = AutoTokenizer.from_pretrained(model_name)
+        model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, device_map="auto")
     else:
         model = DEFAULT_MODEL
         tokenizer = AutoTokenizer.from_pretrained(model)
@@ -303,7 +314,7 @@ def determine_eaten(data_json: Path, print_output: bool = False):
 
 if __name__ == "__main__":
     start = time.time()
-    generate_frame_diff()
+    generate_frame_diff(input_path=DATA_JSON, output_path=LLM_DATA_DIR / 'output.json', print_output=True)
     end = time.time()
     print(f"{end - start} seconds elapsed...")
     determine_eaten()
