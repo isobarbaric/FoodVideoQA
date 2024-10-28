@@ -9,6 +9,7 @@ from transformers import AutoModel, AutoProcessor, AutoModelForCausalLM
 from transformers import AutoTokenizer, AutoModelForCausalLM, T5Tokenizer, T5ForConditionalGeneration
 from transformers import ByT5Tokenizer, BartForConditionalGeneration, BartTokenizer, BartModel
 from transformers import GPTNeoForCausalLM, GPT2Tokenizer
+from hyperpameters import FRAME_DIFFERENCE_PROMPT
 
 from pprint import pprint
 
@@ -208,18 +209,6 @@ def generate_frame_diff(input_path: Path, output_path: Path, model_name: str = D
         answer = response.split('ASSISTANT:')[-1]
         return answer.strip()
 
-    frame_diff_prompt =   """
-                You are analyzing changes between two consecutive frames in a video. Focus ONLY on the presence of NEW food items and the absence of OLD food items between the two descriptions.
-
-                Please provide your answer in the following structured dictionary format. ONLY include edible food items in your response.
-                {
-                    "new": [List of food items that appear in the current frame but were not present in the previous frame. INCLUDE ONLY EDIBLE PREPARED FOOD ITEMS.],
-                    "absent": [List of food items that were present in the previous frame but are missing in the current frame. INCLUDE ONLY EDIBLE PREPARED FOOD ITEMS.]
-                }
-
-                Only mention the food items that are NEW or ABSENT. If there are none in either list, leave the list empty. Do NOT include any other information in your response.
-                """
-    
     for video in data_json:
         video_name = video["video_name"]
         frames = frames_dict[video_name]
@@ -230,7 +219,7 @@ def generate_frame_diff(input_path: Path, output_path: Path, model_name: str = D
 
             prev_desc = "\n\n Previous Description: " + prev_frame["questions"][0]
             curr_desc = "\n\n Current Description: " + curr_frame["questions"][0]
-            prompt = frame_diff_prompt + prev_desc + curr_desc
+            prompt = FRAME_DIFFERENCE_PROMPT + prev_desc + curr_desc
 
             model_prompt = f"USER: {prompt}\nASSISTANT:"
             inputs = tokenizer(text=model_prompt, return_tensors="pt")
@@ -314,7 +303,7 @@ def determine_eaten(data_json: Path, print_output: bool = False):
 
 if __name__ == "__main__":
     start = time.time()
-    generate_frame_diff(input_path=DATA_JSON, output_path=LLM_DATA_DIR / 'output.json', print_output=True)
+    generate_frame_diff(input_path=DATA_JSON, output_path=DATA_JSON, print_output=True)
     end = time.time()
     print(f"{end - start} seconds elapsed...")
-    determine_eaten()
+    determine_eaten(DATA_JSON, print_output=True)

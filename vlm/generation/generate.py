@@ -7,6 +7,18 @@ from llm.generation.models import make_get_response
 from tqdm import tqdm
 from typing import Callable
 import pprint
+from hyperpameters import VLM_PROMPTS
+
+ROOT_DIR = Path(__file__).parent.parent.parent
+DATA_DIR = ROOT_DIR / "data"
+LLM_DATA_DIR = DATA_DIR / "llm"
+LLM_VIDEO_DIR = LLM_DATA_DIR / "videos"
+LLM_FRAME_DIR = LLM_DATA_DIR / "frames"
+
+start = time.time()    
+output_file = LLM_DATA_DIR / "data_trial.json"
+video_dir = LLM_VIDEO_DIR
+frame_dir = LLM_FRAME_DIR
 
 def _describe_frame(get_response: Callable[[str, Path], str],
                     frame_number: int, 
@@ -133,49 +145,30 @@ def process_videos(video_dir: Path,
 
 
 if __name__ == "__main__":
-    from utils.constants import UTENSILS
+    prompts = VLM_PROMPTS
 
-    ROOT_DIR = Path(__file__).parent.parent.parent
-    DATA_DIR = ROOT_DIR / "data"
-    LLM_DATA_DIR = DATA_DIR / "llm"
-    LLM_VIDEO_DIR = LLM_DATA_DIR / "videos"
-    LLM_FRAME_DIR = LLM_DATA_DIR / "frames"
-
-    start = time.time()    
-    output_file = LLM_DATA_DIR / "data_trial.json"
-    video_dir = LLM_VIDEO_DIR
-    frame_dir = LLM_FRAME_DIR
-
-    # questions = [
-    #     "Provide a detailed description of the food you see in the image.",
-    #     f"Provide a list of cutlery/utensils that the person in the image is eating with, from this list: {UTENSILS}.",
-    #     f"Analyze the provided image and provide a list of which utensils are in the image from this list: {UTENSILS}." ,
-    #     "Provide a detailed list of the ingredients of the food in the image. Only include a comma-separated list of items with no additional descriptions for each item in your response.",
-    #     "Provide an approximate estimate the weight of the food in the image in grams. It is completely okay if your estimate is off, all I care about is getting an estimate. Only provide a number and the unit in your response."
-    # ]
-
-    # model_name = "llava-hf/llava-v1.6-mistral-7b-hf"
-    # process_videos(model_name, video_dir, frame_dir, questions, output_file, frame_step_size = 20)
+    model_name = "llava-hf/llava-v1.6-mistral-7b-hf"
+    process_videos(video_dir, frame_dir, 20, prompts, model_name, output_file)
 
     ###
     # start - prompt experimentation section
     ###
 
-    questions = [
-        """Provide nutritional value (calories, protein, fat, carbohydrates) about the food you see in the image in bullet point format with JUST this information and nothing else: 
-        - Calories = ?
-        - Fats = ?%
-        - Protein = ?%
-        - Carbohydrates = ?% 
-        """
-    ]
+    # questions = [
+    #     """Provide nutritional value (calories, protein, fat, carbohydrates) about the food you see in the image in bullet point format with JUST this information and nothing else: 
+    #     - Calories = ?
+    #     - Fats = ?%
+    #     - Protein = ?%
+    #     - Carbohydrates = ?% 
+    #     """
+    # ]
 
-    model_name = "llava-hf/llava-v1.6-mistral-7b-hf"
-    frame_path = Path('data/llm/frames/video_1.mp4/frame480.jpg')
+    # model_name = "llava-hf/llava-v1.6-mistral-7b-hf"
+    # frame_path = Path('data/llm/frames/video_1.mp4/frame480.jpg')
 
-    get_response = make_get_response(model_name)
-    frame_desc = _describe_frame(get_response, 20, frame_path, questions)
-    pprint.pprint(frame_desc)
+    # get_response = make_get_response(model_name)
+    # frame_desc = _describe_frame(get_response, 20, frame_path, questions)
+    # pprint.pprint(frame_desc)
 
     ###
     # end - prompt experimentation section
