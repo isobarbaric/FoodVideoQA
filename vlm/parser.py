@@ -2,7 +2,7 @@ import yaml
 import spacy
 import subprocess
 from pathlib import Path
-from llm.generation.generate import UTENSILS
+from vlm.generation.generate import UTENSILS
 from typing import List, Dict
 
 # load small spaCy English model: https://spacy.io/models/en
