@@ -9,6 +9,13 @@ LLM_DATA_DIR = DATA_DIR / "llm"
 LLM_VIDEO_DIR = LLM_DATA_DIR / "videos"
 LLM_FRAME_DIR = LLM_DATA_DIR / "frames"
 
+def get_frame_rate(video_path: Path) -> float:
+    video = cv2.VideoCapture(str(video_path))
+    fps = video.get(cv2.CAP_PROP_FPS)
+    video.release()
+    return fps
+
+
 def extract_frames(video_path: Path, 
                    frame_dir: Path = LLM_FRAME_DIR, 
                    k: int = 10):

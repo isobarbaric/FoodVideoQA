@@ -1,24 +1,20 @@
 import json
 import time
 from pathlib import Path
-from .video_utils import extract_frames
+from .video_utils import extract_frames, get_frame_rate
 import json
-from llm.generation.models import make_get_response
+from vlm.generation.models import make_get_response
 from tqdm import tqdm
 from typing import Callable
 import pprint
-from hyperpameters import VLM_PROMPTS
+from hyperparameters import VLM_PROMPTS, FRAME_STEP_SIZE
+import cv2
 
 ROOT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT_DIR / "data"
 LLM_DATA_DIR = DATA_DIR / "llm"
-LLM_VIDEO_DIR = LLM_DATA_DIR / "videos"
-LLM_FRAME_DIR = LLM_DATA_DIR / "frames"
-
-start = time.time()    
-output_file = LLM_DATA_DIR / "data_trial.json"
-video_dir = LLM_VIDEO_DIR
-frame_dir = LLM_FRAME_DIR
+LLM_VIDEO_DIR = LLM_DATA_DIR / "test_videos"
+LLM_FRAME_DIR = LLM_DATA_DIR / "test_frames"
 
 def _describe_frame(get_response: Callable[[str, Path], str],
                     frame_number: int, 
@@ -77,7 +73,7 @@ def _describe_video(model_name: str,
     """
     if not video_path.exists():
         video_path.mkdir(parents=True)
-    
+
     extract_frames(video_path, frame_dir, frame_step_size)
     images = []
 
@@ -94,8 +90,11 @@ def _describe_video(model_name: str,
         current_frame = _describe_frame(get_response, frame_num, frame, questions)
         images.append(current_frame)
 
+    fps = get_frame_rate(video_path)
+
     answer = {
         'video_name': video_path.name,
+        'fps': fps,
         'frames': images
     }
 
@@ -104,7 +103,7 @@ def _describe_video(model_name: str,
 
 def process_videos(video_dir: Path,
                    frame_dir: Path,
-                   frame_step_size: int,
+                   frame_step_size: int = FRAME_STEP_SIZE,
                    questions: list[str] = [],
                    model_name: str = "llava-hf/llava-v1.6-mistral-7b-hf",
                    output_file: Path | None = None):
@@ -146,6 +145,11 @@ def process_videos(video_dir: Path,
 
 if __name__ == "__main__":
     prompts = VLM_PROMPTS
+    start = time.time()    
+
+    output_file = LLM_DATA_DIR / "test_test_data.json"
+    video_dir = LLM_VIDEO_DIR
+    frame_dir = LLM_FRAME_DIR
 
     model_name = "llava-hf/llava-v1.6-mistral-7b-hf"
     process_videos(video_dir, frame_dir, 20, prompts, model_name, output_file)
@@ -154,21 +158,7 @@ if __name__ == "__main__":
     # start - prompt experimentation section
     ###
 
-    # questions = [
-    #     """Provide nutritional value (calories, protein, fat, carbohydrates) about the food you see in the image in bullet point format with JUST this information and nothing else: 
-    #     - Calories = ?
-    #     - Fats = ?%
-    #     - Protein = ?%
-    #     - Carbohydrates = ?% 
-    #     """
-    # ]
-
-    # model_name = "llava-hf/llava-v1.6-mistral-7b-hf"
-    # frame_path = Path('data/llm/frames/video_1.mp4/frame480.jpg')
-
-    # get_response = make_get_response(model_name)
-    # frame_desc = _describe_frame(get_response, 20, frame_path, questions)
-    # pprint.pprint(frame_desc)
+    # process_videos(video_dir, frame_dir, 20, VLM_PROMPTS, "llava-hf/llava-v1.6-mistral-7b-hf", output_file)
 
     ###
     # end - prompt experimentation section
