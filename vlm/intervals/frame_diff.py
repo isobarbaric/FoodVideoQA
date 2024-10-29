@@ -1,309 +1,62 @@
 import json
-from rich.console import Console
-import time
 from pathlib import Path
-from typing import Literal, get_args
-import torch
-from transformers import LlavaForConditionalGeneration
-from transformers import AutoModel, AutoProcessor, AutoModelForCausalLM
-from transformers import AutoTokenizer, AutoModelForCausalLM, T5Tokenizer, T5ForConditionalGeneration
-from transformers import ByT5Tokenizer, BartForConditionalGeneration, BartTokenizer, BartModel
-from transformers import GPTNeoForCausalLM, GPT2Tokenizer
-from hyperparameters import FRAME_DIFFERENCE_PROMPT
+from vlm.intervals.parser import parse_comma_list
+import pprint
 
-from pprint import pprint
-
-ROOT_DIR = Path(__file__).resolve().parents[1]
+ROOT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT_DIR / 'data'
 LLM_DATA_DIR = DATA_DIR / 'llm'
-DATA_JSON = LLM_DATA_DIR / 'data.json'
+FOOD_ITEM_IDX = 0
 
-# all LLMs similar supported by huggingface
-models = Literal[
-    # very bad, terrible output
-    'google/flan-t5-small',
-    'google/flan-t5-base',
-    'google/flan-t5-large',
-    'google/flan-t5-xl',
-    'google/flan-t5-xxl',
-    'google/flan-ul2',
+with open(LLM_DATA_DIR / 'test_data.json') as f:
+    video_data = json.load(f)
 
-    'google/byt5-small',
-    'google/byt5-base',
-    'google/byt5-large',
-    'google/byt5-xl',
-    'google/byt5-xxl',
+# parse VLM output into individual food items
+food_data = []
+for video in video_data:
+    curr = []
+    for frames in video['frames']:
+        curr.append(frames['questions'][FOOD_ITEM_IDX]['answer'])
+    curr = [parse_comma_list(answer) for answer in curr]
+    food_data.append(curr)
 
-    'google-t5/t5-small',
-    'google-t5/t5-base',
-    'google-t5/t5-large',
-    'google-t5/t5-3b',
-    'google-t5/t5-11b',
+# defines when the current intervale ends
+def next_idx(vals: list[list[str]], repeat_val: str, starting_idx: int) -> int:
+    for i in range(starting_idx, len(vals)):
+        if repeat_val not in vals[i]:
+            return i
+    return len(vals)
 
-    # bart - bad, hallucinates
-    'facebook/bart-base',
-    'facebook/bart-large',
-
-    # gpts - not great
-    'EleutherAI/gpt-neo-1.3B',
-    'EleutherAI/gpt-neo-2.7B',
-    'EleutherAI/gpt-j-6B',
-
-    # default - llama3 (great results)
-    'meta-llama/Meta-Llama-3-8B-Instruct',
-
-    # amazing (but very very large) - llama3.1 fine-tuned by NVIDIA
-    'nvidia/Llama-3.1-Nemotron-70B-Instruct-HF',
-    
-    # TODO: experiment with these
-    'facebook/opt-350m',
-    'bigscience/bloom',
-    'Rostlab/prot_t5_xl_uniref50',
-    'facebook/m2m100_418M',
-    'CohereForAI/aya-101',
-]
-SUPPORTED_MODELS = get_args(models)
-
-DEFAULT_MODEL = 'meta-llama/Meta-Llama-3-8B-Instruct'
-
-def get_model(model_name: str):
-    """
-    Load and initialize the specified model and tokenizer from the Hugging Face library.
-
-    Args:
-        model_name (str): The name of the model to load.
-
-    Returns:
-        tuple: A tuple containing:
-            - tokenizer (PreTrainedTokenizer): The tokenizer for the specified model.
-            - model (PreTrainedModel): The model instance for the specified model.
-            - device (torch.device): The device to which the model is loaded (CPU or CUDA).
-    
-    Raises:
-        ValueError: If the provided model_name is not supported.
-    """
-    if model_name not in SUPPORTED_MODELS:
-        raise ValueError(f"{model_name} model not supported; supported models are {SUPPORTED_MODELS}")
-
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-    if model_name in ['google/flan-t5-small', 'google/flan-t5-base', 'google/flan-t5-large', 'google/flan-t5-xl', 'google/flan-t5-xxl', 'google/flan-ul2',
-                      'google/byt5-small', 'google/byt5-base', 'google/byt5-large', 'google/byt5-xl', 'google/byt5-xxl',
-                      'google-t5/t5-small', 'google-t5/t5-base', 'google-t5/t5-large', 'google-t5/t5-3b', 'google-t5/t5-11b']:
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = T5ForConditionalGeneration.from_pretrained(model_name)
-    elif model_name == 'CohereForAI/aya-101':
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = T5ForConditionalGeneration.from_pretrained(model_name)
-    elif model_name == 'Rostlab/prot_t5_xl_uniref50':
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForCausalLM.from_pretrained(model_name)
-    elif model_name == 'facebook/m2m100_418M':
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForCausalLM.from_pretrained(model_name)
-    elif model_name == 'meta-llama/Meta-Llama-3-8B-Instruct':
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForCausalLM.from_pretrained(model_name)
-    elif model_name == 'facebook/bart-base' or model_name == 'facebook/bart-large':
-        tokenizer = BartTokenizer.from_pretrained(model_name)
-        model = BartForConditionalGeneration.from_pretrained(model_name)
-    elif model_name == 'EleutherAI/gpt-neo-1.3B' or model_name == 'EleutherAI/gpt-neo-2.7B' or model_name == 'EleutherAI/gpt-j-6B':
-        tokenizer = GPT2Tokenizer.from_pretrained(model_name, ignore_mismatched_sizes=True)
-        model = GPTNeoForCausalLM.from_pretrained(model_name, ignore_mismatched_sizes=True)
-    elif model_name == 'nvidia/Llama-3.1-Nemotron-70B-Instruct-HF':
-        tokenizer = AutoTokenizer.from_pretrained(model_name)
-        model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, device_map="auto")
-    else:
-        model = DEFAULT_MODEL
-        tokenizer = AutoTokenizer.from_pretrained(model)
-        model = LlavaForConditionalGeneration.from_pretrained(model)
-    model.to(device)
-
-    model.config.pad_token_id = model.config.eos_token_id
-
-    return tokenizer, model, device
-
-
-
-def load_frames(data_path: Path):
-    """
-    Load and parse frames from a JSON file into a dictionary.
-
-    Returns:
-        dict: A dictionary where the keys are video names and the values are lists of frames. Each frame is a dictionary containing frame number and associated questions.
-    """
-    with open(data_path, 'r') as file:
-        data = json.load(file)
-
-    frames_dict = {}
-
-    for video in data:
-        video_name = video["video_name"]
-        frames_dict[video_name] = []
-
-        for frame in video["frames"]:
-            frame_info = {"frame_number": frame["frame_number"], "questions": []}
-            for i in range(len(frame["questions"])):
-                frame_info["questions"].append(frame["questions"][i]["answer"])
-            frames_dict[video_name].append(frame_info)
-
-    return frames_dict
-
-def convert_to_dict(response: str):
-    """
-    Convert a string response into a structured dictionary with 'new' and 'absent' food items.
-
-    Args:
-        response (str): The raw response string to be converted.
-
-    Returns:
-        dict: A dictionary with two keys, 'new' and 'absent', each containing a list of food items.
-
-    Example response:
-    {
-        "new": ["fried foods", "fried chicken", "chicken wings/drumsticks"],
-        "absent": ["beans", "rice", "salad"]
-    }
-    """
-    index_open = response.find("{")
-    index_close = response.rfind("}") + 1
-    response = response[index_open:index_close]
-
-    try:
-        response_dict = json.loads(response)
-
-    except json.JSONDecodeError:
-        response_dict = {
-            "new": [],
-            "absent": []
-        }
-
-    return response_dict
-
-def load_data(data_path: Path):
-    """
-    Load and parse data from a JSON file.
-
-    Returns:
-        list: A list of dictionaries containing data for each video.
-    """
-    with open(data_path, 'r') as file:
-        data = json.load(file)
-
-    return data
-
-def generate_frame_diff(input_path: Path, output_path: Path, model_name: str = DEFAULT_MODEL, print_output: bool = False):
-    """
-    Generate a structured dictionary of differences between consecutive video frames, focusing on new and absent food items.
-
-    This function reads frame data from a JSON file, uses a specified model to analyze changes between frames, and saves the results to an output JSON file.
-    """
-    console = Console()
-    tokenizer, model, device = get_model(model_name)
-
-    data_json = load_data(input_path)
-    frames_dict = load_frames(input_path)
-    output_dict = {}
-
-    def clean_response(response: str):
-        answer = response.split('ASSISTANT:')[-1]
-        return answer.strip()
-
-    for video in data_json:
-        video_name = video["video_name"]
-        frames = frames_dict[video_name]
-
-        for i in range(1, len(frames)):
-            prev_frame = frames[i - 1]
-            curr_frame = frames[i]
-
-            prev_desc = "\n\n Previous Description: " + prev_frame["questions"][0]
-            curr_desc = "\n\n Current Description: " + curr_frame["questions"][0]
-            prompt = FRAME_DIFFERENCE_PROMPT + prev_desc + curr_desc
-
-            model_prompt = f"USER: {prompt}\nASSISTANT:"
-            inputs = tokenizer(text=model_prompt, return_tensors="pt")
-            inputs.to(device)
-            output = model.generate(**inputs, max_new_tokens=256)
-            response = tokenizer.decode(output[0], skip_special_tokens=True)
-            response = clean_response(response)
-            
-            if print_output:
-                console.print(f"[yellow]PROMPT:[/yellow]")
-                console.print(f"[green]{prompt}[/green]")
-                print()
-
-                console.print(f"[yellow]RESPONSE:[/yellow]")
-                console.print(f"[blue]{response}[/blue]\n\n")
-                print()
-
-            response_dict = convert_to_dict(response)
-
-            # add to current video in data.json, and overwrite the file
-            video["frames"][i]["difference"] = response_dict
-
-            if video_name not in output_dict:
-                output_dict[video_name] = []
-            output_dict[video_name].append({"frame_number": curr_frame["frame_number"], "difference": response_dict})
-    
-    # sort each video's frames by frame number
-    for video in output_dict:
-        output_dict[video] = sorted(output_dict[video], key=lambda x: x["frame_number"])
-
-    with open(output_path, 'w') as file:
-        json.dump(data_json, file, indent=4)
+# stitches together intervals of consistent eating of a particular food item from a single video's data (as in data.json)
+def create_intervals(video_data: dict):
+    intervals = []
+    curr_idx = 0
+    while curr_idx < len(food_data[video_idx]):
+        if len(food_data[video_idx][curr_idx]) == 0:
+            curr_idx += 1
+            continue
         
+        curr_best = []
+        for food_str in food_data[video_idx][curr_idx]:
+            food_next_idx = next_idx(food_data[video_idx], food_str, curr_idx+1)
+            if food_next_idx != curr_idx+1:
+                curr_best.append([food_next_idx-curr_idx, [curr_idx, food_next_idx, food_str]])
 
+        # sort by length greedily to grab the longest interval that can be made
+        curr_best.sort()
 
+        if len(curr_best) > 0:
+            intervals.append(curr_best[0][1])
+            curr_idx = curr_best[0][1][1]
+        else:
+            curr_idx += 1
 
-def determine_eaten(data_json: Path, print_output: bool = False):
-    """
-    Analyze the output JSON file to determine which food items are missing in each frame compared to previous frames.
+    return intervals
 
-    This function reads the generated frame differences from a JSON file and prints out the absent food items for each frame.
-    """
-    console = Console()
+# create intervals for every video using create_intervals
+videos = []
+for video_idx in range(len(food_data)):
+    curr_video_intervals = create_intervals(food_data[video_idx])
+    videos.append(curr_video_intervals)
 
-    with open(data_json, 'r') as file:
-        data = json.load(file)
-
-    for video in data:
-        if print_output:
-            console.print(f"[yellow]Video Name: {video['video_name']}[/yellow]")
-            console.print()
-
-        absent = []
-        for frame in video["frames"]:
-            frame_number = frame["frame_number"]
-
-            if "difference" not in frame:
-                frame["difference"] = {
-                    "new": [],
-                    "absent": []
-                }
-
-            difference = frame["difference"]
-
-            if difference["absent"]:
-
-                if print_output:
-                    console.print(f"[blue]Frame Number: {frame_number}[/blue]")
-                    console.print(f"[red]Absent Food Items:[/red]")
-                    for item in difference["absent"]:
-                        console.print(f"  - {item}")
-                    console.print()
-                
-                absent.extend(difference["absent"])
-        
-        video["eaten foods: "] = absent
-
-    with open(data_json, 'w') as file:
-        json.dump(data, file, indent=4)
-
-
-if __name__ == "__main__":
-    start = time.time()
-    generate_frame_diff(input_path=DATA_JSON, output_path=DATA_JSON, print_output=True)
-    end = time.time()
-    print(f"{end - start} seconds elapsed...")
-    determine_eaten(DATA_JSON, print_output=True)
+pprint.pprint(videos)
