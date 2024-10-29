@@ -5,7 +5,7 @@ import cv2
 from dataclasses import dataclass
 from pose.detection.inference_utils import HWC3, resize_image
 from pose.detection.pose_detector import PoseDetector
-from utils.constants import LIP_SEPARATION_THRESHOLD
+from hyperparameters import LIP_SEPARATION_THRESHOLD
 
 ROOT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT_DIR / "data"
@@ -100,15 +100,15 @@ def determine_mouth_open(pose_detector: PoseDetector, img_path: Path, output_pat
   landmarks = _get_landmarks(pose_detector, img_path)
   mouth_open = _is_mouth_open(landmarks)
 
-  if not output_path.parent.exists():
-    output_path.parent.mkdir(parents=True, exist_ok=False)
-
   if output_path is not None:
+    if not output_path.parent.exists():
+      output_path.parent.mkdir(parents=True, exist_ok=False)
+      
     plt.figure(figsize=(8, 8))
-    plt.scatter(landmarks.face_x, landmarks.face_y, c='gray', marker='o')
-    plt.scatter(landmarks.mouth_x, landmarks.mouth_y, c='blue', marker='o')
-    plt.scatter(landmarks.lip_top_x, landmarks.lip_top_y, c='red', marker='o')
-    plt.scatter(landmarks.lip_bottom_x, landmarks.lip_bottom_y, c='green', marker='o')
+    plt.scatter(landmarks.face_x, landmarks.face_y, c='gray', marker='o', s=100)
+    plt.scatter(landmarks.mouth_x, landmarks.mouth_y, c='blue', marker='o', s=100)
+    plt.scatter(landmarks.lip_top_x, landmarks.lip_top_y, c='red', marker='o', s=100)
+    plt.scatter(landmarks.lip_bottom_x, landmarks.lip_bottom_y, c='green', marker='o', s=100)
 
     plt.xlabel('X coordinate')
     plt.ylabel('Y coordinate')

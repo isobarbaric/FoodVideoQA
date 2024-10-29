@@ -9,7 +9,7 @@ from rich.console import Console
 from pose.localization.bbox import BoundingBox, Labels
 from pose.localization.bbox_utils import get_food_bboxes, get_closest_food_bbox, get_mouth_bbox, bbox_intersection, get_furthest_food_bbox
 from pose.localization.draw_utils import draw_bounding_boxes
-from utils.constants import IOU_THRESHOLD
+from hyperparameters import IOU_THRESHOLD
 import cv2
 import numpy as np
 
@@ -137,20 +137,8 @@ def determine_iou(
 
     try:
         mouth_bbox = get_mouth_bbox(bounding_boxes)
-    except Exception as e:
-        return False, str(Exception(e))
-
-    try:
         food_bboxes = get_food_bboxes(bounding_boxes)
-    except Exception as e:
-        return False, str(Exception(e))
-    
-    try:
         closest_food_bbox = get_closest_food_bbox(mouth_bbox, food_bboxes)
-    except Exception as e:
-        return False, str(Exception(e))
-    
-    try:
         furthest_food_bbox = get_furthest_food_bbox(mouth_bbox, food_bboxes)
     except Exception as e:
         return False, str(Exception(e))
