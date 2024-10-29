@@ -44,13 +44,13 @@ def parse_comma_list(list_str: str) -> List[str]:
     singular_items = set()
 
     for item in items:
-        # converting all nouns to singular form
+        # extracting the actual food item from the list
         doc = nlp(item)
         singular_nouns = [token.lemma_ for token in doc if token.pos_ == "NOUN"]
 
         # adding each token to set of singular items
-        for noun in singular_nouns:
-            singular_items.add(noun)
+        if len(singular_nouns) != 0:
+            singular_items.add(' '.join(singular_nouns))
 
     # remove empty strings, single characters
     return list(singular_items)
