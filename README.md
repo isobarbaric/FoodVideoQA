@@ -21,7 +21,6 @@
 - **Efficient Workflow**: Eating intervals are compiled into labeled outputs providing an easy way to monitor dietary intervals.
 - **Scalable**: Designed for real-world applications in healthcare, nurseries, and assisted living environments. Supports dietary behavior analysis **without specialized equipment**.
 
-
 ## 🚀 Functionality  
 
 ![Workflow Image](https://github.com/isobarbaric/FoodVideoQA/blob/main/assets/VLM_Image.png)
@@ -38,8 +37,15 @@ Extracts nutritional information, ingredients, and utensils from video frames us
 ```
 
 ### 🤖 Pose Estimation
-Detects eating behavior by checking if the mouth is open and if food is near the mouth using bounding boxes and pose landmarks. We use [DWPose](https://github.com/IDEA-Research/DWPose) to detect mouth landmarks, and [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO) to localize food items,
+Detects eating behavior by checking if the mouth is open and if food is near the mouth using bounding boxes and pose landmarks. We use [DWPose](https://github.com/IDEA-Research/DWPose) to detect mouth landmarks, and [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO) to localize food items.
 
+Example frame of a person eating:
+
+![Eating](https://github.com/isobarbaric/FoodVideoQA/blob/main/assets/eating.png)
+
+Example frame of a person NOT eating:
+
+![Not Eating](https://github.com/isobarbaric/FoodVideoQA/blob/main/assets/not-eating.png)
 
 
 ### 🔧 Hyperparameters  
