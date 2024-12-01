@@ -10,13 +10,13 @@
 
 ## 🔥 Highlights
 
-- **No Extensive Training Required**: FoodVideoQA builds upon state-of-the-art, pre-trained vision-language models (VLMs) and does not require training or fine-tuning.
+- **Zero Training**: FoodVideoQA builds upon state-of-the-art, pre-trained vision-language models (VLMs) and does not require training or fine-tuning.
 - **Cost-Effective**: Eliminates dependency on expensive GPU resources with the use of pre-trained models.
-- **Dataset-Free Generalization**: Avoids the requirement of hand curated datasets that try to capture all possible food and utensil combinations, and allows for real world applicability.  
-- **Domain Adaptability**: Generalizes to various food & utensil scenarios without retraining for new tasks or environments.
+- **No Dataset Required**: Avoids the requirement of hand curated datasets that try to capture all possible food and utensil combinations, and allows for real world applicability.  
+- **Domain Adaptable**: Generalizes to various food & utensil scenarios without retraining for new tasks or environments.
 - **Non-Invasive**:  In contrast to wearable devices, it does not force users to take deliberate action to achieve the output.
 - **Temporal Context**: Processes videos frame by frame to ensure coherence across longer videos while recognizing appearance as well as disappearance of food.
-- **Robust Eating Detection**: Combines VLM-based insights with pose estimation to identify mouth openness and proximity to food; distinguishes eating actions from occlusions, thanks to [DWPose](https://github.com/IDEA-Research/DWPose).
+- **Eating Detection**: Combines VLM-based insights with pose estimation to identify mouth openness and proximity to food; distinguishes eating actions from occlusions, thanks to [DWPose](https://github.com/IDEA-Research/DWPose).
 - **Detailed Analysis**: Provides descriptions of food items, ingredients, utensils, and nutritional information on a **frame-by-frame** basis.
 - **Efficient Workflow**: Eating intervals are compiled into labeled outputs providing an easy way to monitor dietary intervals.
 - **Scalable**: Designed for real-world applications in healthcare, nurseries, and assisted living environments. Supports dietary behavior analysis **without specialized equipment**.
