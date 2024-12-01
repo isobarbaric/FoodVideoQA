@@ -2,7 +2,7 @@
 
 [![arXiv](https://img.shields.io/badge/CVIS_Publication-Coming_Soon-1eaaaf?logo=livejournal&logoColor=1eaaaf)](https://openjournals.uwaterloo.ca/index.php)
 [![arXiv](https://img.shields.io/badge/Arxiv-Coming_Soon-b31b1b.svg?logo=arXiv)](https://arxiv.org/abs)
-[![License](https://img.shields.io/badge/Code%20License-Apache2.0-yellow)](https://github.com/isobarbaric/FoodVideoQA/LICENSE)
+[![License](https://img.shields.io/badge/Code%20License-Apache2.0-yellow)](https://github.com/isobarbaric/FoodVideoQA/blob/main/LICENSE)
 
 
 ## 📢 News & Releases
