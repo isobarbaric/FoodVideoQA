@@ -10,12 +10,20 @@ scorer = BERTScorer(model_type='bert-large-uncased', lang="en", rescale_with_bas
 
 
 def preprocess(str_lst: list[str]) -> list[str]:
+    # print(' '.join(str_lst))
     return [' '.join(str_lst)]
 
 
 def semantic_matching(llm_lst: list[str], gt_lst: list[str], plot=False) -> tuple[float, float, float]:
     llm_lst_str = preprocess(llm_lst)
     gt_lst_str = preprocess(gt_lst)
+
+    print(llm_lst_str[0])
+    print(gt_lst_str[0])
+
+    if llm_lst_str[0].strip() == '' or gt_lst_str[0].strip() == '':
+        return 1, 1, 1
+
     P, R, F1 = scorer.score(llm_lst_str, gt_lst_str)
 
     if plot:
@@ -60,14 +68,14 @@ if __name__ == "__main__":
     f1_semantic_matching = []
 
     # Test #0
-    llm_lst = ["spaghetti", "pasta", "meatballs", "tomato sauce", "cheese"]
-    gt_lst = ["spaghetti", "meatball", "tomato sauce", "marinara", "parmesan"]
+    llm_lst = ['pasta', 'meatballs', 'tomato sauce', 'parmesan']
+    gt_lst = ['spaghetti', 'meatballs', 'marinara', 'cheese']
     console.print(f"LLM List: {llm_lst}", style="bold cyan")
     console.print(f"Ground Truth List: {gt_lst}", style="bold magenta")
     P, R, F1 = word_matching(llm_lst, gt_lst)
     f1_word_matching.append(F1)
     console.print(f"one-to-one word matching - P: {P}, R: {R}, F1: {F1}", style="green")
-    P, R, F1 = semantic_matching(llm_lst, gt_lst, plot=True)
+    P, R, F1 = semantic_matching(llm_lst, gt_lst, plot=False)
     f1_semantic_matching.append(F1)
     console.print(f"semantic matching: P: {P}, R: {R}, F1: {F1}", style="blue")
     console.print()

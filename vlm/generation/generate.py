@@ -13,8 +13,8 @@ import cv2
 ROOT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT_DIR / "data"
 LLM_DATA_DIR = DATA_DIR / "llm"
-LLM_VIDEO_DIR = LLM_DATA_DIR / "test_videos"
-LLM_FRAME_DIR = LLM_DATA_DIR / "test_frames"
+LLM_VIDEO_DIR = LLM_DATA_DIR / "videos"
+LLM_FRAME_DIR = LLM_DATA_DIR / "frames"
 
 def _describe_frame(get_response: Callable[[str, Path], str],
                     frame_number: int, 
@@ -45,6 +45,7 @@ def _describe_frame(get_response: Callable[[str, Path], str],
 
     for question in questions:
         actual_response = get_response(question, image_file)
+        print(f"Q: {question}\nA: {actual_response}")
         answers['questions'].append({'prompt': question, 'answer': actual_response})
     
     return answers
@@ -145,24 +146,22 @@ def process_videos(video_dir: Path,
 
 if __name__ == "__main__":
     prompts = VLM_PROMPTS
-    start = time.time()    
-
-    output_file = LLM_DATA_DIR / "test_test_data.json"
     video_dir = LLM_VIDEO_DIR
     frame_dir = LLM_FRAME_DIR
 
-    model_name = "llava-hf/llava-v1.6-mistral-7b-hf"
-    process_videos(video_dir, frame_dir, 20, prompts, model_name, output_file)
+    models = ["llava-hf/llava-v1.6-mistral-7b-hf", "llava-hf/llava-1.5-7b-hf", "Salesforce/blip2-opt-2.7b"]
 
-    ###
-    # start - prompt experimentation section
-    ###
+    # start = time.time()    
+    # model_name = "liuhaotian/llava-v1.5-7b"
+    # output_file = LLM_DATA_DIR / "blip2-opt-2.7b.json"
+    # process_videos(video_dir, frame_dir, 20, prompts, model_name, output_file)
+    # end = time.time()   
+    # print(f"\n{round(end - start, 2)} seconds elapsed...")
 
-    # process_videos(video_dir, frame_dir, 20, VLM_PROMPTS, "llava-hf/llava-v1.6-mistral-7b-hf", output_file)
-
-    ###
-    # end - prompt experimentation section
-    ###
-
-    end = time.time()   
-    print(f"\n{round(end - start, 2)} seconds elapsed...")
+    for model_name in models:
+        start = time.time()
+        model_json_file = model_name.split("/")[1].replace(".", "-")
+        output_file = LLM_DATA_DIR / f"{model_json_file}.json"
+        process_videos(video_dir, frame_dir, 20, prompts, model_name, output_file)
+        end = time.time()   
+        print(f"\n{round(end - start, 2)} seconds elapsed...")

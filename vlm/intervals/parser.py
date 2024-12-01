@@ -35,8 +35,8 @@ def parse_comma_list(list_str: str) -> List[str]:
     """
 
     # clean up ingredients list
-    for word in ['and', '.']:
-        list_str = list_str.replace(word, '')
+    # for word in [' and ', '.']:
+    #     list_str = list_str.replace(word, '')
 
     items = [item.lower().strip() for item in list_str.split(', ')]
 

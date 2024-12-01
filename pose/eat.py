@@ -5,17 +5,18 @@ from pose.localization.bbox import BoundingBox
 from typing import Callable
 from rich.console import Console
 from pose.localization.dino import make_get_bounding_boxes, determine_iou
-from pose.detection.face_plotting import determine_mouth_open
+from pose.detection.face_plotting import determine_mouth_open, determine_mouth_bounding_box
 from pose.detection.pose_detector import PoseDetector
 import json
 
 ROOT_DIR = Path(__file__).parent.parent
 
-DATASET_DIR = ROOT_DIR / "dataset"
+DATASET_DIR = ROOT_DIR / "dataset_old"
 IMAGE_INPUT_DIR = DATASET_DIR / "frames"
 IMAGE_OUTPUT_DIR = DATASET_DIR / "annotated-frames"
 GROUND_TRUTH_JSON = DATASET_DIR / "ground_truth.json"
 FACE_PLOT_OUTPUT_DIR = DATASET_DIR / "face-plots"
+# MOUTH_BBOX_OUTPUT_DIR = DATASET_DIR / "mouth-bounding-boxes"
 
 # mouth_open, iou are available for running ablations
 def determine_eating(
@@ -23,13 +24,15 @@ def determine_eating(
     image_path: Path, 
     bbox_output_path: Path = None,
     face_plot_output_path: Path = None,
+    mouth_bbox_output_path: Path = None,
     include_mouth_open: bool = True,
     include_iou: bool = True
 ):
     pose_detector = PoseDetector()
 
     mouth_open = determine_mouth_open(pose_detector, image_path, face_plot_output_path)
-    iou_condition, _ = determine_iou(generate_bounding_boxes, image_path, bbox_output_path)
+    (x_min, y_min, x_max, y_max) = determine_mouth_bounding_box(pose_detector, image_path, mouth_bbox_output_path)
+    iou_condition, _ = determine_iou((x_min, y_min, x_max, y_max), generate_bounding_boxes, image_path, bbox_output_path)
 
     if include_mouth_open and include_iou:
         return mouth_open and iou_condition
@@ -72,21 +75,35 @@ if __name__ == "__main__":
         if not video_dir.is_dir():
             continue
         
-        for img_num in range(1, 10):
-            console.print("[green]Processing[/green] ", video_dir.name, f"frame_{img_num}")
-            image_path = video_dir / f"frame_{img_num}.jpg"
+        # iterate through all images
+        for image in sorted(video_dir.iterdir()):
+            # image names are frame20, frame40, etc...
+            img_num = int(image.stem.split("_")[1])
+            
+            video_name = video_dir.name
+            frame_name = f'frame_{img_num}'
 
+            console.print()
+            console.print("[green]Processing[/green] ", video_name, frame_name)
+
+            image_path = video_dir / f"frame_{img_num}.jpg"
             output_path = IMAGE_OUTPUT_DIR / video_dir.name / f"frame_{img_num}.jpg"
             output_path.parent.mkdir(parents=True, exist_ok=True)
-
+        
             face_plot_output = FACE_PLOT_OUTPUT_DIR / video_dir.name / f"frame_{img_num}.jpg"
             face_plot_output.parent.mkdir(parents=True, exist_ok=True)
 
-            combined = determine_eating(generate_bounding_boxes, image_path, output_path, face_plot_output_path=face_plot_output)
-            mouth_only = determine_eating(generate_bounding_boxes, image_path, output_path, include_mouth_open=True, include_iou=False)
-            iou_only = determine_eating(generate_bounding_boxes, image_path, output_path, include_mouth_open=False, include_iou=True)
+            # mouth_bbox_output = MOUTH_BBOX_OUTPUT_DIR / video_dir.name / f"frame_{img_num}.jpg"
+            # mouth_bbox_output.parent.mkdir(parents=True, exist_ok=True)
 
+            combined = determine_eating(generate_bounding_boxes, image_path, output_path, face_plot_output_path=face_plot_output, mouth_bbox_output_path=None)
+
+            mouth_only = determine_eating(generate_bounding_boxes, image_path, output_path, include_mouth_open=True, include_iou=False)
+
+            iou_only = determine_eating(generate_bounding_boxes, image_path, output_path, include_mouth_open=False, include_iou=True)
+            
             gt = 1 if ground_truth[video_dir.name][f"frame_{img_num}"] == 1 else 0
+
             
             gt_values.append(gt)
             predictions_combined.append(combined)
@@ -127,6 +144,7 @@ if __name__ == "__main__":
             console.print(f"Precision - Combined: {P_combined:.2f}", style="bold")
             console.print(f"Recall - Combined: {R_combined:.2f}", style="bold")
             console.print(f"F1 - Combined: {F1_combined:.2f}", style="bold")
+            console.print()
 
 
 

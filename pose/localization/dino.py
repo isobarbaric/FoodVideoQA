@@ -85,7 +85,7 @@ def make_get_bounding_boxes(model_name: str = "IDEA-Research/grounding-dino-base
     processor, model, device = get_model(model_name)
 
     # TODO: make this modular for some model
-    def generate_bounding_boxes(image_path: Path, labels: list = [Labels.MOUTH, Labels.FOOD]) -> BoundingBox:
+    def generate_bounding_boxes(image_path: Path, labels: list = [Labels.FOOD]) -> BoundingBox:
         """
         Generate bounding boxes for the given labels in the image.
 
@@ -119,6 +119,7 @@ def make_get_bounding_boxes(model_name: str = "IDEA-Research/grounding-dino-base
 
 # TODO: setup logger for errors
 def determine_iou(
+    mouth_bbox_tuple: tuple[int],
     generate_bounding_boxes: Callable[[Path], list[BoundingBox]], 
     image_path: Path, 
     output_path: Path = None
@@ -126,20 +127,27 @@ def determine_iou(
     if not image_path.exists():
         raise ValueError(f"No image found at image path {image_path}")
 
-    bounding_boxes = generate_bounding_boxes(image_path)
-    image = cv2.imread(image_path)
-
-    if output_path is not None:
-        if not output_path.exists():
-            output_path.touch()
-        image = draw_bounding_boxes(image, bounding_boxes)
-        cv2.imwrite(str(output_path), image)
-
     try:
-        mouth_bbox = get_mouth_bbox(bounding_boxes)
+        # try DWPose, if it fails, use GroundingDINO
+        mouth_bbox = BoundingBox(mouth_bbox_tuple, Labels.MOUTH, 1.0)
+        bounding_boxes = generate_bounding_boxes(image_path)
+
+        if all(coord < 0 for coord in mouth_bbox_tuple):
+            print("Using GroindingDINO for mouth detection...")
+            bounding_boxes = generate_bounding_boxes(image_path, [Labels.FOOD, Labels.MOUTH])
+            mouth_bbox = get_mouth_bbox(bounding_boxes)
+
+        image = cv2.imread(image_path)
+        if output_path is not None:
+            if not output_path.exists():
+                output_path.touch()
+            image = draw_bounding_boxes(image, bounding_boxes)
+            cv2.imwrite(str(output_path), image)
+
         food_bboxes = get_food_bboxes(bounding_boxes)
         closest_food_bbox = get_closest_food_bbox(mouth_bbox, food_bboxes)
         furthest_food_bbox = get_furthest_food_bbox(mouth_bbox, food_bboxes)
+
     except Exception as e:
         return False, str(Exception(e))
 

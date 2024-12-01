@@ -6,12 +6,14 @@ from dataclasses import dataclass
 from pose.detection.inference_utils import HWC3, resize_image
 from pose.detection.pose_detector import PoseDetector
 from hyperparameters import LIP_SEPARATION_THRESHOLD
+import pose.detection.drawing_utils as drawing_utils
 
 ROOT_DIR = Path(__file__).parent.parent.parent
-DATA_DIR = ROOT_DIR / "data"
-POSE_DATA_DIR = DATA_DIR / "detection"
-IMG_SOURCE_DIR = POSE_DATA_DIR / "assets"
-FACE_PLOT_OUTPUT_DIR = POSE_DATA_DIR / "face-plot"
+DATA_DIR = ROOT_DIR / "dataset_old"
+FRAME_DIR = DATA_DIR / "frames"
+IMG_SOURCE_DIR = FRAME_DIR / "video_1"
+FACE_PLOT_OUTPUT_DIR = DATA_DIR / "mouth-face-plot" / "video_1"
+BOUNDING_BOX_OUTPUT_DIR = DATA_DIR / "mouth-bounding-box" / "video_1"
 
 # constants
 MOUTH_START_INDEX = 48
@@ -92,6 +94,32 @@ def _is_mouth_open(landmarks: FacialLandmarks) -> bool:
 
   return distance >= LIP_SEPARATION_THRESHOLD
 
+def determine_mouth_bounding_box(pose_detector: PoseDetector, img_path: Path, output_path: Path = None) -> tuple[int]:
+  landmarks = _get_landmarks(pose_detector, img_path)
+  
+  if not img_path.exists():
+    raise ValueError(f"No image found at image path {img_path}")
+
+  # draws the exact points of the mouth
+  img = cv2.imread(str(img_path))
+  H, W, C = img.shape
+  mouth_lmks = [((x / W), 1 - (y / H)) for x, y in zip(landmarks.mouth_x, landmarks.mouth_y)]
+  # img = drawing_utils.draw_facepose(img, [mouth_lmks])
+
+  # Convert normalized coordinates back to pixel values for bounding box calculation
+  pixel_mouth_lmks = [(int(x * W), int(y * H)) for x, y in mouth_lmks]
+  x_min = min([x for x, y in pixel_mouth_lmks])
+  x_max = max([x for x, y in pixel_mouth_lmks])
+  y_min = min([y for x, y in pixel_mouth_lmks])
+  y_max = max([y for x, y in pixel_mouth_lmks])
+  img = cv2.rectangle(img, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+
+  if output_path is not None:
+    cv2.imwrite(str(output_path), img)
+  
+  # return bbox coordinates
+  return (x_min, y_min, x_max, y_max)
+
 
 def determine_mouth_open(pose_detector: PoseDetector, img_path: Path, output_path: Path = None) -> bool:
   if not img_path.exists():
@@ -124,11 +152,21 @@ def determine_mouth_open(pose_detector: PoseDetector, img_path: Path, output_pat
 if __name__ == "__main__":
   pose_detector = PoseDetector()
 
-  if not FACE_PLOT_OUTPUT_DIR.exists():
-    FACE_PLOT_OUTPUT_DIR.mkdir(parents=True, exist_ok=False)
+  if not BOUNDING_BOX_OUTPUT_DIR.exists():
+    BOUNDING_BOX_OUTPUT_DIR.mkdir(parents=True, exist_ok=False)
 
-  for img_num in range(1, 5):
-    img_path = IMG_SOURCE_DIR / f"test{img_num}.jpg"
-    output_path = FACE_PLOT_OUTPUT_DIR / f"test{img_num}.jpg"
-    mouth_open = determine_mouth_open(pose_detector, img_path, output_path)
-    print(f"test{img_num}: {mouth_open}")
+  for img_num in range(1, 10):
+    img_path = IMG_SOURCE_DIR / f"frame_{img_num}.jpg"
+    output_path = BOUNDING_BOX_OUTPUT_DIR / f"frame_{img_num}.jpg"
+    img = determine_mouth_bounding_box(_get_landmarks(pose_detector, img_path), img_path, output_path)
+    print(f"Bounding box drawn for frame_{img_num}")
+
+
+  # if not FACE_PLOT_OUTPUT_DIR.exists():
+  #   FACE_PLOT_OUTPUT_DIR.mkdir(parents=True, exist_ok=False)
+  
+  # for img_num in range(1, 10):
+  #   img_path = IMG_SOURCE_DIR / f"frame_{img_num}.jpg"
+  #   output_path = FACE_PLOT_OUTPUT_DIR / f"frame_{img_num}.jpg"
+  #   mouth_open = determine_mouth_open(pose_detector, img_path, output_path)
+  #   print(f"frame_{img_num}: {mouth_open}")
