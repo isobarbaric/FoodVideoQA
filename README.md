@@ -39,13 +39,14 @@ Extracts nutritional information, ingredients, and utensils from video frames us
 ### 🤖 Pose Estimation
 Detects eating behavior by checking if the mouth is open and if food is near the mouth using bounding boxes and pose landmarks. We use [DWPose](https://github.com/IDEA-Research/DWPose) to detect mouth landmarks, and [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO) to localize food items.
 
-Example frame of a person eating:
-
+#### Example frame of a person eating:
 ![Eating](https://github.com/isobarbaric/FoodVideoQA/blob/main/assets/eating.png)
 
-Example frame of a person NOT eating:
-
+#### Example frame of a person NOT eating:
 ![Not Eating](https://github.com/isobarbaric/FoodVideoQA/blob/main/assets/not-eating.png)
+
+#### Example face plot using DWPose:
+![Face Plot](https://github.com/isobarbaric/FoodVideoQA/blob/main/assets/face-plot.png)
 
 
 ### 🔧 Hyperparameters  
