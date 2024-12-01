@@ -17,5 +17,4 @@
 
 - The authors thank the [Vision and Image Processing Lab (VIP Lab)](https://uwaterloo.ca/vision-image-processing-lab/) at the University of Waterloo for facilitating this project.
 
-- The template has been modified from [Chat-Univi](https://github.com/PKU-YuanGroup/Chat-UniVi) and [LLaVA](https://llava-vl.github.io/).
 
