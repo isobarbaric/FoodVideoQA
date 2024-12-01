@@ -8,7 +8,7 @@
 ## 📢 News & Releases
 - **[2024/12/01]** We've made the repository **public**. Feel free to **star** ⭐ this repository for our latest updates.
 
-## 🐦‍🔥 Highlights
+## 🔥 Highlights
 
 
 ## 🙏 Acknowledgements
