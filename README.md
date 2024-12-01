@@ -46,7 +46,7 @@ Detects eating behavior by checking if the mouth is open and if food is near the
 ![Not Eating](https://github.com/isobarbaric/FoodVideoQA/blob/main/assets/not-eating.png)
 
 #### Example face plot using DWPose:
-![Face Plot](https://github.com/isobarbaric/FoodVideoQA/blob/main/assets/face-plot.png)
+<img src="https://github.com/isobarbaric/FoodVideoQA/blob/main/assets/face-plot.png" height="400">
 
 
 ### 🔧 Hyperparameters  
