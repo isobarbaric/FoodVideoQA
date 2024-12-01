@@ -42,6 +42,8 @@ extracted-frames
 
 word2vec/
 data/
+dataset/
+dataset_old/
 
 *.jpg
 notes/
