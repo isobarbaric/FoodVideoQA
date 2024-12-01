@@ -24,7 +24,7 @@
 
 ## 🚀 Functionality  
 
-[](https://github.com/isobarbaric/FoodVideoQA/blob/main/assets/VLM_Image.png)
+![Workflow Image](https://github.com/isobarbaric/FoodVideoQA/blob/main/assets/VLM_Image.png)
 
 ### 🧩 VLM-Driven Insights
 Extracts nutritional information, ingredients, and utensils from video frames using Vision-Language Models. Groups frames into intervals based on consistent food item presence. We used [LLaVA 1.6](https://huggingface.co/liuhaotian/llava-v1.6-34b). However, the [code](https://github.com/isobarbaric/FoodVideoQA/blob/main/vlm/generation/models.py) can be modified to accomodate any of the following models:
