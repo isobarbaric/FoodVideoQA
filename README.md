@@ -19,7 +19,7 @@
 - **Robust Eating Detection**: Combines VLM-based insights with pose estimation to identify mouth openness and proximity to food; distinguishes eating actions from occlusions, thanks to [DWPose](https://github.com/IDEA-Research/DWPose).
 - **Detailed Analysis**: Provides descriptions of food items, ingredients, utensils, and nutritional information on a **frame-by-frame** basis.
 - **Efficient Workflow**: Eating intervals are compiled into labeled outputs providing an easy way to monitor dietary intervals.
-- **Scalable Solution**: Designed for real-world applications in healthcare, nurseries, and assisted living environments. Supports dietary behavior analysis **without specialized equipment**.
+- **Scalable**: Designed for real-world applications in healthcare, nurseries, and assisted living environments. Supports dietary behavior analysis **without specialized equipment**.
 
 
 ## 🚀 Functionality  
