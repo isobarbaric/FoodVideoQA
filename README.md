@@ -61,7 +61,7 @@ Detects eating behavior by checking if the mouth is open and if food is near the
 **View and modify hyperparameters** [here](https://github.com/isobarbaric/FoodVideoQA/blob/main/hyperparameters.py).
 
 ## 📊 Dataset
-Manually-labelled dataset to validate semantic accuracy of VLMs: **Coming Soon**
+Manually-labelled dataset to validate semantic accuracy of VLMs: **Coming Soon**‼️
 
 
 
