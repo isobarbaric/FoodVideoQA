@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 from vlm.intervals.parser import parse_comma_list
+from hyperparameters import FRAME_STEP_SIZE
 import pprint
 
 ROOT_DIR = Path(__file__).parent.parent.parent
@@ -59,8 +60,8 @@ def create_intervals_naive(food_data_video: list[list[str]], video_name: str) ->
             curr_idx += 1
         
     for interval in intervals:
-        interval[0] = round(interval[0] / video_fps[video_name], 2)
-        interval[1] = round(interval[1] / video_fps[video_name], 2)
+        interval[0] = round(interval[0] / video_fps[video_name] * FRAME_STEP_SIZE, 2)
+        interval[1] = round(interval[1] / video_fps[video_name] * FRAME_STEP_SIZE, 2)
                                          
     return intervals
 
@@ -113,8 +114,8 @@ def create_intervals_optimized(food_data_video: list[list[str]], video_name: str
     ret_intervals = []
     for i in range(len(intervals)-1):
         interval = intervals[i]
-        interval[0] = round(interval[0] / video_fps[video_name], 2)
-        interval[1] = round(interval[1] / video_fps[video_name], 2)
+        interval[0] = round(interval[0] / video_fps[video_name] * FRAME_STEP_SIZE, 2)
+        interval[1] = round(interval[1] / video_fps[video_name] * FRAME_STEP_SIZE, 2)
 
         # if interval[1] - interval[0] >= SECONDS_TOLERANCE:
         #     ret_intervals.append(interval)
