@@ -158,7 +158,7 @@ if __name__ == "__main__":
     # end = time.time()   
     # print(f"\n{round(end - start, 2)} seconds elapsed...")
 
-    for model_name in models:
+    for model_name in models: 
         start = time.time()
         model_json_file = model_name.split("/")[1].replace(".", "-")
         output_file = LLM_DATA_DIR / f"{model_json_file}.json"

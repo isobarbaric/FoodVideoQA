@@ -5,32 +5,21 @@ import os
 from pathlib import Path
 import json
 from vlm.intervals.parser import parse_comma_list
-from vlm.intervals.frame_diff import create_intervals_optimized, merge_intervals, SECONDS_TOLERANCE
-from hyperparameters import FRAME_STEP_SIZE
+from vlm.intervals.frame_diff import create_intervals_optimized, merge_intervals
+from hyperparameters import FRAME_STEP_SIZE, FOOD_ITEM_IDX
 import pprint
 
 ROOT_DIR = Path(__file__).parent.parent.parent
 DATA_DIR = ROOT_DIR / 'data_final'
-LLM_DATA_DIR = DATA_DIR / 'llm'
-LLM_FRAME_DIR = LLM_DATA_DIR / 'frames'
-FRAME_OUTPUT_DIR = LLM_DATA_DIR / 'output_frames'
-VIDEO_OUTPUT_DIR = LLM_DATA_DIR / 'output_videos'
-FOOD_ITEM_IDX = 0
+VLM_DATA_DIR = DATA_DIR / 'vlm'
+VLM_FRAME_DIR = VLM_DATA_DIR / 'frames'
 
-with open(DATA_DIR / 'data.json') as f:
-    video_data = json.load(f)
+POSE_DATA_DIR = DATA_DIR / 'pose'
+POSE_FRAME_DIR = POSE_DATA_DIR  / 'annotated_frames'
 
-video_fps = dict()
-
-# Parse VLM output into individual food items
-food_data = []
-for video in video_data:
-    curr = []
-    for frames in video['frames']:
-        curr.append(frames['questions'][FOOD_ITEM_IDX]['answer'])
-    curr = [parse_comma_list(answer) for answer in curr]
-    video_fps[video['video_name']] = video['fps']
-    food_data.append(curr)
+INTERVALS_DATA_DIR = DATA_DIR / 'intervals'
+FRAME_OUTPUT_DIR = INTERVALS_DATA_DIR / 'output_frames'
+VIDEO_OUTPUT_DIR = INTERVALS_DATA_DIR / 'output_videos'
 
 def overlay_text_on_frame(frame, text, position=(10, 50), scale=1, color=(0, 255, 0), thickness=2):
     font = cv2.FONT_HERSHEY_COMPLEX 
@@ -83,9 +72,6 @@ def annotate_and_save_frames(frames_dir, output_dir, video_data, video_fps, inte
 
 
 def create_video_from_frames(frames_dir, output_video_path, original_fps):
-    if not os.path.exists(VIDEO_OUTPUT_DIR):
-        os.makedirs(VIDEO_OUTPUT_DIR)
-    
     frame_files = sorted([f for f in os.listdir(frames_dir) if f.endswith('.jpg')],
                          key=lambda x: int(x[5:-4]))
     
@@ -94,6 +80,19 @@ def create_video_from_frames(frames_dir, output_video_path, original_fps):
     clip.write_videofile(str(output_video_path), codec='libx264')
 
 if __name__ == "__main__":
+    with open(DATA_DIR / 'data.json') as f:
+        video_data = json.load(f)
+
+    video_fps = dict()
+    food_data = []
+    for video in video_data:
+        curr = []
+        for frames in video['frames']:
+            curr.append(frames['questions'][FOOD_ITEM_IDX]['answer'])
+        curr = [parse_comma_list(answer) for answer in curr]
+        video_fps[video['video_name']] = video['fps']
+        food_data.append(curr)
+
     intervals = []
     for video_idx in range(len(food_data)):
         video_name = video_data[video_idx]['video_name']
@@ -110,7 +109,7 @@ if __name__ == "__main__":
     for i in range(len(merged_intervals)):
         video_number = i+1
         video_name = f"video_{video_number}.mp4"
-        frames_dir = LLM_FRAME_DIR / video_name
+        frames_dir = POSE_FRAME_DIR / video_name
         output_dir = FRAME_OUTPUT_DIR / video_name
         output_video_path = VIDEO_OUTPUT_DIR / video_name
 

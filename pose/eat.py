@@ -13,8 +13,8 @@ ROOT_DIR = Path(__file__).parent.parent
 
 DATASET_DIR = ROOT_DIR / "data_final"
 
-LLM_DATA_DIR = DATASET_DIR / "llm"
-IMAGE_INPUT_DIR = LLM_DATA_DIR / "frames"
+VLM_DATA_DIR = DATASET_DIR / "vlm"
+IMAGE_INPUT_DIR = VLM_DATA_DIR / "frames"
 DATA_JSON = DATASET_DIR / "data.json"
 
 POSE_DATA_DIR = DATASET_DIR / "pose"
