@@ -5,19 +5,18 @@ import time
 import json
 import os
 
-from hyperparameters import VLM_PROMPTS, FOOD_ITEM_IDX, FRAME_STEP_SIZE
+from hyperparameters import VLM_PROMPTS, FOOD_ITEM_IDX
 from vlm.generation.generate import process_videos
 from pose.eat import determine_eating, make_get_bounding_boxes
 from vlm.intervals.stitcher import parse_comma_list, create_intervals_optimized, merge_intervals, annotate_and_save_frames, create_video_from_frames
 
-
-# Input: MP4 video
-# Step 1: Slice into frames
-# Step 2: Run VLM => data.json
-# Step 3: Run Pose => data.json (eating vs not eating)
-# Step 4: Run Intervals => output video
-# Output: MP4 video with annotations
-
+"""
+Input: MP4 video
+Step 1: Slice into frames & Run VLM => data.json
+Step 2: Run Pose => data.json (eating vs not eating)
+Step 3: Run Intervals => output video
+Output: MP4 video with annotations
+"""
 
 DATA_DIR = Path('data_inference')
 
@@ -135,6 +134,6 @@ def generate_intervals(output_file=DATA_JSON, food_item_prompt_index=FOOD_ITEM_I
 
 
 if __name__ == "__main__":
-    # generate_vlm_insights()
-    # generate_pose_annotations()
+    generate_vlm_insights()
+    generate_pose_annotations()
     generate_intervals()
