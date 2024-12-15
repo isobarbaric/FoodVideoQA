@@ -1,28 +1,4 @@
-import json
-from pathlib import Path
-from vlm.intervals.parser import parse_comma_list
 from hyperparameters import FRAME_STEP_SIZE
-import pprint
-
-ROOT_DIR = Path(__file__).parent.parent.parent
-DATA_DIR = ROOT_DIR / 'data'
-LLM_DATA_DIR = DATA_DIR / 'llm'
-FOOD_ITEM_IDX = 0
-
-with open(LLM_DATA_DIR / 'data.json') as f:
-    video_data = json.load(f)
-
-video_fps = dict()
-
-# parse VLM output into individual food items
-food_data = []
-for video in video_data:
-    curr = []
-    for frames in video['frames']:
-        curr.append(frames['questions'][FOOD_ITEM_IDX]['answer'])
-    curr = [parse_comma_list(answer) for answer in curr]
-    video_fps[video['video_name']] = video['fps']
-    food_data.append(curr)
 
 # defines when the current interval ends
 def next_idx(vals: list[list[str]], repeat_val: str, starting_idx: int) -> int:
@@ -32,7 +8,7 @@ def next_idx(vals: list[list[str]], repeat_val: str, starting_idx: int) -> int:
     return len(vals)
 
 # stitches together intervals of consistent eating of a particular food item from a single video's data (as in data.json)
-def create_intervals_naive(food_data_video: list[list[str]], video_name: str) -> list[list[int]]:
+def create_intervals_naive(food_data_video: list[list[str]], video_name: str, video_fps: int) -> list[list[int]]:
     intervals = []
     curr_idx = 0
     while curr_idx < len(food_data_video):
@@ -68,9 +44,9 @@ def create_intervals_naive(food_data_video: list[list[str]], video_name: str) ->
 
 # tolerance for how many empty frames between frames of the same food
 TOLERANCE = 15
-SECONDS_TOLERANCE = 0.1
+SECONDS_TOLERANCE = 0.2 # 20 seconds
 
-def create_intervals_optimized(food_data_video: list[list[str]], video_name: str) -> list[list[int]]:
+def create_intervals_optimized(food_data_video: list[list[str]], video_name: str, video_fps: int) -> list[list[int]]:
     intervals = []
     curr_idx = 0
     while curr_idx < len(food_data_video):
@@ -124,7 +100,7 @@ def create_intervals_optimized(food_data_video: list[list[str]], video_name: str
     return ret_intervals
 
 
-# TODO: deal with edge case with last elemtn
+# TODO: deal with edge case with last element
 def merge_intervals(intervals: list[list[int]]) -> list[list[int]]:
     merged_intervals = []
     # these are guaranteed to be sorted, and within TOLERANCE
@@ -138,20 +114,3 @@ def merge_intervals(intervals: list[list[int]]) -> list[list[int]]:
             merged_intervals.append([intervals[curr_idx][0], intervals[curr_idx+1][1], food_str])
             curr_idx += 2
     return merged_intervals
-
-
-if __name__ == "__main__":
-    videos = []
-    for video_idx in range(len(food_data)):
-        video_name = video_data[video_idx]['video_name']
-        # curr_video_intervals = create_intervals_naive(food_data[video_idx], video_name)
-        curr_video_intervals = create_intervals_optimized(food_data[video_idx], video_name)
-        videos.append(curr_video_intervals)
-    print("Intervals:")
-    pprint.pprint(videos)
-
-    print("Merged Intervals:")
-    for i, video_intervals in enumerate(videos):
-        merged_interval = merge_intervals(video_intervals)
-        print(f"Video {i+1}:")
-        pprint.pprint(merged_interval)
