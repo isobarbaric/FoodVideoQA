@@ -6,17 +6,17 @@ This repository is associated with the paper "FoodVideoQA: A Novel Framework for
 
 You can read the full paper here: [Journal of Computational Vision and Imaging Systems, Vol. 10, Issue 1](https://openjournals.uwaterloo.ca/index.php/vsl/article/view/6274).
 
-## 🔥 Highlights
+## Highlights
 
 - **Cost-Effective**: Uses pre-trained vision-language models without requiring fine-tuning, expensive GPUs, or specialized datasets.
 - **Context-Aware Analysis**: Detects foods, utensils, and eating actions frame-by-frame for accurate tracking throughout video input.
 - **Domain Adaptable/Scalable**: Provides labeled dietary insights applicable to healthcare, childcare, and assisted living environments without additional equipment.
 
-## 🚀 Functionality  
+## Functionality  
 
 ![Workflow Image](https://github.com/isobarbaric/FoodVideoQA/blob/main/assets/VLM_Image.png)
 
-### 🧩 VLM-Driven Insights
+### VLM-Driven Insights
 Extracts nutritional information, ingredients, and utensils from video frames using Vision-Language Models. Groups frames into intervals based on consistent food item presence. The [code](https://github.com/isobarbaric/FoodVideoQA/blob/main/vlm/generation/models.py) can be modified to accomodate any of the following HuggingFace VLMs:
 
 - `liuhaotian/llava-v1.5-7b`
@@ -24,7 +24,7 @@ Extracts nutritional information, ingredients, and utensils from video frames us
 - `llava-hf/llava-v1.6-mistral-7b-hf`
 - `Salesforce/blip2-opt-2.7b`
 
-### 🤖 Pose Estimation
+### Pose Estimation
 Detects eating behavior by checking if the mouth is open and if food is near the mouth using bounding boxes and pose landmarks. We use [DWPose](https://github.com/IDEA-Research/DWPose) to detect mouth landmarks, and [GroundingDINO](https://github.com/IDEA-Research/GroundingDINO) to localize food items.
 
 | Person Eating | Person Not Eating |
@@ -34,7 +34,7 @@ Detects eating behavior by checking if the mouth is open and if food is near the
 #### Example face plot using DWPose:
 <img src="https://github.com/isobarbaric/FoodVideoQA/blob/main/assets/face-plot.png" height="400">
 
-## 🔧 Hyperparameters  
+## Hyperparameters  
 
 | **Hyperparameter**          | **Symbol** | **Value**        |  
 |------------------------------|------------|------------------|  
