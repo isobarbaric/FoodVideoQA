@@ -1,8 +1,10 @@
-# FoodVideoQA: A Novel Framework for Dietary Monitoring
+# FoodVideoQA
 
-[![arXiv](https://img.shields.io/badge/CVIS_Publication-Coming_Soon-1eaaaf?logo=livejournal&logoColor=1eaaaf)](https://openjournals.uwaterloo.ca/index.php)
-[![arXiv](https://img.shields.io/badge/Arxiv-Coming_Soon-b31b1b.svg?logo=arXiv)](https://arxiv.org/abs)
-[![License](https://img.shields.io/badge/Code%20License-Creative_Commons_NC-gree)](https://github.com/isobarbaric/FoodVideoQA/blob/main/LICENSE)
+[![DOI](https://zenodo.org/badge/doi/10.15353/jcvis.v10i1.10015.svg)](https://doi.org/10.15353/jcvis.v10i1.10015)
+
+This repository is associated with the paper "FoodVideoQA: A Novel Framework for Dietary Monitoring".
+
+You can read the full paper here: [Journal of Computational Vision and Imaging Systems, Vol. 10, Issue 1](https://openjournals.uwaterloo.ca/index.php/vsl/article/view/6274).
 
 ## 🔥 Highlights
 
@@ -34,7 +36,6 @@ Detects eating behavior by checking if the mouth is open and if food is near the
 #### Example face plot using DWPose:
 <img src="https://github.com/isobarbaric/FoodVideoQA/blob/main/assets/face-plot.png" height="400">
 
-
 ## 🔧 Hyperparameters  
 
 | **Hyperparameter**          | **Symbol** | **Value**        |  
@@ -51,5 +52,3 @@ Detects eating behavior by checking if the mouth is open and if food is near the
 [Aging in Place (AiP) Challenge Program](https://nrc.canada.ca/en/research-development/research-collaboration/programs/aging-place-challenge-program). Project number **AiP-006**.
 
 - The authors thank the [Vision and Image Processing Lab (VIP Lab)](https://uwaterloo.ca/vision-image-processing-lab/) at the University of Waterloo for facilitating this project.
-
-
