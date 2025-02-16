@@ -1,9 +1,10 @@
 [tool.poetry]
-name = "nutritionverse-llm"
+name = "foodvideoqa"
 version = "0.1.0"
 description = "Extract nutrition insights from video data using advanced deep learning models."
 authors = ["Krish Shah <shahkrish2016@gmail.com>", "Siddharth Viswanath <siddharth.n.viswanath@gmail.com>"]
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.10"
@@ -54,6 +55,7 @@ fvcore = "*"
 pycocotools = "*"
 wandb = "*"
 scipy = "*"
+torchvision = "0.16.2"
 
 
 [build-system]
