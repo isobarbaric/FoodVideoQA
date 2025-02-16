@@ -4,7 +4,7 @@
 
 This repository is associated with the paper "FoodVideoQA: A Novel Framework for Dietary Monitoring".
 
-You can read the full paper here: [Journal of Computational Vision and Imaging Systems, Vol. 10, Issue 1](https://openjournals.uwaterloo.ca/index.php/vsl/article/view/6274).
+You can read the full paper here: [Journal of Computational Vision and Imaging Systems, Vol. 10, Issue 1](https://openjournals.uwaterloo.ca/index.php/vsl/article/view/6328).
 
 ## Highlights
 
