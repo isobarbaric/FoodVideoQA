@@ -19,19 +19,19 @@ def infer_pose(pose_detector: PoseDetector, img_path: Path, output_path: Path):
     H, W, C = input_image.shape
     input_image = HWC3(input_image)
     input_image = resize_image(input_image, resolution=512)
-    
+
     detected_map = pose_detector.infer(input_image)
     detected_map = HWC3(detected_map)
-    
+
     detected_map = cv2.resize(detected_map, (W, H), interpolation=cv2.INTER_LINEAR)
-    
+
     combined_path = output_path.parent / img_path.name
     output_path = str(combined_path)
 
     cv2.imwrite(output_path, detected_map)
- 
 
-if __name__ == '__main__' :
+
+if __name__ == "__main__":
     pose_detector = PoseDetector()
 
     if not INFERENCE_OUTPUT_DIR.exists():

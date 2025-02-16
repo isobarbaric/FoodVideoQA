@@ -9,6 +9,7 @@ LLM_DATA_DIR = DATA_DIR / "llm"
 LLM_VIDEO_DIR = LLM_DATA_DIR / "videos"
 LLM_FRAME_DIR = LLM_DATA_DIR / "frames"
 
+
 def get_frame_rate(video_path: Path) -> float:
     video = cv2.VideoCapture(str(video_path))
     fps = video.get(cv2.CAP_PROP_FPS)
@@ -16,9 +17,7 @@ def get_frame_rate(video_path: Path) -> float:
     return fps
 
 
-def extract_frames(video_path: Path, 
-                   frame_dir: Path = LLM_FRAME_DIR, 
-                   k: int = 10):
+def extract_frames(video_path: Path, frame_dir: Path = LLM_FRAME_DIR, k: int = 10):
     """
     Extract frames from a video file and save every k-th frame as a JPEG image.
 
@@ -52,7 +51,7 @@ def extract_frames(video_path: Path,
 
         if ret:
             if current_frame % k == 0:
-                name = 'frame' + str(current_frame) + '.jpg'
+                name = "frame" + str(current_frame) + ".jpg"
                 # save frame as a jpg file
                 cv2.imwrite(str(frame_dir / name), frame)
 
@@ -64,9 +63,9 @@ def extract_frames(video_path: Path,
     video.release()
 
 
-def extract_random_frames(video_path: Path, 
-                   frame_dir: Path = LLM_FRAME_DIR, 
-                   num_frames: int = 10):
+def extract_random_frames(
+    video_path: Path, frame_dir: Path = LLM_FRAME_DIR, num_frames: int = 10
+):
     """
     Extract random frames from a video file and save them as JPEG images.
     """
@@ -84,7 +83,7 @@ def extract_random_frames(video_path: Path,
     video = cv2.VideoCapture(str(video_path))
     total_frames = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
 
-    for i in range(1, num_frames+1):
+    for i in range(1, num_frames + 1):
         frame_number = np.random.randint(0, total_frames)
         video.set(cv2.CAP_PROP_POS_FRAMES, frame_number)
         ret, frame = video.read()

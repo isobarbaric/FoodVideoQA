@@ -36,7 +36,7 @@ YOUTUBE_URLS_INTERVALS = {
     "https://www.youtube.com/watch?v=IYWkulMVAdU": "0:32-2:03, 2:15-2:25",
     "https://www.youtube.com/watch?v=CkgiFn4--0k": "0:17-2:40",
     "https://www.youtube.com/watch?v=3CSgxAE9Htg": "1:25-5:10",
-    "https://www.youtube.com/watch?v=Mmmmhnh64gA": "1:45-4:15"
+    "https://www.youtube.com/watch?v=Mmmmhnh64gA": "1:45-4:15",
 }
 
 
@@ -46,14 +46,20 @@ def download_all():
         output_path = DATASET_VIDEO_DIR / f"video_{i}.mp4"
         download_video(youtube_url, output_path, exists_ok=True)
 
+
 def trim_video(video_path: str, start_time: int, end_time: int):
     """Trim a video file to a specified duration."""
     temp_output_path = video_path.parent / "temp.mp4"
-    ffmpeg_extract_subclip(str(video_path), start_time, end_time, targetname=str(temp_output_path))
+    ffmpeg_extract_subclip(
+        str(video_path), start_time, end_time, targetname=str(temp_output_path)
+    )
     return temp_output_path
 
+
 def trim_all():
-    for i, (youtube_url, intervals) in enumerate(YOUTUBE_URLS_INTERVALS.items(), start=1):
+    for i, (youtube_url, intervals) in enumerate(
+        YOUTUBE_URLS_INTERVALS.items(), start=1
+    ):
         video_path = DATASET_VIDEO_DIR / f"video_{i}.mp4"
         intervals_list = intervals.split(", ")
 
@@ -61,7 +67,9 @@ def trim_all():
         for interval in intervals_list:
             if interval:
                 start_str, end_str = interval.split("-")
-                start_time = int(start_str.split(":")[0]) * 60 + int(start_str.split(":")[1])
+                start_time = int(start_str.split(":")[0]) * 60 + int(
+                    start_str.split(":")[1]
+                )
                 end_time = int(end_str.split(":")[0]) * 60 + int(end_str.split(":")[1])
 
                 trimmed_clip_path = trim_video(video_path, start_time, end_time)
@@ -86,12 +94,14 @@ def slice_random_frames(num_frames: int = 20):
         frame_dir = DATASET_FRAME_DIR / f"video_{i}"
         extract_random_frames(video_path, frame_dir, num_frames=num_frames)
 
+
 def slice_consecutive_frames(frame_interval: int = 20):
     """Slice frames from all the downloaded videos."""
     for i in range(1, len(YOUTUBE_URLS_INTERVALS) + 1):
         video_path = DATASET_VIDEO_DIR / f"video_{i}.mp4"
         frame_dir = DATASET_FRAME_DIR / f"video_{i}"
         extract_frames(video_path, frame_dir, k=frame_interval)
+
 
 if __name__ == "__main__":
     # download_all()

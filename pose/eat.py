@@ -5,7 +5,10 @@ from pose.localization.bbox import BoundingBox
 from typing import Callable
 from rich.console import Console
 from pose.localization.dino import make_get_bounding_boxes, determine_iou
-from pose.detection.face_plotting import determine_mouth_open, determine_mouth_bounding_box
+from pose.detection.face_plotting import (
+    determine_mouth_open,
+    determine_mouth_bounding_box,
+)
 from pose.detection.pose_detector import PoseDetector
 import json
 
@@ -25,21 +28,29 @@ FACE_PLOT_OUTPUT_DIR = POSE_DATA_DIR / "face_plots"
 ANALYZE_WITH_GT = False
 GROUND_TRUTH_JSON = DATASET_DIR / "nutriquest.json"
 
+
 # mouth_open, iou are available for running ablations
 def determine_eating(
-    generate_bounding_boxes: Callable[[Path], list[BoundingBox]], 
-    image_path: Path, 
+    generate_bounding_boxes: Callable[[Path], list[BoundingBox]],
+    image_path: Path,
     bbox_output_path: Path = None,
     face_plot_output_path: Path = None,
     mouth_bbox_output_path: Path = None,
     include_mouth_open: bool = True,
-    include_iou: bool = True
+    include_iou: bool = True,
 ):
     pose_detector = PoseDetector()
 
     mouth_open = determine_mouth_open(pose_detector, image_path, face_plot_output_path)
-    (x_min, y_min, x_max, y_max) = determine_mouth_bounding_box(pose_detector, image_path, mouth_bbox_output_path)
-    iou_condition, _ = determine_iou((x_min, y_min, x_max, y_max), generate_bounding_boxes, image_path, bbox_output_path)
+    (x_min, y_min, x_max, y_max) = determine_mouth_bounding_box(
+        pose_detector, image_path, mouth_bbox_output_path
+    )
+    iou_condition, _ = determine_iou(
+        (x_min, y_min, x_max, y_max),
+        generate_bounding_boxes,
+        image_path,
+        bbox_output_path,
+    )
 
     if include_mouth_open and include_iou:
         return mouth_open and iou_condition
@@ -50,12 +61,14 @@ def determine_eating(
     else:
         raise ValueError("At least one of `mouth_open` and `iou` must be True")
 
+
 def compute_PRF1(y_true, y_pred):
     precision = precision_score(y_true, y_pred, zero_division=0)
     recall = recall_score(y_true, y_pred, zero_division=0)
     f1 = f1_score(y_true, y_pred, zero_division=0)
 
     return precision, recall, f1
+
 
 if __name__ == "__main__":
     console = Console()
@@ -78,15 +91,14 @@ if __name__ == "__main__":
     if ANALYZE_WITH_GT:
         with open(GROUND_TRUTH_JSON, "r") as f:
             ground_truth = json.load(f)
-    
+
     with open(DATA_JSON, "r") as file:
         data = json.load(file)
-    
 
     for video_index, video_dir in enumerate(sorted(IMAGE_INPUT_DIR.iterdir())):
         if not video_dir.is_dir():
             continue
-    
+
         video_name = f"video_{video_index + 1}.mp4"
         video_data = next((v for v in data if v["video_name"] == video_name), None)
 
@@ -107,9 +119,27 @@ if __name__ == "__main__":
             face_plot_output = FACE_PLOT_OUTPUT_DIR / video_name / f"{frame_name}.jpg"
             face_plot_output.parent.mkdir(parents=True, exist_ok=True)
 
-            combined = determine_eating(generate_bounding_boxes, image_path, output_path, face_plot_output_path=face_plot_output, mouth_bbox_output_path=None)
-            mouth_only = determine_eating(generate_bounding_boxes, image_path, output_path, include_mouth_open=True, include_iou=False)
-            iou_only = determine_eating(generate_bounding_boxes, image_path, output_path, include_mouth_open=False, include_iou=True)
+            combined = determine_eating(
+                generate_bounding_boxes,
+                image_path,
+                output_path,
+                face_plot_output_path=face_plot_output,
+                mouth_bbox_output_path=None,
+            )
+            mouth_only = determine_eating(
+                generate_bounding_boxes,
+                image_path,
+                output_path,
+                include_mouth_open=True,
+                include_iou=False,
+            )
+            iou_only = determine_eating(
+                generate_bounding_boxes,
+                image_path,
+                output_path,
+                include_mouth_open=False,
+                include_iou=True,
+            )
 
             frame_data["eating"] = 1 if combined else 0
             print("eating: ", combined)
@@ -117,7 +147,7 @@ if __name__ == "__main__":
             if ANALYZE_WITH_GT:
                 img_num = frame_name[5:]
                 gt = 1 if ground_truth[video_dir.name][f"frame{img_num}"] == 1 else 0
-                
+
                 gt_values.append(gt)
                 predictions_combined.append(combined)
                 predictions_mouth_only.append(mouth_only)
@@ -137,13 +167,26 @@ if __name__ == "__main__":
                 iou_only_accuracy = iou_count / valid_image_count
                 combined_accuracy = combined_count / valid_image_count
 
-                console.print(f"GT: {gt} | Mouth: {mouth_only} | IOU: {iou_only} | Combined: {combined}")
-                console.print(f"Accuracy - Mouth only: {mouth_only_accuracy:.2f}", style="bold")
-                console.print(f"Accuracy - IOU only: {iou_only_accuracy:.2f}", style="bold")
-                console.print(f"Accuracy - Mouth & IOU combined: {combined_accuracy:.2f}", style="bold")
+                console.print(
+                    f"GT: {gt} | Mouth: {mouth_only} | IOU: {iou_only} | Combined: {combined}"
+                )
+                console.print(
+                    f"Accuracy - Mouth only: {mouth_only_accuracy:.2f}", style="bold"
+                )
+                console.print(
+                    f"Accuracy - IOU only: {iou_only_accuracy:.2f}", style="bold"
+                )
+                console.print(
+                    f"Accuracy - Mouth & IOU combined: {combined_accuracy:.2f}",
+                    style="bold",
+                )
 
-                P_combined, R_combined, F1_combined = compute_PRF1(gt_values, predictions_combined)
-                P_mouth, R_mouth, F1_mouth = compute_PRF1(gt_values, predictions_mouth_only)
+                P_combined, R_combined, F1_combined = compute_PRF1(
+                    gt_values, predictions_combined
+                )
+                P_mouth, R_mouth, F1_mouth = compute_PRF1(
+                    gt_values, predictions_mouth_only
+                )
                 P_iou, R_iou, F1_iou = compute_PRF1(gt_values, predictions_iou_only)
 
                 console.print(f"Precision - Mouth only: {P_mouth:.2f}", style="green")
@@ -167,12 +210,18 @@ if __name__ == "__main__":
         console.print(f"Total images processed: {valid_image_count}")
         console.print(f"Final Results:", style="bold")
 
-        console.print(f"GT: {gt} | Mouth: {mouth_only} | IOU: {iou_only} | Combined: {combined}")
+        console.print(
+            f"GT: {gt} | Mouth: {mouth_only} | IOU: {iou_only} | Combined: {combined}"
+        )
         console.print(f"Accuracy - Mouth only: {mouth_only_accuracy:.2f}", style="bold")
         console.print(f"Accuracy - IOU only: {iou_only_accuracy:.2f}", style="bold")
-        console.print(f"Accuracy - Mouth & IOU combined: {combined_accuracy:.2f}", style="bold")
+        console.print(
+            f"Accuracy - Mouth & IOU combined: {combined_accuracy:.2f}", style="bold"
+        )
 
-        P_combined, R_combined, F1_combined = compute_PRF1(gt_values, predictions_combined)
+        P_combined, R_combined, F1_combined = compute_PRF1(
+            gt_values, predictions_combined
+        )
         P_mouth, R_mouth, F1_mouth = compute_PRF1(gt_values, predictions_mouth_only)
         P_iou, R_iou, F1_iou = compute_PRF1(gt_values, predictions_iou_only)
 

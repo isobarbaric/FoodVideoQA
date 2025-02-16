@@ -3,25 +3,29 @@ import cv2
 from pathlib import Path
 from pose.localization.bbox import BoundingBox
 
-    
-def draw_line(image: np.ndarray,
-              ycoord: int,
-              line_color: tuple[int, int, int] = (4, 145, 84),
-              line_thickness: int = 4):
+
+def draw_line(
+    image: np.ndarray,
+    ycoord: int,
+    line_color: tuple[int, int, int] = (4, 145, 84),
+    line_thickness: int = 4,
+):
     width = image.shape[1]
     cv2.line(image, (0, ycoord), (width, ycoord), line_color, line_thickness)
     return image
 
 
-def draw_text(image: np.ndarray, 
-              text: str,
-              pos: tuple[int, int],
-              font = cv2.FONT_HERSHEY_SIMPLEX,
-              font_scale: float = 0.35,
-              font_thickness: int = 1,
-              text_color: tuple[int, int, int] = (0, 0, 0),
-              text_color_bg: tuple[int, int, int] = (31, 132, 187),
-              have_bg: bool = True):
+def draw_text(
+    image: np.ndarray,
+    text: str,
+    pos: tuple[int, int],
+    font=cv2.FONT_HERSHEY_SIMPLEX,
+    font_scale: float = 0.35,
+    font_thickness: int = 1,
+    text_color: tuple[int, int, int] = (0, 0, 0),
+    text_color_bg: tuple[int, int, int] = (31, 132, 187),
+    have_bg: bool = True,
+):
     """
     Draw text on an image with a background rectangle.
 
@@ -48,8 +52,7 @@ def draw_text(image: np.ndarray,
     return text_size
 
 
-def draw_bounding_boxes(image: np.ndarray,
-                        bounding_boxes: list[BoundingBox]):
+def draw_bounding_boxes(image: np.ndarray, bounding_boxes: list[BoundingBox]):
     """
     Draw bounding boxes on an image and save or display the result.
 
@@ -60,7 +63,7 @@ def draw_bounding_boxes(image: np.ndarray,
         show (bool, optional): Whether to display the image with bounding boxes. Defaults to False.
     """
     for bbox in bounding_boxes:
-        img_label = f'{bbox.label}: {bbox.score:0.2f}'
+        img_label = f"{bbox.label}: {bbox.score:0.2f}"
         x, y = round(bbox.xmin), round(bbox.ymin)
 
         # w = change in x
@@ -68,7 +71,7 @@ def draw_bounding_boxes(image: np.ndarray,
         # h = change in y
         h = round(bbox.ymax) - round(bbox.ymin)
 
-        cv2.rectangle(image, (x, y), (x+w, y+h), color=(36, 80, 203), thickness=2)
+        cv2.rectangle(image, (x, y), (x + w, y + h), color=(36, 80, 203), thickness=2)
         draw_text(image, img_label, (x, y))
 
     return image

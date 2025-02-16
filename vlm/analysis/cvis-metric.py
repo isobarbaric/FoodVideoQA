@@ -1,4 +1,4 @@
-import json    
+import json
 from pathlib import Path
 import pprint
 
@@ -26,7 +26,7 @@ total_imgs = 100
 eating_imgs = 0
 
 eating_list = eating_list[:eating_imgs]
-rest_list = rest_list[:total_imgs-eating_imgs]
+rest_list = rest_list[: total_imgs - eating_imgs]
 print(len(rest_list), len(eating_list))
 
 assert len(eating_list) == eating_imgs
@@ -36,5 +36,5 @@ imgs = eating_list + rest_list
 imgs.sort()
 assert len(imgs) == len(imgs)
 
-with open(DATASET_DIR / 'filtered-dataset.json', 'w') as f:
+with open(DATASET_DIR / "filtered-dataset.json", "w") as f:
     json.dump(imgs, f, indent=4)

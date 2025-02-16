@@ -16,10 +16,13 @@ LLM_DATA_DIR = DATA_DIR / "llm"
 LLM_VIDEO_DIR = LLM_DATA_DIR / "videos"
 LLM_FRAME_DIR = LLM_DATA_DIR / "frames"
 
-def _describe_frame(get_response: Callable[[str, Path], str],
-                    frame_number: int, 
-                    image_file: Path, 
-                    questions: list[str]):
+
+def _describe_frame(
+    get_response: Callable[[str, Path], str],
+    frame_number: int,
+    image_file: Path,
+    questions: list[str],
+):
     """
     Generate descriptions for a specific frame by asking a series of questions about the image.
 
@@ -31,7 +34,7 @@ def _describe_frame(get_response: Callable[[str, Path], str],
 
     Returns:
         dict: A dictionary containing the frame number and answers to each question.
-    
+
     Raises:
         ValueError: If the image file does not exist.
     """
@@ -40,22 +43,24 @@ def _describe_frame(get_response: Callable[[str, Path], str],
 
     answers = {}
 
-    answers['frame_number'] = frame_number
-    answers['questions'] = []
+    answers["frame_number"] = frame_number
+    answers["questions"] = []
 
     for question in questions:
         actual_response = get_response(question, image_file)
         print(f"Q: {question}\nA: {actual_response}")
-        answers['questions'].append({'prompt': question, 'answer': actual_response})
-    
+        answers["questions"].append({"prompt": question, "answer": actual_response})
+
     return answers
 
 
-def _describe_video(model_name: str,
-                    questions: list[str], 
-                    video_path: Path, 
-                    frame_dir: Path, 
-                    frame_step_size: int = 10):
+def _describe_video(
+    model_name: str,
+    questions: list[str],
+    video_path: Path,
+    frame_dir: Path,
+    frame_step_size: int = 10,
+):
     """
     Process a video by extracting frames, describing each frame, and compiling the results.
 
@@ -68,7 +73,7 @@ def _describe_video(model_name: str,
 
     Returns:
         dict: A dictionary containing the video name and descriptions of each frame.
-    
+
     Raises:
         ValueError: If the video file does not exist.
     """
@@ -79,7 +84,11 @@ def _describe_video(model_name: str,
     images = []
 
     def _get_frame_number(frame_path: Path):
-        return int(frame_path.name[frame_path.name.find('frame')+5:frame_path.name.find('.')])
+        return int(
+            frame_path.name[
+                frame_path.name.find("frame") + 5 : frame_path.name.find(".")
+            ]
+        )
 
     def _sort_frames(frame_dir: Path):
         return sorted(frame_dir.iterdir(), key=lambda x: _get_frame_number(x))
@@ -93,22 +102,19 @@ def _describe_video(model_name: str,
 
     fps = get_frame_rate(video_path)
 
-    answer = {
-        'video_name': video_path.name,
-        'fps': fps,
-        'frames': images
-    }
+    answer = {"video_name": video_path.name, "fps": fps, "frames": images}
 
     return answer
-        
 
-def process_videos(video_dir: Path,
-                   frame_dir: Path,
-                   frame_step_size: int = FRAME_STEP_SIZE,
-                   questions: list[str] = [],
-                   model_name: str = "llava-hf/llava-v1.6-mistral-7b-hf",
-                   output_file: Path | None = None):
-                                      
+
+def process_videos(
+    video_dir: Path,
+    frame_dir: Path,
+    frame_step_size: int = FRAME_STEP_SIZE,
+    questions: list[str] = [],
+    model_name: str = "llava-hf/llava-v1.6-mistral-7b-hf",
+    output_file: Path | None = None,
+):
     """
     Process all videos in a directory by extracting frames, generating descriptions, and saving the results to a file.
 
@@ -122,24 +128,26 @@ def process_videos(video_dir: Path,
 
     Returns:
         list[dict]: A list of dictionaries containing descriptions of each video.
-    
+
     Raises:
         ValueError: If the video directory does not exist.
     """
     if not video_dir.exists():
         raise ValueError(f"Provided file path {video_dir} does not exist")
-    
+
     answers = []
     for video in tqdm(sorted(video_dir.iterdir())):
         print(f"\nprocessing {video.name}..")
-        if video.suffix in ['.mp4']:
+        if video.suffix in [".mp4"]:
             # generalize this to
             frame = frame_dir / video.name
-            answers.append(_describe_video(model_name, questions, video, frame, frame_step_size))
+            answers.append(
+                _describe_video(model_name, questions, video, frame, frame_step_size)
+            )
 
         if output_file:
-            with open(output_file, 'w') as f:
-                json.dump(answers, f, indent=4) 
+            with open(output_file, "w") as f:
+                json.dump(answers, f, indent=4)
 
     return answers
 
@@ -149,19 +157,23 @@ if __name__ == "__main__":
     video_dir = LLM_VIDEO_DIR
     frame_dir = LLM_FRAME_DIR
 
-    models = ["llava-hf/llava-v1.6-mistral-7b-hf", "llava-hf/llava-1.5-7b-hf", "Salesforce/blip2-opt-2.7b"]
+    models = [
+        "llava-hf/llava-v1.6-mistral-7b-hf",
+        "llava-hf/llava-1.5-7b-hf",
+        "Salesforce/blip2-opt-2.7b",
+    ]
 
-    # start = time.time()    
+    # start = time.time()
     # model_name = "liuhaotian/llava-v1.5-7b"
     # output_file = LLM_DATA_DIR / "blip2-opt-2.7b.json"
     # process_videos(video_dir, frame_dir, 20, prompts, model_name, output_file)
-    # end = time.time()   
+    # end = time.time()
     # print(f"\n{round(end - start, 2)} seconds elapsed...")
 
-    for model_name in models: 
+    for model_name in models:
         start = time.time()
         model_json_file = model_name.split("/")[1].replace(".", "-")
         output_file = LLM_DATA_DIR / f"{model_json_file}.json"
         process_videos(video_dir, frame_dir, 20, prompts, model_name, output_file)
-        end = time.time()   
+        end = time.time()
         print(f"\n{round(end - start, 2)} seconds elapsed...")

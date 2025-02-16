@@ -1,5 +1,10 @@
 from transformers import LlavaForConditionalGeneration
-from transformers import LlavaNextProcessor, LlavaNextForConditionalGeneration, Blip2ForConditionalGeneration, Blip2Processor
+from transformers import (
+    LlavaNextProcessor,
+    LlavaNextForConditionalGeneration,
+    Blip2ForConditionalGeneration,
+    Blip2Processor,
+)
 from transformers import AutoModel, AutoProcessor, AutoModelForCausalLM
 import torch
 from PIL import Image
@@ -8,138 +13,147 @@ from typing import Literal, get_args
 from rich.console import Console
 import time
 
-models = Literal["liuhaotian/llava-v1.5-7b", "llava-hf/llava-1.5-7b-hf", "llava-hf/llava-v1.6-mistral-7b-hf", "Salesforce/blip2-opt-2.7b"]
+models = Literal[
+    "liuhaotian/llava-v1.5-7b",
+    "llava-hf/llava-1.5-7b-hf",
+    "llava-hf/llava-v1.6-mistral-7b-hf",
+    "Salesforce/blip2-opt-2.7b",
+]
 SUPPORTED_MODELS = get_args(models)
 
 DEFAULT_MODEL = "llava-hf/llava-v1.6-mistral-7b-hf"
 
 
 def get_model(model_name: str):
-  """
-  Load and initialize the specified model and processor from the Hugging Face library.
+    """
+    Load and initialize the specified model and processor from the Hugging Face library.
 
-  Args:
-      model_name (str): The name of the model to load.
+    Args:
+        model_name (str): The name of the model to load.
 
-  Returns:
-      tuple: A tuple containing:
-          - processor (PreTrainedProcessor): The processor for the specified model.
-          - model (PreTrainedModel): The model instance for the specified model.
-          - device (torch.device): The device to which the model is loaded (CPU or CUDA).
-  
-  Raises:
-      ValueError: If the provided model_name is not supported.
-  """
-  if model_name not in SUPPORTED_MODELS:
-    raise ValueError(f"{model_name} model not supported; supported models are {SUPPORTED_MODELS}")
+    Returns:
+        tuple: A tuple containing:
+            - processor (PreTrainedProcessor): The processor for the specified model.
+            - model (PreTrainedModel): The model instance for the specified model.
+            - device (torch.device): The device to which the model is loaded (CPU or CUDA).
 
-  device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    Raises:
+        ValueError: If the provided model_name is not supported.
+    """
+    if model_name not in SUPPORTED_MODELS:
+        raise ValueError(
+            f"{model_name} model not supported; supported models are {SUPPORTED_MODELS}"
+        )
 
-  match model_name:
-    # need to fix
-    case "liuhaotian/llava-v1.5-7b":
-      processor = AutoProcessor.from_pretrained(model_name)
-      model = LlavaForConditionalGeneration.from_pretrained(model_name)
-    case "llava-hf/llava-1.5-7b-hf":
-      processor = AutoProcessor.from_pretrained(model_name)
-      model = LlavaForConditionalGeneration.from_pretrained(model_name, torch_dtype=torch.float16)
-    case "llava-hf/llava-v1.6-mistral-7b-hf":
-      processor = LlavaNextProcessor.from_pretrained(model_name)
-      model = LlavaNextForConditionalGeneration.from_pretrained(model_name, torch_dtype=torch.float16) 
-    case "Salesforce/blip2-opt-2.7b":
-      processor = Blip2Processor.from_pretrained(model_name)
-      model = Blip2ForConditionalGeneration.from_pretrained(model_name, torch_dtype=torch.float16)
-    case _:
-      processor = AutoProcessor.from_pretrained(model_name)
-      model = AutoModel(model_name)
-  model.to(device)
-    
-  # disabling status message doing the same implicitly
-  model.generation_config.pad_token_id = model.generation_config.eos_token_id
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-  return processor, model, device
+    match model_name:
+        # need to fix
+        case "liuhaotian/llava-v1.5-7b":
+            processor = AutoProcessor.from_pretrained(model_name)
+            model = LlavaForConditionalGeneration.from_pretrained(model_name)
+        case "llava-hf/llava-1.5-7b-hf":
+            processor = AutoProcessor.from_pretrained(model_name)
+            model = LlavaForConditionalGeneration.from_pretrained(
+                model_name, torch_dtype=torch.float16
+            )
+        case "llava-hf/llava-v1.6-mistral-7b-hf":
+            processor = LlavaNextProcessor.from_pretrained(model_name)
+            model = LlavaNextForConditionalGeneration.from_pretrained(
+                model_name, torch_dtype=torch.float16
+            )
+        case "Salesforce/blip2-opt-2.7b":
+            processor = Blip2Processor.from_pretrained(model_name)
+            model = Blip2ForConditionalGeneration.from_pretrained(
+                model_name, torch_dtype=torch.float16
+            )
+        case _:
+            processor = AutoProcessor.from_pretrained(model_name)
+            model = AutoModel(model_name)
+    model.to(device)
+
+    # disabling status message doing the same implicitly
+    model.generation_config.pad_token_id = model.generation_config.eos_token_id
+
+    return processor, model, device
 
 
 def make_get_response(model_name: str = DEFAULT_MODEL):
-  """
-  Create a function to generate responses from a model given a prompt and an image.
-
-  Args:
-      model_name (str, optional): The name of the model to use. Defaults to DEFAULT_MODEL.
-
-  Returns:
-      function: A function that takes a prompt and an image path, and returns the model's response.
-  """
-  processor, model, device = get_model(model_name)
-
-
-  def clean_response(response: str):
     """
-    Clean and format the model's response by extracting the relevant answer from the response text.
+    Create a function to generate responses from a model given a prompt and an image.
 
     Args:
-        response (str): The raw response text from the model.
+        model_name (str, optional): The name of the model to use. Defaults to DEFAULT_MODEL.
 
     Returns:
-        str: The cleaned and formatted response.
+        function: A function that takes a prompt and an image path, and returns the model's response.
     """
-    answer = response.split('ANSWER:')[-1]
-    return answer.strip()
-  
+    processor, model, device = get_model(model_name)
 
-  def get_response(prompt: str, img_path: Path, max_new_tokens: int = 150):
-    """
-    Generate a response from the model based on a prompt and an image.
+    def clean_response(response: str):
+        """
+        Clean and format the model's response by extracting the relevant answer from the response text.
 
-    Args:
-        prompt (str): The prompt to be processed by the model.
-        img_path (Path): The path to the image file.
-        max_new_tokens (int, optional): The maximum number of tokens to generate. Defaults to 75.
+        Args:
+            response (str): The raw response text from the model.
 
-    Returns:
-        str: The model's response to the prompt based on the image.
-    
-    Raises:
-        ValueError: If the image path does not exist.
-    """
-    if not img_path.exists():
-      raise ValueError(f"Image path {img_path} does not exist")
+        Returns:
+            str: The cleaned and formatted response.
+        """
+        answer = response.split("ANSWER:")[-1]
+        return answer.strip()
 
-    image = Image.open(img_path)
+    def get_response(prompt: str, img_path: Path, max_new_tokens: int = 150):
+        """
+        Generate a response from the model based on a prompt and an image.
 
+        Args:
+            prompt (str): The prompt to be processed by the model.
+            img_path (Path): The path to the image file.
+            max_new_tokens (int, optional): The maximum number of tokens to generate. Defaults to 75.
 
-    inputs = ""
-    if model_name == "Salesforce/blip2-opt-2.7b":
-      model_prompt = f"QUESTION: {prompt} \nANSWER:"
-      inputs = processor(text=model_prompt, images=[image], return_tensors="pt")
-      inputs = {k: v.to(device) for k, v in inputs.items()}
+        Returns:
+            str: The model's response to the prompt based on the image.
 
-    else:
-      model_prompt = f"QUESTION: <image> {prompt} \nANSWER:"
-      inputs = processor(text=model_prompt, images=image, return_tensors="pt")
-      inputs.to(device)
-    
-    output = model.generate(**inputs, max_new_tokens=max_new_tokens)
-    output = processor.decode(output[0], skip_special_tokens=True)
-    
-    return clean_response(output)
+        Raises:
+            ValueError: If the image path does not exist.
+        """
+        if not img_path.exists():
+            raise ValueError(f"Image path {img_path} does not exist")
 
-  
-  return get_response
+        image = Image.open(img_path)
+
+        inputs = ""
+        if model_name == "Salesforce/blip2-opt-2.7b":
+            model_prompt = f"QUESTION: {prompt} \nANSWER:"
+            inputs = processor(text=model_prompt, images=[image], return_tensors="pt")
+            inputs = {k: v.to(device) for k, v in inputs.items()}
+
+        else:
+            model_prompt = f"QUESTION: <image> {prompt} \nANSWER:"
+            inputs = processor(text=model_prompt, images=image, return_tensors="pt")
+            inputs.to(device)
+
+        output = model.generate(**inputs, max_new_tokens=max_new_tokens)
+        output = processor.decode(output[0], skip_special_tokens=True)
+
+        return clean_response(output)
+
+    return get_response
 
 
 if __name__ == "__main__":
-  console = Console()
+    console = Console()
 
-  prompt = "Provide nutritional value (calories, protein, fat, carbohydrates) about the food you see in the image in bullet point format with JUST this information and nothing else: \n - Calories = ? \n - Fats = ?% \n - Protein = ?% \n - Carbohydrates = ?% "
-  img_path = Path("eat.jpg")
-  
-  model_name = "Salesforce/blip2-opt-2.7b"
-  get_response = make_get_response(model_name)
+    prompt = "Provide nutritional value (calories, protein, fat, carbohydrates) about the food you see in the image in bullet point format with JUST this information and nothing else: \n - Calories = ? \n - Fats = ?% \n - Protein = ?% \n - Carbohydrates = ?% "
+    img_path = Path("eat.jpg")
 
-  start = time.time()
-  response = get_response(prompt, img_path)
-  end = time.time()
+    model_name = "Salesforce/blip2-opt-2.7b"
+    get_response = make_get_response(model_name)
 
-  console.print(f"[green]{response}[/green]\n")
-  print(f"get_response: {end - start} seconds\n")
+    start = time.time()
+    response = get_response(prompt, img_path)
+    end = time.time()
+
+    console.print(f"[green]{response}[/green]\n")
+    print(f"get_response: {end - start} seconds\n")

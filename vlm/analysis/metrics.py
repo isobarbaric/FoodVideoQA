@@ -2,7 +2,6 @@
 # # semantic matching (using Word2Vec)
 
 
-
 # import json
 # import pprint
 # from pathlib import Path
@@ -61,7 +60,7 @@
 #                     elif prompt_index == UTENSILS_EATING_INDEX:
 #                         return parse_utensils_list(data_list)
 
-#             raise ValueError(f"Provided video name does not have any data on frame number: {frame_number}") 
+#             raise ValueError(f"Provided video name does not have any data on frame number: {frame_number}")
 
 #     raise ValueError(f"Provided video name {video_name} does not exist in data.json")
 
@@ -84,7 +83,7 @@
 #         ValueError: If the frame number does not exist in the configuration file or if the prompt_index is invalid.
 #     """
 #     yaml_data = parse_yaml(VIDEO_ANALYSIS_DIR / f"{video_name}.yaml")
-#     frame_data = yaml_data['frames'] 
+#     frame_data = yaml_data['frames']
 
 #     gt_lst = None
 #     for frame in frame_data:
@@ -93,7 +92,7 @@
 
 #     if not gt_lst:
 #         raise ValueError(f"Provided frame number does not exist in config file")
-    
+
 #     SUPPORTED_PROMPT_INDICES = [INGREDIENTS_PROMPT_INDEX, UTENSILS_EATING_INDEX]
 #     if prompt_index not in SUPPORTED_PROMPT_INDICES:
 #         raise ValueError(f"Invalid value for prompt_index; prompt index must be in {SUPPORTED_PROMPT_INDICES}")
@@ -106,7 +105,7 @@
 
 #     diff = match_outputs(llm_lst, gt_lst)
 #     score = compute_diff_score(diff)
-    
+
 #     return diff, score
 
 
@@ -157,15 +156,15 @@
 
 #     print(f"Score: {score}, Diff: {diff}")
 #     """
-    
+
 
 #     """
 #     mp4_0_yaml = parse_yaml("config-custom-videos/0.mp4.yaml")
 #     pprint.pprint(mp4_0_yaml)
 
 #     data = get_video_frame_data(
-#         video_name='0.mp4', 
-#         frame_number=10, 
+#         video_name='0.mp4',
+#         frame_number=10,
 #         prompt_index=INGREDIENT_PROMPT_INDEX
 #     )
 #     print(data)
