@@ -2,10 +2,6 @@
 
 [![DOI](https://zenodo.org/badge/doi/10.15353/jcvis.v10i1.10015.svg)](https://doi.org/10.15353/jcvis.v10i1.10015)
 
-This repository is associated with the paper "FoodVideoQA: A Novel Framework for Dietary Monitoring".
-
-You can read the full paper here: [Journal of Computational Vision and Imaging Systems, Vol. 10, Issue 1](https://openjournals.uwaterloo.ca/index.php/vsl/article/view/6328).
-
 ## Highlights
 
 - **Cost-Effective**: Uses pre-trained vision-language models without requiring fine-tuning, expensive GPUs, or specialized datasets.
